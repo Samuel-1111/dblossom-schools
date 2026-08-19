@@ -136,6 +136,45 @@ export const appRouter = router({
       await db.delete(teachers).where((await import("drizzle-orm")).eq(teachers.id, input.id));
       return { success: true };
     }),
+    deleteResult: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db.delete(results).where((await import("drizzle-orm")).eq(results.id, input.id));
+      return { success: true };
+    }),
+    createEvent: protectedProcedure.input(z.object({ title: z.string().min(2), description: z.string().min(2), eventDate: z.string().min(1), imageUrl: z.string().url().optional() })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { events } = await import("../drizzle/schema");
+      await db.insert(events).values(input);
+      return { success: true };
+    }),
+    deleteEvent: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { events } = await import("../drizzle/schema");
+      await db.delete(events).where((await import("drizzle-orm")).eq(events.id, input.id));
+      return { success: true };
+    }),
+    createGalleryImage: protectedProcedure.input(z.object({ title: z.string().min(2), imageUrl: z.string().url(), altText: z.string().optional() })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { galleryImages } = await import("../drizzle/schema");
+      await db.insert(galleryImages).values(input);
+      return { success: true };
+    }),
+    deleteGalleryImage: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { galleryImages } = await import("../drizzle/schema");
+      await db.delete(galleryImages).where((await import("drizzle-orm")).eq(galleryImages.id, input.id));
+      return { success: true };
+    }),
     uploadImage: protectedProcedure.input(z.object({ fileName: z.string().min(1), mimeType: z.string().startsWith("image/"), base64: z.string().min(20) })).mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Admin access required");
       const buffer = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
