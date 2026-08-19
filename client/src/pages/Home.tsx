@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useEffect } from "react";
 import { ArrowRight, BookOpen, Calendar, CheckCircle, Copy, GraduationCap, Home as HomeIcon, Image, Mail, MapPin, Menu, MessageSquare, Phone, Shield, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +26,8 @@ function Navbar({ open, setOpen }: { open: boolean; setOpen: (value: boolean) =>
 
 export default function Home() {
   const [open, setOpen] = useState(false);
+  const [location] = useLocation();
+  useEffect(() => { const section = { "/about": "about", "/academics": "academics", "/gallery": "gallery", "/events": "events", "/payment": "payment", "/complaint": "complaint" }[location]; if (section) window.setTimeout(() => document.getElementById(section)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0); else window.scrollTo({ top: 0, behavior: "auto" }); }, [location]);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [complaintOpen, setComplaintOpen] = useState(false);
   const [payment, setPayment] = useState({ studentName: "", className: "JSS1", amount: "" });

@@ -1,7 +1,7 @@
 # Project TODO
 
 - [x] Establish the premium D'Blossom visual system: typography, color tokens, responsive spacing, states, and accessibility.
-- [ ] Build separate public Home, About, Academics, Gallery, Events/News, Payment Information, and Contact experiences. Public route aliases now exist for each information area and render the corresponding single-page sections; dedicated page-level copy/scroll behavior remains an audit item.
+- [ ] Build separate public Home, About, Academics, Gallery, Events/News, Payment Information, and Contact experiences. Public aliases route to the corresponding Home sections and desktop verification passes; true route-specific experiences and mobile alias verification remain.
 - [ ] Add database tables for students, teachers, results, payments, events, gallery images, and complaints with required fields and relationships. (Tables are present and results now reference students; remaining entity relationships are still tracked.)
 - [ ] Implement secure role-aware backend procedures for public submissions, student access, teacher access, and admin CRUD. (Current procedures include portal access and an admin snapshot; hardening and full CRUD remain.)
 - [x] Implement student login by admission number and password.
