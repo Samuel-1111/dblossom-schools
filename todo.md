@@ -44,3 +44,4 @@
 - [ ] Validate registration flows, logo rendering, responsive layouts, tests, type checking, and production build. (Automated checks with 16 tests, desktop/mobile visual review, and logo rendering are complete; manual browser submission of registration and delete flows remains unverified.)
 
 - [x] Prevent duplicate student admission numbers and teacher staff IDs during administrator registration with clear backend errors.
+- [x] Prevent changing an existing student admission number or teacher staff ID to another record during administrator edits.

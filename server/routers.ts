@@ -96,12 +96,16 @@ export const appRouter = router({
       await db.insert(students).values(input);
       return { success: true };
     }),
-    updateStudent: protectedProcedure.input(z.object({ id: z.number(), fullName: z.string().min(2).optional(), className: z.string().min(2).optional(), gender: z.enum(["Male", "Female"]).optional(), dateOfBirth: z.string().optional(), parentName: z.string().optional(), parentPhone: z.string().optional(), parentEmail: z.string().email().optional(), boardingStatus: z.enum(["Day", "Boarding"]).optional(), password: z.string().min(1).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
+    updateStudent: protectedProcedure.input(z.object({ id: z.number(), admissionNumber: z.string().min(1).optional(), fullName: z.string().min(2).optional(), className: z.string().min(2).optional(), gender: z.enum(["Male", "Female"]).optional(), dateOfBirth: z.string().optional(), parentName: z.string().optional(), parentPhone: z.string().optional(), parentEmail: z.string().email().optional(), boardingStatus: z.enum(["Day", "Boarding"]).optional(), password: z.string().min(1).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Admin access required");
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { students } = await import("../drizzle/schema");
       const { id, ...changes } = input;
+      if (input.admissionNumber) {
+        const duplicate = (await findStudentsByAdmission(input.admissionNumber.trim())).some((student) => student.id !== id);
+        if (duplicate) throw new Error("Admission number already exists");
+      }
       await db.update(students).set(changes).where((await import("drizzle-orm")).eq(students.id, id));
       return { success: true };
     }),
@@ -123,12 +127,16 @@ export const appRouter = router({
       await db.insert(teachers).values(input);
       return { success: true };
     }),
-    updateTeacher: protectedProcedure.input(z.object({ id: z.number(), fullName: z.string().min(2).optional(), role: z.enum(["Class Teacher", "Teaching Staff"]).optional(), assignedClass: z.string().optional(), subject: z.string().optional(), email: z.string().email().optional(), phone: z.string().optional(), password: z.string().min(1).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
+    updateTeacher: protectedProcedure.input(z.object({ id: z.number(), staffId: z.string().min(1).optional(), fullName: z.string().min(2).optional(), role: z.enum(["Class Teacher", "Teaching Staff"]).optional(), assignedClass: z.string().optional(), subject: z.string().optional(), email: z.string().email().optional(), phone: z.string().optional(), password: z.string().min(1).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Admin access required");
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { teachers } = await import("../drizzle/schema");
       const { id, ...changes } = input;
+      if (input.staffId) {
+        const duplicate = (await findTeachersByStaffId(input.staffId.trim())).some((teacher) => teacher.id !== id);
+        if (duplicate) throw new Error("Staff ID already exists");
+      }
       await db.update(teachers).set(changes).where((await import("drizzle-orm")).eq(teachers.id, id));
       return { success: true };
     }),
