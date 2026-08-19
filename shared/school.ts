@@ -49,3 +49,7 @@ export function validateTeacherRegistration(input: { fullName: string; staffId: 
 export function hasValidationErrors(errors: AdminRegistrationErrors) {
   return Object.keys(errors).length > 0;
 }
+
+export function isAdminRegistrationFormOpen(editingId: number | null, showForm: boolean) {
+  return editingId !== null || showForm;
+}

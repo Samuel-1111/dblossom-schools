@@ -57,3 +57,8 @@
 - [x] Re-run full tests, typecheck, and build; checkpoint save remains pending.
 - [x] Normalize blank optional parent and teacher contact fields before registration mutations to prevent invalid empty-email payloads.
 - [x] Publish and browser-verify the corrected UI registration form, then remove all temporary QA records.
+- [x] Fix admin dashboard snapshot authorization for valid platform-admin sessions while preserving local-admin cookie access and non-admin denial.
+- [x] Add regression coverage for platform-admin and local-admin snapshot authorization, then rerun tests, typecheck, build, and browser verification.
+- [x] Hide Admin Student and Teacher registration forms until Add Student/Add Teacher is pressed, with a clear close/cancel path.
+- [x] Restrict teacher result uploads to Class Teacher users and their assigned class in both UI and backend validation.
+- [x] Add regression coverage and verify the revised admin and teacher workflows with tests, typecheck, build, and browser captures.

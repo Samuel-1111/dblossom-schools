@@ -3,17 +3,19 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { complaints, payments, results } from "../drizzle/schema";
+import { complaints, payments, results, students } from "../drizzle/schema";
 import { getDb, findStudentsByAdmission, findTeachersByStaffId, findStudent, findTeacher, getSchoolAdminSnapshot, listPublicContent, listResultsForStudent } from "./db";
 import { notifyOwner } from "./_core/notification";
 import { calculateSubjects, summarizeSubjects } from "../shared/school";
 import { storagePut } from "./storage";
 import { TRPCError } from "@trpc/server";
 
+export const isAdminSession = (cookieHeader: string, role?: string | null) => role === "admin" || cookieHeader.split(";").some((part) => part.trim() === "local_admin=1");
+export const canTeacherUploadResult = (role: string, assignedClass: string, studentClass: string) => role === "Class Teacher" && Boolean(assignedClass.trim()) && assignedClass.trim() === studentClass.trim();
+
 const localAdminProcedure = publicProcedure.use(({ ctx, next }) => {
   const cookieHeader = String(ctx.req.headers.cookie ?? "");
-  const isLocalAdmin = cookieHeader.split(";").some((part) => part.trim() === "local_admin=1");
-  if (!isLocalAdmin) throw new TRPCError({ code: "UNAUTHORIZED", message: "Local administrator login required" });
+  if (!isAdminSession(cookieHeader, ctx.user?.role)) throw new TRPCError({ code: "UNAUTHORIZED", message: "Local administrator login required" });
   return next();
 });
 
@@ -65,10 +67,12 @@ export const appRouter = router({
       if (input.session) filters.push((await import("drizzle-orm")).eq(results.session, input.session));
       return db.select().from(results).where(filters.length ? (await import("drizzle-orm")).and(...filters) : undefined).limit(100);
     }),
-    saveResult: publicProcedure.input(z.object({ teacherRole: z.string(), studentId: z.number(), studentName: z.string(), className: z.string(), term: z.string(), session: z.string(), subjects: z.array(z.object({ name: z.string(), caScore: z.number(), examScore: z.number() })), teacherComment: z.string().optional(), principalComment: z.string().optional() })).mutation(async ({ input }) => {
+    saveResult: publicProcedure.input(z.object({ teacherRole: z.string(), assignedClass: z.string().min(1), studentId: z.number(), studentName: z.string(), className: z.string(), term: z.string(), session: z.string(), subjects: z.array(z.object({ name: z.string(), caScore: z.number(), examScore: z.number() })), teacherComment: z.string().optional(), principalComment: z.string().optional() })).mutation(async ({ input }) => {
       if (input.teacherRole !== "Class Teacher") throw new Error("Only class teachers can save results");
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
+      const selectedStudent = (await db.select().from(students).where((await import("drizzle-orm")).eq(students.id, input.studentId)).limit(1))[0];
+      if (!selectedStudent || !canTeacherUploadResult(input.teacherRole, input.assignedClass, selectedStudent.className) || input.className.trim() !== selectedStudent.className.trim()) throw new Error("You can only upload results for students in your assigned class");
       const subjects = calculateSubjects(input.subjects);
       const { totalScore, average } = summarizeSubjects(subjects);
       const existing = await listResultsForStudent(input.studentId, input.term, input.session);
