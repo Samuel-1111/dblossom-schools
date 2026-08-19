@@ -52,3 +52,5 @@
 - [x] Prevent global OAuth fallback from intercepting local admin mutations and enable local-cookie admin snapshot refreshes; verified on the published build.
 - [x] Publish the local-admin auth changes, then verify latest /admin-login → /admin-dashboard create and delete flows without OAuth.
 - [x] Re-run full tests, typecheck, and build; checkpoint save remains pending.
+- [x] Normalize blank optional parent and teacher contact fields before registration mutations to prevent invalid empty-email payloads.
+- [ ] Publish and browser-verify the corrected UI registration form, then remove all temporary QA records.
