@@ -30,7 +30,7 @@
 - [x] Persist an admin-managed subject list and use it to build the teacher result-entry grid dynamically.
 - [x] Update the student portal to /student-portal with specification-aligned login validation and report-card rendering, including per-result html2canvas/jsPDF capture.
 - [ ] Update the teacher portal to /teacher-portal with specification-aligned login validation, dynamic subjects, load/edit result behavior, add/remove subject controls, and save/update states. (Login branching, class-student loading, and existing-result loading are now implemented; full UI behavior audit remains.)
-- [ ] Add portal-specific Vitest coverage for admin authentication, student/teacher validation, dynamic subject behavior, result persistence, and report-card shaping.
+- [ ] Add portal-specific Vitest coverage for admin authentication, student/teacher validation, dynamic subject behavior, result persistence, and report-card shaping. (Administrator registration validation now has four additional focused tests.)
 
 - [ ] Re-read and implement the complete authoritative pasted specification strictly, replacing prior design assumptions.
 - [x] Reset global design tokens exactly to the specification: white background, dark navy foreground, primary HSL 220 70% 25%, red accent HSL 0 75% 50%, gold HSL 43 85% 55%, Inter body, Playfair Display headings, exact spacing, card, table, button, animation, and responsive rules.
@@ -41,4 +41,4 @@
 - [x] Rebuild administrator student registration with the authoritative prompt fields, defaults, search/filter, edit/delete actions, and field-level validation.
 - [x] Rebuild administrator teacher registration with the authoritative prompt fields, role/class controls, edit/delete actions, and field-level validation.
 - [x] Apply the supplied D'Blossom school logo to the admin portal, student/teacher portal branding, public brand surfaces, and report-card header where specified.
-- [ ] Validate registration flows, logo rendering, responsive layouts, tests, type checking, and production build. (Automated checks, desktop/mobile visual review, and logo rendering are complete; manual browser submission of registration and delete flows remains unverified.)
+- [ ] Validate registration flows, logo rendering, responsive layouts, tests, type checking, and production build. (Automated checks with 16 tests, desktop/mobile visual review, and logo rendering are complete; manual browser submission of registration and delete flows remains unverified.)

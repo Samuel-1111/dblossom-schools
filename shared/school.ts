@@ -26,3 +26,26 @@ export function summarizeSubjects(subjects: SubjectScore[]) {
   const average = subjects.length ? Math.round((totalScore / subjects.length) * 100) / 100 : 0;
   return { totalScore, average };
 }
+
+export type AdminRegistrationErrors = Record<string, string>;
+
+export function validateStudentRegistration(input: { fullName: string; admissionNumber: string; className: string; password?: string }, editing = false): AdminRegistrationErrors {
+  const errors: AdminRegistrationErrors = {};
+  if (!input.fullName.trim()) errors.fullName = "Full name is required.";
+  if (!input.admissionNumber.trim()) errors.admissionNumber = "Admission number is required.";
+  if (!input.className.trim()) errors.className = "Class is required.";
+  if (!editing && !input.password?.trim()) errors.password = "Password is required for a new student.";
+  return errors;
+}
+
+export function validateTeacherRegistration(input: { fullName: string; staffId: string; password?: string }, editing = false): AdminRegistrationErrors {
+  const errors: AdminRegistrationErrors = {};
+  if (!input.fullName.trim()) errors.fullName = "Full name is required.";
+  if (!input.staffId.trim()) errors.staffId = "Staff ID is required.";
+  if (!editing && !input.password?.trim()) errors.password = "Password is required for a new teacher.";
+  return errors;
+}
+
+export function hasValidationErrors(errors: AdminRegistrationErrors) {
+  return Object.keys(errors).length > 0;
+}
