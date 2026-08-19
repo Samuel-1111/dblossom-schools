@@ -42,3 +42,5 @@
 - [x] Rebuild administrator teacher registration with the authoritative prompt fields, role/class controls, edit/delete actions, and field-level validation.
 - [x] Apply the supplied D'Blossom school logo to the admin portal, student/teacher portal branding, public brand surfaces, and report-card header where specified.
 - [ ] Validate registration flows, logo rendering, responsive layouts, tests, type checking, and production build. (Automated checks with 16 tests, desktop/mobile visual review, and logo rendering are complete; manual browser submission of registration and delete flows remains unverified.)
+
+- [x] Prevent duplicate student admission numbers and teacher staff IDs during administrator registration with clear backend errors.

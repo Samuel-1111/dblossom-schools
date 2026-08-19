@@ -91,6 +91,8 @@ export const appRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { students } = await import("../drizzle/schema");
+      const existing = await findStudentsByAdmission(input.admissionNumber.trim());
+      if (existing.length) throw new Error("Admission number already exists");
       await db.insert(students).values(input);
       return { success: true };
     }),
@@ -116,6 +118,8 @@ export const appRouter = router({
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { teachers } = await import("../drizzle/schema");
+      const existing = await findTeachersByStaffId(input.staffId.trim());
+      if (existing.length) throw new Error("Staff ID already exists");
       await db.insert(teachers).values(input);
       return { success: true };
     }),
