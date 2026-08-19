@@ -24,16 +24,16 @@
 - [x] Add an admin complaints view with status management and readable submission details.
 
 - [x] Add specification-aligned /admin-login and /admin-dashboard routes with local admin credentials, validation, session guard, logout, and settings password override.
-- [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification.
-- [ ] Expand the admin dashboard into the nine specified modules: Students, Teachers, Results, Payments, Events, Gallery, Complaints, Subjects, and Settings.
+- [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification. (Visual tokens and shells are aligned; remaining exact behavior audit remains.)
+- [ ] Expand the admin dashboard into the nine specified modules: Students, Teachers, Results, Payments, Events, Gallery, Complaints, Subjects, and Settings. (Students, Payments, Complaints, Subjects, and Settings have specific UI; Teachers, Results, Events, and Gallery remain generic.)
 - [x] Add admin CSV exports for students, teachers, and long-format results.
 - [x] Persist an admin-managed subject list and use it to build the teacher result-entry grid dynamically.
-- [ ] Update the student portal to /student-portal with specification-aligned login validation and report-card rendering.
-- [ ] Update the teacher portal to /teacher-portal with specification-aligned login validation, dynamic subjects, load/edit result behavior, add/remove subject controls, and save/update states.
+- [x] Update the student portal to /student-portal with specification-aligned login validation and report-card rendering, including per-result html2canvas/jsPDF capture.
+- [ ] Update the teacher portal to /teacher-portal with specification-aligned login validation, dynamic subjects, load/edit result behavior, add/remove subject controls, and save/update states. (Login branching, class-student loading, and existing-result loading are now implemented; full UI behavior audit remains.)
 - [ ] Add portal-specific Vitest coverage for admin authentication, student/teacher validation, dynamic subject behavior, result persistence, and report-card shaping.
 
 - [ ] Re-read and implement the complete authoritative pasted specification strictly, replacing prior design assumptions.
 - [x] Reset global design tokens exactly to the specification: white background, dark navy foreground, primary HSL 220 70% 25%, red accent HSL 0 75% 50%, gold HSL 43 85% 55%, Inter body, Playfair Display headings, exact spacing, card, table, button, animation, and responsive rules.
 - [x] Rebuild the public information architecture strictly as Home, About, Academics, Gallery, Events, Payment, Complaint, with the specified desktop/mobile navbar behavior and portal links.
-- [ ] Rebuild secured portal layouts strictly from the specification, including exact login card hierarchy, validation states, result-card formatting, report-card design, admin sidebar/bottom-tab behavior, and specified module structure.
+- [ ] Rebuild secured portal layouts strictly from the specification, including exact login card hierarchy, validation states, result-card formatting, report-card design, admin sidebar/bottom-tab behavior, and specified module structure. (Portal capture and login branches are implemented; remaining module behavior audit remains.)
 - [ ] Replace prior custom visual treatment and copy that is not present in the authoritative pasted specification.
