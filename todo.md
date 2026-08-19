@@ -19,7 +19,7 @@
 - [ ] Add Vitest coverage for grading, result persistence, role permissions, payment workflow, complaint notification, and report-card data. (Current tests cover configuration and grading.)
 - [x] Run type checks, tests, production build, and browser verification at desktop and mobile breakpoints. Automated checks and mobile screenshots for public, student, teacher, and admin entry routes are complete.
 - [ ] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint. Latest desktop/mobile captures and published local-admin CRUD verification pass; remaining strict module gaps are tracked below.
-- [ ] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Event and gallery edit UI is now wired; result create/update UI and full browser verification remain.
+- [ ] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Event/gallery edit UI and result comment updates are wired; result creation UI and full browser verification remain.
 - [ ] Add S3-backed event image upload and public/admin event image rendering. UI code is implemented; browser create-and-render verification remains.
 - [ ] Complete the secured-portal exact-copy and interaction audit, including all validation/loading/mobile states.
 
