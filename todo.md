@@ -38,7 +38,7 @@
 - [ ] Rebuild secured portal layouts strictly from the specification, including exact login card hierarchy, validation states, result-card formatting, report-card design, admin sidebar/bottom-tab behavior, and specified module structure. (Portal capture and login branches are implemented; remaining module behavior audit remains.)
 - [ ] Replace prior custom visual treatment and copy that is not present in the authoritative pasted specification.
 
-- [ ] Rebuild administrator student registration with the authoritative prompt fields, defaults, search/filter, edit/delete actions, and field-level validation. (Precise create fields, search/class filtering, delete, and validation are implemented; edit modal remains.)
-- [ ] Rebuild administrator teacher registration with the authoritative prompt fields, role/class controls, edit/delete actions, and field-level validation. (Precise create fields, role/status controls, search, delete, and validation are implemented; edit modal remains.)
+- [x] Rebuild administrator student registration with the authoritative prompt fields, defaults, search/filter, edit/delete actions, and field-level validation.
+- [x] Rebuild administrator teacher registration with the authoritative prompt fields, role/class controls, edit/delete actions, and field-level validation.
 - [x] Apply the supplied D'Blossom school logo to the admin portal, student/teacher portal branding, public brand surfaces, and report-card header where specified.
 - [ ] Validate registration flows, logo rendering, responsive layouts, tests, type checking, and production build. (Automated checks, desktop/mobile visual review, and logo rendering are complete; manual browser submission of registration and delete flows remains unverified.)
