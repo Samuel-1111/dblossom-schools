@@ -15,6 +15,12 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/about"} component={Home} />
+      <Route path={"/academics"} component={Home} />
+      <Route path={"/gallery"} component={Home} />
+      <Route path={"/events"} component={Home} />
+      <Route path={"/payment"} component={Home} />
+      <Route path={"/complaint"} component={Home} />
       <Route path={"/student"} component={StudentPortal} />
       <Route path={"/student-portal"} component={StudentPortal} />
       <Route path={"/teacher"} component={TeacherPortal} />
