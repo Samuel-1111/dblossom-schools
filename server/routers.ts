@@ -150,7 +150,9 @@ export const appRouter = router({
       await db.delete(teachers).where((await import("drizzle-orm")).eq(teachers.id, input.id));
       return { success: true };
     }),
-    deleteResult: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+    createResult: localAdminProcedure.input(z.object({ studentId: z.number(), studentName: z.string().min(2), className: z.string().min(2), term: z.string().min(1), session: z.string().min(1), subjectsJson: z.string().min(2), totalScore: z.number().int().min(0), average: z.number().int().min(0), overallPercentage: z.number().int().min(0), position: z.string().optional(), teacherComment: z.string().optional(), principalComment: z.string().optional() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); await db.insert(results).values(input); return { success: true }; }),
+    updateResult: localAdminProcedure.input(z.object({ id: z.number(), studentId: z.number().optional(), studentName: z.string().min(2).optional(), className: z.string().min(2).optional(), term: z.string().min(1).optional(), session: z.string().min(1).optional(), subjectsJson: z.string().min(2).optional(), totalScore: z.number().int().min(0).optional(), average: z.number().int().min(0).optional(), overallPercentage: z.number().int().min(0).optional(), position: z.string().optional(), teacherComment: z.string().optional(), principalComment: z.string().optional() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); const { id, ...changes } = input; await db.update(results).set(changes).where((await import("drizzle-orm")).eq(results.id, id)); return { success: true }; }),
+    deleteResult: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       await db.delete(results).where((await import("drizzle-orm")).eq(results.id, input.id));
@@ -163,7 +165,8 @@ export const appRouter = router({
       await db.insert(events).values(input);
       return { success: true };
     }),
-    deleteEvent: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+    updateEvent: localAdminProcedure.input(z.object({ id: z.number(), title: z.string().min(2).optional(), description: z.string().min(2).optional(), eventDate: z.string().min(1).optional(), imageUrl: z.string().url().optional() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); const { events } = await import("../drizzle/schema"); const { id, ...changes } = input; await db.update(events).set(changes).where((await import("drizzle-orm")).eq(events.id, id)); return { success: true }; }),
+    deleteEvent: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { events } = await import("../drizzle/schema");
@@ -177,7 +180,8 @@ export const appRouter = router({
       await db.insert(galleryImages).values(input);
       return { success: true };
     }),
-    deleteGalleryImage: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+    updateGalleryImage: localAdminProcedure.input(z.object({ id: z.number(), title: z.string().min(2).optional(), imageUrl: z.string().url().optional(), altText: z.string().optional() })).mutation(async ({ input }) => { const db = await getDb(); if (!db) throw new Error("Database unavailable"); const { galleryImages } = await import("../drizzle/schema"); const { id, ...changes } = input; await db.update(galleryImages).set(changes).where((await import("drizzle-orm")).eq(galleryImages.id, id)); return { success: true }; }),
+    deleteGalleryImage: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { galleryImages } = await import("../drizzle/schema");
