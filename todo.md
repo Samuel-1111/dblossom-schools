@@ -21,13 +21,13 @@
 - [ ] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint. Latest desktop/mobile captures pass; media mutation failures surface visibly, admin module navs and subject-removal controls are labeled, and buttons are non-submitting/accessible, while strict module and exact-copy gaps remain tracked below.
 - [ ] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Result creation/comment updates now include decimal-safe and numeric-input validation, and event/gallery edit UI is wired; full browser verification remains.
 - [ ] Add S3-backed event image upload and public/admin event image rendering. UI and protected upload procedures now enforce image type/5 MB safeguards; browser create-and-render verification remains.
-- [ ] Complete the secured-portal exact-copy and interaction audit, including all validation/loading/mobile states. Back to Home/Home links now cover Student, Teacher, Admin login, and authenticated Admin Dashboard; broader exact-copy and state coverage remains.
+- [ ] Complete the secured-portal exact-copy and interaction audit, including all validation/loading/mobile states. Back to Home/Home links cover Student, Teacher, Admin login, and authenticated Admin Dashboard; administrator and teacher subject-removal controls are labeled, while broader exact-copy and state coverage remains.
 
 - [x] Route new public complaints into the protected admin portal as the primary review workflow; direct school-inbox email is no longer required.
 - [x] Add an admin complaints view with status management and readable submission details.
 
 - [x] Add specification-aligned /admin-login and /admin-dashboard routes with local admin credentials, validation, session guard, logout, and settings password override.
-- [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification; screenshots pass the broad visual review, but exact behavior audit remains.
+- [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification; current screenshots pass broad review and teacher result controls now include labeled removal actions, but exact behavior audit remains.
 - [ ] Expand the admin dashboard into the nine specified modules: Students, Teachers, Results, Payments, Events, Gallery, Complaints, Subjects, and Settings; module shells exist, while full CRUD parity remains.
 - [x] Add admin CSV exports for students, teachers, and long-format results.
 - [x] Persist an admin-managed subject list and use it to build the teacher result-entry grid dynamically.
