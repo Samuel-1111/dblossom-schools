@@ -37,6 +37,15 @@ export const appRouter = router({
       if (!teacher) return null;
       return { id: teacher.id, fullName: teacher.fullName, staffId: teacher.staffId, role: teacher.role, assignedClass: teacher.assignedClass };
     }),
+    viewResults: publicProcedure.input(z.object({ className: z.string().optional(), term: z.string().optional(), session: z.string().optional() })).query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const filters = [];
+      if (input.className) filters.push((await import("drizzle-orm")).eq(results.className, input.className));
+      if (input.term) filters.push((await import("drizzle-orm")).eq(results.term, input.term));
+      if (input.session) filters.push((await import("drizzle-orm")).eq(results.session, input.session));
+      return db.select().from(results).where(filters.length ? (await import("drizzle-orm")).and(...filters) : undefined).limit(100);
+    }),
     saveResult: publicProcedure.input(z.object({ teacherRole: z.string(), studentId: z.number(), studentName: z.string(), className: z.string(), term: z.string(), session: z.string(), subjects: z.array(z.object({ name: z.string(), caScore: z.number(), examScore: z.number() })), teacherComment: z.string().optional(), principalComment: z.string().optional() })).mutation(async ({ input }) => {
       if (input.teacherRole !== "Class Teacher") throw new Error("Only class teachers can save results");
       const db = await getDb();
