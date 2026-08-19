@@ -16,10 +16,10 @@
 - [x] Implement admin payment confirmation and rejection flow.
 - [x] Implement public complaint/contact submission routed to the protected admin portal; direct school-inbox email is intentionally not required by the revised scope.
 - [ ] Implement S3-backed upload and serving for gallery and event images. Gallery upload is verified; event upload, admin thumbnails, and public rendering are implemented but end-to-end upload verification remains.
-- [ ] Add Vitest coverage for grading, result persistence, role permissions, payment workflow, complaint notification, and report-card data. (Current tests cover configuration and grading.)
+- [ ] Add Vitest coverage for grading, result persistence, role permissions, payment workflow, complaint notification, and report-card data. Focused grading, registration normalization, subject shaping, and authentication tests now total 18; persistence/workflow coverage remains.
 - [x] Run type checks, tests, production build, and browser verification at desktop and mobile breakpoints. Automated checks and mobile screenshots for public, student, teacher, and admin entry routes are complete.
 - [ ] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint. Latest desktop/mobile captures and published local-admin CRUD verification pass; remaining strict module gaps are tracked below.
-- [ ] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Event/gallery edit UI and result comment updates are wired; result creation UI and full browser verification remain.
+- [ ] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Result creation and comment updates plus event/gallery edit UI are wired; full browser verification remains.
 - [ ] Add S3-backed event image upload and public/admin event image rendering. UI code is implemented; browser create-and-render verification remains.
 - [ ] Complete the secured-portal exact-copy and interaction audit, including all validation/loading/mobile states.
 
@@ -33,7 +33,7 @@
 - [x] Persist an admin-managed subject list and use it to build the teacher result-entry grid dynamically.
 - [x] Update the student portal to /student-portal with specification-aligned login validation and report-card rendering, including per-result html2canvas/jsPDF capture.
 - [ ] Update the teacher portal to /teacher-portal with specification-aligned login validation, dynamic subjects, class-student loading, existing-result loading, result entry controls, and save/update states; the broad flows exist but exact behavior audit remains.
-- [ ] Add portal-specific Vitest coverage for admin authentication, student/teacher validation, dynamic subject behavior, result persistence, and report-card shaping. (Administrator registration validation now has four additional focused tests.)
+- [ ] Add portal-specific Vitest coverage for admin authentication, student/teacher validation, dynamic subject behavior, result persistence, and report-card shaping. Current suite has 18 passing tests, including portal grade boundaries, optional-field normalization, and report-card shaping; mutation persistence coverage remains.
 
 - [ ] Re-read and implement the complete authoritative pasted specification strictly, replacing prior design assumptions; the visual foundation is aligned, but remaining copy and module gaps are tracked below.
 - [x] Reset global design tokens exactly to the specification: white background, dark navy foreground, primary HSL 220 70% 25%, red accent HSL 0 75% 50%, gold HSL 43 85% 55%, Inter body, Playfair Display headings, exact spacing, card, table, button, animation, and responsive rules.

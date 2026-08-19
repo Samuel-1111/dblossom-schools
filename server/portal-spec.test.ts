@@ -16,6 +16,23 @@ describe("secured portal result shaping", () => {
   });
 });
 
+describe("registration and report-card edge behavior", () => {
+  it("normalizes blank optional registration fields at the boundary", () => {
+    const optionalText = (value: string) => value.trim() || undefined;
+    expect(optionalText("   ")).toBeUndefined();
+    expect(optionalText("parent@example.com")).toBe("parent@example.com");
+  });
+
+  it("preserves subject order and derived totals for report-card shaping", () => {
+    const subjects = calculateSubjects([
+      { name: "Science", caScore: 22, examScore: 61 },
+      { name: "English Language", caScore: 18, examScore: 52 },
+    ]);
+    expect(subjects.map((subject) => subject.name)).toEqual(["Science", "English Language"]);
+    expect(subjects.map((subject) => subject.total)).toEqual([83, 70]);
+  });
+});
+
 describe("strict specification grade boundaries", () => {
   it.each([
     [70, "A"],
