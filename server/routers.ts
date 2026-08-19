@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import { complaints, payments, results } from "../drizzle/schema";
-import { getDb, findStudent, findTeacher, getSchoolAdminSnapshot, listPublicContent, listResultsForStudent } from "./db";
+import { getDb, findStudentsByAdmission, findTeachersByStaffId, findStudent, findTeacher, getSchoolAdminSnapshot, listPublicContent, listResultsForStudent } from "./db";
 import { notifyOwner } from "./_core/notification";
 import { calculateSubjects, summarizeSubjects } from "../shared/school";
 import { storagePut } from "./storage";
@@ -26,17 +26,27 @@ export const appRouter = router({
   publicContent: publicProcedure.query(() => listPublicContent()),
   studentPortal: router({
     login: publicProcedure.input(z.object({ admissionNumber: z.string().min(1), password: z.string().min(1) })).mutation(async ({ input }) => {
-      const student = await findStudent(input.admissionNumber.trim(), input.password);
-      if (!student) return null;
-      return { id: student.id, fullName: student.fullName, admissionNumber: student.admissionNumber, className: student.className };
+      const matches = await findStudentsByAdmission(input.admissionNumber.trim());
+      if (!matches.length) return { ok: false as const, reason: "not_found" as const };
+      const student = matches.find((item) => item.password === input.password);
+      if (!student) return { ok: false as const, reason: "incorrect_password" as const };
+      return { ok: true as const, student: { id: student.id, fullName: student.fullName, admissionNumber: student.admissionNumber, className: student.className } };
     }),
     results: publicProcedure.input(z.object({ studentId: z.number(), term: z.string().optional(), session: z.string().optional() })).query(({ input }) => listResultsForStudent(input.studentId, input.term, input.session)),
   }),
   teacherPortal: router({
     login: publicProcedure.input(z.object({ staffId: z.string().min(1), password: z.string().min(1) })).mutation(async ({ input }) => {
-      const teacher = await findTeacher(input.staffId.trim(), input.password);
-      if (!teacher) return null;
-      return { id: teacher.id, fullName: teacher.fullName, staffId: teacher.staffId, role: teacher.role, assignedClass: teacher.assignedClass };
+      const matches = await findTeachersByStaffId(input.staffId.trim());
+      if (!matches.length) return { ok: false as const, reason: "not_found" as const };
+      const teacher = matches.find((item) => item.password === input.password);
+      if (!teacher) return { ok: false as const, reason: "incorrect_password" as const };
+      return { ok: true as const, teacher: { id: teacher.id, fullName: teacher.fullName, staffId: teacher.staffId, role: teacher.role, assignedClass: teacher.assignedClass } };
+    }),
+    classStudents: publicProcedure.input(z.object({ className: z.string().min(1) })).query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      const { students } = await import("../drizzle/schema");
+      return db.select().from(students).where((await import("drizzle-orm")).and((await import("drizzle-orm")).eq(students.className, input.className), (await import("drizzle-orm")).eq(students.status, "Active"))).orderBy(students.fullName);
     }),
     viewResults: publicProcedure.input(z.object({ className: z.string().optional(), term: z.string().optional(), session: z.string().optional() })).query(async ({ input }) => {
       const db = await getDb();

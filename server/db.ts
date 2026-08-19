@@ -99,18 +99,26 @@ export async function listPublicContent() {
   return { events: eventRows, gallery: galleryRows };
 }
 
-export async function findStudent(admissionNumber: string, password: string) {
+export async function findStudentsByAdmission(admissionNumber: string) {
   const db = await getDb();
-  if (!db) return undefined;
-  const rows = await db.select().from(students).where(and(eq(students.admissionNumber, admissionNumber), eq(students.password, password), eq(students.status, "Active"))).limit(1);
-  return rows[0];
+  if (!db) return [];
+  return db.select().from(students).where(and(eq(students.admissionNumber, admissionNumber), eq(students.status, "Active")));
+}
+
+export async function findStudent(admissionNumber: string, password: string) {
+  const rows = await findStudentsByAdmission(admissionNumber);
+  return rows.find((student) => student.password === password);
+}
+
+export async function findTeachersByStaffId(staffId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(teachers).where(and(eq(teachers.staffId, staffId), eq(teachers.status, "Active")));
 }
 
 export async function findTeacher(staffId: string, password: string) {
-  const db = await getDb();
-  if (!db) return undefined;
-  const rows = await db.select().from(teachers).where(and(eq(teachers.staffId, staffId), eq(teachers.password, password), eq(teachers.status, "Active"))).limit(1);
-  return rows[0];
+  const rows = await findTeachersByStaffId(staffId);
+  return rows.find((teacher) => teacher.password === password);
 }
 
 export async function listResultsForStudent(studentId: number, term?: string, session?: string) {
