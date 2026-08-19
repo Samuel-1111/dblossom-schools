@@ -7,6 +7,7 @@ import { complaints, payments, results } from "../drizzle/schema";
 import { getDb, findStudent, findTeacher, getSchoolAdminSnapshot, listPublicContent, listResultsForStudent } from "./db";
 import { notifyOwner } from "./_core/notification";
 import { calculateSubjects, summarizeSubjects } from "../shared/school";
+import { storagePut } from "./storage";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -75,6 +76,19 @@ export const appRouter = router({
     }),
   }),
   admin: router({
+    uploadImage: protectedProcedure.input(z.object({ fileName: z.string().min(1), mimeType: z.string().startsWith("image/"), base64: z.string().min(20) })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const buffer = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
+      const uploaded = await storagePut(`school-images/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-")}`, buffer, input.mimeType);
+      return uploaded;
+    }),
+    updatePayment: protectedProcedure.input(z.object({ id: z.number(), status: z.enum(["Confirmed", "Rejected"]) })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db.update(payments).set({ status: input.status }).where((await import("drizzle-orm")).eq(payments.id, input.id));
+      return { success: true };
+    }),
     snapshot: protectedProcedure.query(({ ctx }) => {
       if (ctx.user.role !== "admin") throw new Error("Admin access required");
       return getSchoolAdminSnapshot();
