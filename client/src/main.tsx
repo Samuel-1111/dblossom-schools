@@ -17,6 +17,7 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
 
   if (!isUnauthorized) return;
+  if (document.cookie.split(";").some((part) => part.trim() === "local_admin=1")) return;
 
   startLogin();
 };

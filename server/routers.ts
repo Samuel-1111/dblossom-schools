@@ -8,6 +8,14 @@ import { getDb, findStudentsByAdmission, findTeachersByStaffId, findStudent, fin
 import { notifyOwner } from "./_core/notification";
 import { calculateSubjects, summarizeSubjects } from "../shared/school";
 import { storagePut } from "./storage";
+import { TRPCError } from "@trpc/server";
+
+const localAdminProcedure = publicProcedure.use(({ ctx, next }) => {
+  const cookieHeader = String(ctx.req.headers.cookie ?? "");
+  const isLocalAdmin = cookieHeader.split(";").some((part) => part.trim() === "local_admin=1");
+  if (!isLocalAdmin) throw new TRPCError({ code: "UNAUTHORIZED", message: "Local administrator login required" });
+  return next();
+});
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -86,8 +94,7 @@ export const appRouter = router({
     }),
   }),
   admin: router({
-    createStudent: protectedProcedure.input(z.object({ fullName: z.string().min(2), admissionNumber: z.string().min(1), className: z.string().min(2), password: z.string().min(1), gender: z.enum(["Male", "Female"]).optional(), dateOfBirth: z.string().optional(), parentName: z.string().optional(), parentPhone: z.string().optional(), parentEmail: z.string().email().optional(), boardingStatus: z.enum(["Day", "Boarding"]).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    createStudent: localAdminProcedure.input(z.object({ fullName: z.string().min(2), admissionNumber: z.string().min(1), className: z.string().min(2), password: z.string().min(1), gender: z.enum(["Male", "Female"]).optional(), dateOfBirth: z.string().optional(), parentName: z.string().optional(), parentPhone: z.string().optional(), parentEmail: z.string().email().optional(), boardingStatus: z.enum(["Day", "Boarding"]).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { students } = await import("../drizzle/schema");
@@ -96,8 +103,7 @@ export const appRouter = router({
       await db.insert(students).values(input);
       return { success: true };
     }),
-    updateStudent: protectedProcedure.input(z.object({ id: z.number(), admissionNumber: z.string().min(1).optional(), fullName: z.string().min(2).optional(), className: z.string().min(2).optional(), gender: z.enum(["Male", "Female"]).optional(), dateOfBirth: z.string().optional(), parentName: z.string().optional(), parentPhone: z.string().optional(), parentEmail: z.string().email().optional(), boardingStatus: z.enum(["Day", "Boarding"]).optional(), password: z.string().min(1).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    updateStudent: localAdminProcedure.input(z.object({ id: z.number(), admissionNumber: z.string().min(1).optional(), fullName: z.string().min(2).optional(), className: z.string().min(2).optional(), gender: z.enum(["Male", "Female"]).optional(), dateOfBirth: z.string().optional(), parentName: z.string().optional(), parentPhone: z.string().optional(), parentEmail: z.string().email().optional(), boardingStatus: z.enum(["Day", "Boarding"]).optional(), password: z.string().min(1).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { students } = await import("../drizzle/schema");
@@ -109,16 +115,14 @@ export const appRouter = router({
       await db.update(students).set(changes).where((await import("drizzle-orm")).eq(students.id, id));
       return { success: true };
     }),
-    deleteStudent: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    deleteStudent: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { students } = await import("../drizzle/schema");
       await db.delete(students).where((await import("drizzle-orm")).eq(students.id, input.id));
       return { success: true };
     }),
-    createTeacher: protectedProcedure.input(z.object({ fullName: z.string().min(2), staffId: z.string().min(1), password: z.string().min(1), role: z.enum(["Class Teacher", "Teaching Staff"]), assignedClass: z.string().optional(), subject: z.string().optional(), email: z.string().email().optional(), phone: z.string().optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    createTeacher: localAdminProcedure.input(z.object({ fullName: z.string().min(2), staffId: z.string().min(1), password: z.string().min(1), role: z.enum(["Class Teacher", "Teaching Staff"]), assignedClass: z.string().optional(), subject: z.string().optional(), email: z.string().email().optional(), phone: z.string().optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { teachers } = await import("../drizzle/schema");
@@ -127,8 +131,7 @@ export const appRouter = router({
       await db.insert(teachers).values(input);
       return { success: true };
     }),
-    updateTeacher: protectedProcedure.input(z.object({ id: z.number(), staffId: z.string().min(1).optional(), fullName: z.string().min(2).optional(), role: z.enum(["Class Teacher", "Teaching Staff"]).optional(), assignedClass: z.string().optional(), subject: z.string().optional(), email: z.string().email().optional(), phone: z.string().optional(), password: z.string().min(1).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    updateTeacher: localAdminProcedure.input(z.object({ id: z.number(), staffId: z.string().min(1).optional(), fullName: z.string().min(2).optional(), role: z.enum(["Class Teacher", "Teaching Staff"]).optional(), assignedClass: z.string().optional(), subject: z.string().optional(), email: z.string().email().optional(), phone: z.string().optional(), password: z.string().min(1).optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { teachers } = await import("../drizzle/schema");
@@ -140,75 +143,65 @@ export const appRouter = router({
       await db.update(teachers).set(changes).where((await import("drizzle-orm")).eq(teachers.id, id));
       return { success: true };
     }),
-    deleteTeacher: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    deleteTeacher: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { teachers } = await import("../drizzle/schema");
       await db.delete(teachers).where((await import("drizzle-orm")).eq(teachers.id, input.id));
       return { success: true };
     }),
-    deleteResult: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    deleteResult: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       await db.delete(results).where((await import("drizzle-orm")).eq(results.id, input.id));
       return { success: true };
     }),
-    createEvent: protectedProcedure.input(z.object({ title: z.string().min(2), description: z.string().min(2), eventDate: z.string().min(1), imageUrl: z.string().url().optional() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    createEvent: localAdminProcedure.input(z.object({ title: z.string().min(2), description: z.string().min(2), eventDate: z.string().min(1), imageUrl: z.string().url().optional() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { events } = await import("../drizzle/schema");
       await db.insert(events).values(input);
       return { success: true };
     }),
-    deleteEvent: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    deleteEvent: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { events } = await import("../drizzle/schema");
       await db.delete(events).where((await import("drizzle-orm")).eq(events.id, input.id));
       return { success: true };
     }),
-    createGalleryImage: protectedProcedure.input(z.object({ title: z.string().min(2), imageUrl: z.string().url(), altText: z.string().optional() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    createGalleryImage: localAdminProcedure.input(z.object({ title: z.string().min(2), imageUrl: z.string().url(), altText: z.string().optional() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { galleryImages } = await import("../drizzle/schema");
       await db.insert(galleryImages).values(input);
       return { success: true };
     }),
-    deleteGalleryImage: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    deleteGalleryImage: localAdminProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       const { galleryImages } = await import("../drizzle/schema");
       await db.delete(galleryImages).where((await import("drizzle-orm")).eq(galleryImages.id, input.id));
       return { success: true };
     }),
-    uploadImage: protectedProcedure.input(z.object({ fileName: z.string().min(1), mimeType: z.string().startsWith("image/"), base64: z.string().min(20) })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    uploadImage: localAdminProcedure.input(z.object({ fileName: z.string().min(1), mimeType: z.string().startsWith("image/"), base64: z.string().min(20) })).mutation(async ({ ctx, input }) => {
       const buffer = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
       const uploaded = await storagePut(`school-images/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-")}`, buffer, input.mimeType);
       return uploaded;
     }),
-    updateComplaint: protectedProcedure.input(z.object({ id: z.number(), status: z.enum(["New", "In Review", "Resolved"]) })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    updateComplaint: localAdminProcedure.input(z.object({ id: z.number(), status: z.enum(["New", "In Review", "Resolved"]) })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       await db.update(complaints).set({ status: input.status }).where((await import("drizzle-orm")).eq(complaints.id, input.id));
       return { success: true };
     }),
-    updatePayment: protectedProcedure.input(z.object({ id: z.number(), status: z.enum(["Confirmed", "Rejected"]) })).mutation(async ({ ctx, input }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    updatePayment: localAdminProcedure.input(z.object({ id: z.number(), status: z.enum(["Confirmed", "Rejected"]) })).mutation(async ({ ctx, input }) => {
       const db = await getDb();
       if (!db) throw new Error("Database unavailable");
       await db.update(payments).set({ status: input.status }).where((await import("drizzle-orm")).eq(payments.id, input.id));
       return { success: true };
     }),
-    snapshot: protectedProcedure.query(({ ctx }) => {
-      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+    snapshot: localAdminProcedure.query(({ ctx }) => {
       return getSchoolAdminSnapshot();
     }),
   }),

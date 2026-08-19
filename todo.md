@@ -41,7 +41,14 @@
 - [x] Rebuild administrator student registration with the authoritative prompt fields, defaults, search/filter, edit/delete actions, and field-level validation.
 - [x] Rebuild administrator teacher registration with the authoritative prompt fields, role/class controls, edit/delete actions, and field-level validation.
 - [x] Apply the supplied D'Blossom school logo to the admin portal, student/teacher portal branding, public brand surfaces, and report-card header where specified.
-- [ ] Validate registration flows, logo rendering, responsive layouts, tests, type checking, and production build. (Automated checks with 16 tests, desktop/mobile visual review, and logo rendering are complete; manual browser submission of registration and delete flows remains unverified.)
+- [x] Validate registration flows, logo rendering, responsive layouts, tests, type checking, and production build. Automated checks with 16 tests, desktop/mobile visual review, supplied-logo rendering, and live blank-submit validation for student and teacher registration are complete; destructive create/delete actions were intentionally not exercised.
 
 - [x] Prevent duplicate student admission numbers and teacher staff IDs during administrator registration with clear backend errors.
 - [x] Prevent changing an existing student admission number or teacher staff ID to another record during administrator edits.
+
+- [ ] Remove OAuth dependency from local admin CRUD actions so DivineBlossom / DBMS is sufficient for administrator management; code is implemented, end-to-end verification pending on the updated publish.
+- [ ] Preserve admission-number/password student login and staff-ID/password teacher login without adding OAuth prompts.
+- [ ] Re-run browser verification of local admin registration after removing the OAuth redirect (the previous published URL was stale; verify again after this checkpoint publishes the fix).
+- [ ] Prevent global OAuth fallback from intercepting local admin mutations and enable local-cookie admin snapshot refreshes; runtime verification pending on the updated publish.
+- [ ] Publish the local-admin auth changes, then verify latest /admin-login → /admin-dashboard create and delete flows without OAuth.
+- [x] Re-run full tests, typecheck, and build; checkpoint save remains pending.
