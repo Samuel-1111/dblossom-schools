@@ -27,7 +27,7 @@
 - [x] Add an admin complaints view with status management and readable submission details.
 
 - [x] Add specification-aligned /admin-login and /admin-dashboard routes with local admin credentials, validation, session guard, logout, and settings password override.
-- [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification; current screenshots pass broad review and teacher result controls now include labeled removal actions, but exact behavior audit remains.
+- [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification; current desktop/mobile captures pass broad review and teacher result controls include labeled removal actions, but exact behavior audit remains.
 - [ ] Expand the admin dashboard into the nine specified modules: Students, Teachers, Results, Payments, Events, Gallery, Complaints, Subjects, and Settings; module shells exist, while full CRUD parity remains.
 - [x] Add admin CSV exports for students, teachers, and long-format results.
 - [x] Persist an admin-managed subject list and use it to build the teacher result-entry grid dynamically.
