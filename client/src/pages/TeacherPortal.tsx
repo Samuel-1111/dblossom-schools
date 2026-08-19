@@ -9,12 +9,13 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 const subjectNames = ["English Language", "Mathematics", "Basic Science", "Social Studies", "Computer Studies"];
+const getManagedSubjects = () => { try { const saved = JSON.parse(localStorage.getItem("dbms_subjects") || "null"); return Array.isArray(saved) && saved.length ? saved : subjectNames; } catch { return subjectNames; } };
 
 export default function TeacherPortal() {
   const [credentials, setCredentials] = useState({ staffId: "", password: "" });
   const [teacher, setTeacher] = useState<any>(null);
   const [form, setForm] = useState({ studentId: "", studentName: "", className: "JSS1", term: "First Term", session: "2025/2026", teacherComment: "" });
-  const [scores, setScores] = useState(subjectNames.map((name) => ({ name, caScore: 0, examScore: 0 })));
+  const [scores, setScores] = useState(() => getManagedSubjects().map((name: string) => ({ name, caScore: 0, examScore: 0 })));
   const login = trpc.teacherPortal.login.useMutation({ onSuccess: (data) => data ? setTeacher(data) : toast.error("Invalid staff ID or password") });
   const save = trpc.teacherPortal.saveResult.useMutation({ onSuccess: (data) => toast.success(`Result saved. Average: ${data.average}%`) });
   const viewResults = trpc.teacherPortal.viewResults.useQuery({ className: teacher?.assignedClass || form.className, term: form.term, session: form.session }, { enabled: Boolean(teacher && teacher.role !== "Class Teacher") });

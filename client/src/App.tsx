@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import StudentPortal from "./pages/StudentPortal";
 import TeacherPortal from "./pages/TeacherPortal";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminLogin from "./pages/AdminLogin";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -15,8 +16,12 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/student"} component={StudentPortal} />
+      <Route path={"/student-portal"} component={StudentPortal} />
       <Route path={"/teacher"} component={TeacherPortal} />
+      <Route path={"/teacher-portal"} component={TeacherPortal} />
       <Route path={"/admin"} component={AdminDashboard} />
+      <Route path={"/admin-login"} component={AdminLogin} />
+      <Route path={"/admin-dashboard"} component={AdminDashboard} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
