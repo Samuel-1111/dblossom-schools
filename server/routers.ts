@@ -111,6 +111,31 @@ export const appRouter = router({
       await db.delete(students).where((await import("drizzle-orm")).eq(students.id, input.id));
       return { success: true };
     }),
+    createTeacher: protectedProcedure.input(z.object({ fullName: z.string().min(2), staffId: z.string().min(1), password: z.string().min(1), role: z.string().min(1), assignedClass: z.string().optional(), subject: z.string().optional(), email: z.string().email().optional(), phone: z.string().optional() })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { teachers } = await import("../drizzle/schema");
+      await db.insert(teachers).values(input);
+      return { success: true };
+    }),
+    updateTeacher: protectedProcedure.input(z.object({ id: z.number(), fullName: z.string().min(2).optional(), role: z.string().min(1).optional(), assignedClass: z.string().optional(), subject: z.string().optional(), status: z.enum(["Active", "Inactive"]).optional() })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { teachers } = await import("../drizzle/schema");
+      const { id, ...changes } = input;
+      await db.update(teachers).set(changes).where((await import("drizzle-orm")).eq(teachers.id, id));
+      return { success: true };
+    }),
+    deleteTeacher: protectedProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      const { teachers } = await import("../drizzle/schema");
+      await db.delete(teachers).where((await import("drizzle-orm")).eq(teachers.id, input.id));
+      return { success: true };
+    }),
     uploadImage: protectedProcedure.input(z.object({ fileName: z.string().min(1), mimeType: z.string().startsWith("image/"), base64: z.string().min(20) })).mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Admin access required");
       const buffer = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
