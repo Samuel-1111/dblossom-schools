@@ -190,6 +190,7 @@ export const appRouter = router({
     }),
     uploadImage: localAdminProcedure.input(z.object({ fileName: z.string().min(1), mimeType: z.string().startsWith("image/"), base64: z.string().min(20) })).mutation(async ({ ctx, input }) => {
       const buffer = Buffer.from(input.base64.replace(/^data:[^;]+;base64,/, ""), "base64");
+      if (buffer.length > 5 * 1024 * 1024) throw new TRPCError({ code: "BAD_REQUEST", message: "Image must be 5 MB or smaller" });
       const uploaded = await storagePut(`school-images/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-")}`, buffer, input.mimeType);
       return uploaded;
     }),
