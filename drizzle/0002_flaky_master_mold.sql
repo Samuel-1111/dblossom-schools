@@ -1,0 +1,1 @@
+ALTER TABLE `results` ADD CONSTRAINT `results_studentId_students_id_fk` FOREIGN KEY (`studentId`) REFERENCES `students`(`id`) ON DELETE no action ON UPDATE no action;

@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { foreignKey, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -73,7 +73,9 @@ export const results = mysqlTable("results", {
   principalComment: text("principalComment"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  studentIdFk: foreignKey({ columns: [table.studentId], foreignColumns: [students.id] }),
+}));
 
 export const payments = mysqlTable("payments", {
   id: int("id").autoincrement().primaryKey(),
