@@ -10,7 +10,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 const HERO_IMAGE = "https://media.base44.com/images/public/69c481d93678fe5f1003a517/a857fe8fa_generated_f977333f.png";
-const SCHOOL_LOGO = "https://media.base44.com/images/public/69c481d93678fe5f1003a517/c49e694f2_images.jpeg";
+const SCHOOL_LOGO = "/manus-storage/school-logo_a34c205b.jpg";
 const PROGRAMS = [
   { title: "Early Years", copy: "A gentle beginning built around curiosity, care, and confidence.", icon: HeartIcon },
   { title: "Basic Education", copy: "Strong foundations in literacy, numeracy, character, and digital learning.", icon: BookOpen },
