@@ -13,9 +13,12 @@
 - [ ] Build the admin dashboard with CRUD management for all required entities. (Current delivery includes a protected live snapshot dashboard; CRUD actions remain.)
 - [x] Implement automatic grading rules: A >= 70, B 60-69, C 50-59, D 40-49, F < 40.
 - [x] Implement parent payment notification form with WhatsApp proof-sending instructions.
-- [ ] Implement admin payment confirmation and rejection flow.
-- [ ] Implement public complaint/contact submission with real school email notification. (Current delivery persists complaints and sends an owner notification; direct school-inbox email remains.)
+- [x] Implement admin payment confirmation and rejection flow.
+- [x] Implement public complaint/contact submission routed to the protected admin portal; direct school-inbox email is intentionally not required by the revised scope.
 - [ ] Implement S3-backed upload and serving for gallery and event images.
 - [ ] Add Vitest coverage for grading, result persistence, role permissions, payment workflow, complaint notification, and report-card data. (Current tests cover configuration and grading.)
 - [ ] Run type checks, tests, production build, and browser verification at desktop and mobile breakpoints. (Checks and desktop verification are complete; mobile capture was attempted but unavailable after service restart.)
 - [ ] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint.
+
+- [x] Route new public complaints into the protected admin portal as the primary review workflow; direct school-inbox email is no longer required.
+- [x] Add an admin complaints view with status management and readable submission details.

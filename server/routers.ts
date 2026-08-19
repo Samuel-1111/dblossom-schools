@@ -82,6 +82,13 @@ export const appRouter = router({
       const uploaded = await storagePut(`school-images/${Date.now()}-${input.fileName.replace(/[^a-zA-Z0-9._-]/g, "-")}`, buffer, input.mimeType);
       return uploaded;
     }),
+    updateComplaint: protectedProcedure.input(z.object({ id: z.number(), status: z.enum(["New", "In Review", "Resolved"]) })).mutation(async ({ ctx, input }) => {
+      if (ctx.user.role !== "admin") throw new Error("Admin access required");
+      const db = await getDb();
+      if (!db) throw new Error("Database unavailable");
+      await db.update(complaints).set({ status: input.status }).where((await import("drizzle-orm")).eq(complaints.id, input.id));
+      return { success: true };
+    }),
     updatePayment: protectedProcedure.input(z.object({ id: z.number(), status: z.enum(["Confirmed", "Rejected"]) })).mutation(async ({ ctx, input }) => {
       if (ctx.user.role !== "admin") throw new Error("Admin access required");
       const db = await getDb();
