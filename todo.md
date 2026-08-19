@@ -21,7 +21,7 @@
 - [ ] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint. Latest desktop/mobile captures pass; media mutation failures now surface visibly, while strict module and exact-copy gaps remain tracked below.
 - [ ] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Result creation and comment updates plus event/gallery edit UI are wired; full browser verification remains.
 - [ ] Add S3-backed event image upload and public/admin event image rendering. UI code is implemented; browser create-and-render verification remains.
-- [ ] Complete the secured-portal exact-copy and interaction audit, including all validation/loading/mobile states.
+- [ ] Complete the secured-portal exact-copy and interaction audit, including all validation/loading/mobile states. Back to Home links are now present on Student, Teacher, and Admin login entry pages; broader exact-copy and state coverage remains.
 
 - [x] Route new public complaints into the protected admin portal as the primary review workflow; direct school-inbox email is no longer required.
 - [x] Add an admin complaints view with status management and readable submission details.
