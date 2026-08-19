@@ -62,3 +62,4 @@
 - [x] Hide Admin Student and Teacher registration forms until Add Student/Add Teacher is pressed, with a clear close/cancel path.
 - [x] Restrict teacher result uploads to Class Teacher users and their assigned class in both UI and backend validation.
 - [x] Add regression coverage and verify the revised admin and teacher workflows with tests, typecheck, build, and browser captures.
+- [x] Remove administrator result-upload controls so result creation remains teacher-portal-only, while retaining administrator review and comment management.
