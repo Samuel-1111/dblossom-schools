@@ -1,0 +1,21 @@
+# Project TODO
+
+- [x] Establish the premium D'Blossom visual system: typography, color tokens, responsive spacing, states, and accessibility.
+- [ ] Build separate public Home, About, Academics, Gallery, Events/News, Payment Information, and Contact experiences. (Current delivery has a polished single-page public experience with these sections represented.)
+- [ ] Add database tables for students, teachers, results, payments, events, gallery images, and complaints with required fields and relationships. (Tables are present; foreign-key relationships remain.)
+- [ ] Implement secure role-aware backend procedures for public submissions, student access, teacher access, and admin CRUD. (Current procedures include portal access and an admin snapshot; hardening and full CRUD remain.)
+- [x] Implement student login by admission number and password.
+- [x] Implement student result filtering by term and session.
+- [ ] Implement branded multi-subject PDF report card generation.
+- [ ] Implement teacher login by staff ID and password.
+- [ ] Implement class-teacher result entry with automatic CA/exam totals, grades, and averages.
+- [ ] Implement teaching-staff view-only result access.
+- [ ] Build the admin dashboard with CRUD management for all required entities.
+- [x] Implement automatic grading rules: A >= 70, B 60-69, C 50-59, D 40-49, F < 40.
+- [x] Implement parent payment notification form with WhatsApp proof-sending instructions.
+- [ ] Implement admin payment confirmation and rejection flow.
+- [ ] Implement public complaint/contact submission with real school email notification. (Current delivery persists complaints and sends an owner notification; direct school-inbox email remains.)
+- [ ] Implement S3-backed upload and serving for gallery and event images.
+- [ ] Add Vitest coverage for grading, result persistence, role permissions, payment workflow, complaint notification, and report-card data. (Current tests cover configuration and grading.)
+- [ ] Run type checks, tests, production build, and browser verification at desktop and mobile breakpoints. (Checks and desktop verification are complete; mobile verification remains.)
+- [ ] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint.

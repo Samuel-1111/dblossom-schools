@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, complaints, events, galleryImages, payments, results, students, teachers, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,50 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function listPublicContent() {
+  const db = await getDb();
+  if (!db) return { events: [], gallery: [] };
+  const [eventRows, galleryRows] = await Promise.all([
+    db.select().from(events).orderBy(desc(events.eventDate)),
+    db.select().from(galleryImages).orderBy(desc(galleryImages.createdAt)),
+  ]);
+  return { events: eventRows, gallery: galleryRows };
+}
+
+export async function findStudent(admissionNumber: string, password: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(students).where(and(eq(students.admissionNumber, admissionNumber), eq(students.password, password), eq(students.status, "Active"))).limit(1);
+  return rows[0];
+}
+
+export async function findTeacher(staffId: string, password: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db.select().from(teachers).where(and(eq(teachers.staffId, staffId), eq(teachers.password, password), eq(teachers.status, "Active"))).limit(1);
+  return rows[0];
+}
+
+export async function listResultsForStudent(studentId: number, term?: string, session?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  const clauses = [eq(results.studentId, studentId)];
+  if (term) clauses.push(eq(results.term, term));
+  if (session) clauses.push(eq(results.session, session));
+  return db.select().from(results).where(and(...clauses)).orderBy(desc(results.updatedAt));
+}
+
+export async function getSchoolAdminSnapshot() {
+  const db = await getDb();
+  if (!db) return { students: [], teachers: [], results: [], payments: [], complaints: [], events: [], gallery: [] };
+  const [studentRows, teacherRows, resultRows, paymentRows, complaintRows, eventRows, galleryRows] = await Promise.all([
+    db.select().from(students).orderBy(desc(students.createdAt)),
+    db.select().from(teachers).orderBy(desc(teachers.createdAt)),
+    db.select().from(results).orderBy(desc(results.updatedAt)),
+    db.select().from(payments).orderBy(desc(payments.createdAt)),
+    db.select().from(complaints).orderBy(desc(complaints.createdAt)),
+    db.select().from(events).orderBy(desc(events.createdAt)),
+    db.select().from(galleryImages).orderBy(desc(galleryImages.createdAt)),
+  ]);
+  return { students: studentRows, teachers: teacherRows, results: resultRows, payments: paymentRows, complaints: complaintRows, events: eventRows, gallery: galleryRows };
+}
