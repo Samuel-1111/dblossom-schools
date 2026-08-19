@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, LogOut, Save } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ export default function TeacherPortal() {
   const [form, setForm] = useState({ studentId: "", studentName: "", className: "JSS1", term: "First Term", session: "2025/2026", teacherComment: "" });
   const [scores, setScores] = useState(() => getManagedSubjects().map((name: string) => ({ name, caScore: 0, examScore: 0 })));
   const login = trpc.teacherPortal.login.useMutation({ onSuccess: (data) => data ? setTeacher(data) : toast.error("Invalid staff ID or password") });
+  useEffect(() => { if (teacher?.role === "Class Teacher") setScores(getManagedSubjects().map((name: string) => ({ name, caScore: 0, examScore: 0 }))); }, [teacher?.role]);
   const save = trpc.teacherPortal.saveResult.useMutation({ onSuccess: (data) => toast.success(`Result saved. Average: ${data.average}%`) });
   const viewResults = trpc.teacherPortal.viewResults.useQuery({ className: teacher?.assignedClass || form.className, term: form.term, session: form.session }, { enabled: Boolean(teacher && teacher.role !== "Class Teacher") });
   const updateScore = (index: number, key: "caScore" | "examScore", value: number) => setScores(scores.map((s, i) => i === index ? { ...s, [key]: Math.max(0, value) } : s));

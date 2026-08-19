@@ -23,11 +23,11 @@
 - [x] Route new public complaints into the protected admin portal as the primary review workflow; direct school-inbox email is no longer required.
 - [x] Add an admin complaints view with status management and readable submission details.
 
-- [ ] Add specification-aligned /admin-login and /admin-dashboard routes with local admin credentials, validation, session guard, logout, and settings password override.
+- [x] Add specification-aligned /admin-login and /admin-dashboard routes with local admin credentials, validation, session guard, logout, and settings password override.
 - [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification.
 - [ ] Expand the admin dashboard into the nine specified modules: Students, Teachers, Results, Payments, Events, Gallery, Complaints, Subjects, and Settings.
 - [ ] Add admin CSV exports for students, teachers, and long-format results.
-- [ ] Persist an admin-managed subject list and use it to build the teacher result-entry grid dynamically.
+- [x] Persist an admin-managed subject list and use it to build the teacher result-entry grid dynamically.
 - [ ] Update the student portal to /student-portal with specification-aligned login validation and report-card rendering.
 - [ ] Update the teacher portal to /teacher-portal with specification-aligned login validation, dynamic subjects, load/edit result behavior, add/remove subject controls, and save/update states.
 - [ ] Add portal-specific Vitest coverage for admin authentication, student/teacher validation, dynamic subject behavior, result persistence, and report-card shaping.
