@@ -46,9 +46,9 @@
 - [x] Prevent duplicate student admission numbers and teacher staff IDs during administrator registration with clear backend errors.
 - [x] Prevent changing an existing student admission number or teacher staff ID to another record during administrator edits.
 
-- [ ] Remove OAuth dependency from local admin CRUD actions so DivineBlossom / DBMS is sufficient for administrator management; code is implemented, end-to-end verification pending on the updated publish.
+- [x] Remove OAuth dependency from local admin CRUD actions so DivineBlossom / DBMS is sufficient for administrator management; verified on the published build.
 - [ ] Preserve admission-number/password student login and staff-ID/password teacher login without adding OAuth prompts.
-- [ ] Re-run browser verification of local admin registration after removing the OAuth redirect (the previous published URL was stale; verify again after this checkpoint publishes the fix).
-- [ ] Prevent global OAuth fallback from intercepting local admin mutations and enable local-cookie admin snapshot refreshes; runtime verification pending on the updated publish.
-- [ ] Publish the local-admin auth changes, then verify latest /admin-login → /admin-dashboard create and delete flows without OAuth.
+- [x] Re-run browser verification of local admin registration after removing the OAuth redirect; published create and delete completed without OAuth.
+- [x] Prevent global OAuth fallback from intercepting local admin mutations and enable local-cookie admin snapshot refreshes; verified on the published build.
+- [x] Publish the local-admin auth changes, then verify latest /admin-login → /admin-dashboard create and delete flows without OAuth.
 - [x] Re-run full tests, typecheck, and build; checkpoint save remains pending.
