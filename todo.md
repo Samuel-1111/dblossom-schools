@@ -79,3 +79,6 @@
 - [ ] Restore and port the complete previously working Admin, Teacher, Student, public, registration, result, report-card, media, payment, complaint, and role-restricted workflows into the Next.js + Supabase migration without removing or replacing them with placeholders.
 - [ ] Reconcile the authoritative pasted specification and amendment with the migrated application, including local school credentials, Add Student/Add Teacher form buttons, and teacher-only assigned-class result uploads.
 - [ ] Verify that the published routes expose Admin Portal, Teacher Portal, Student Portal, and all required public experiences after the Supabase migration.
+- [x] Fix the Next.js production prerender failure `TypeError: a[d] is not a function` on `/_not-found` after adding the Teacher workspace, then rerun build and route validation.
+- [x] Add a Supabase-backed Teacher workspace with assigned-class student/subject loading, teacher-only result entry, and attendance recording controls.
+- [x] Revalidate the repaired Next.js build and preview routes for `/`, `/admin-login`, `/student-portal`, `/teacher-portal`, and a missing route; the missing route returns the stable Next.js 404 fallback.
