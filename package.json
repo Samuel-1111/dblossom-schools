@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "NODE_ENV=production next build && node scripts/ensure-dist-public.mjs",
-    "start": "NODE_ENV=production next start",
+    "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",

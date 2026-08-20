@@ -75,3 +75,4 @@
 - [ ] Complete the remaining full CRUD/data migration from the legacy school workflows into Supabase-backed Next.js modules and apply the SQL migration in the connected Supabase project.
 - [x] Fix the Next.js development runtime crash reporting a missing generated Webpack chunk (`./244.js`) and revalidate affected routes.
 - [ ] Resolve the Next.js auto-publish packaging mismatch that expects `dist/public`, then verify the published runtime after the compatibility shim.
+- [x] Fix the managed deployment startup failure where the platform launches `/usr/src/app/dist/index.js` even though the migrated Next.js build currently emits `.next/standalone/server.js`.
