@@ -73,3 +73,4 @@
 - [x] Add Supabase-backed Student, Teacher, and Admin login entry routes and protected dashboard shells with role checks and assigned-class/student reads.
 - [x] Validate the migration with 27 passing Vitest tests, TypeScript, production build, and browser captures for public and portal entry routes.
 - [ ] Complete the remaining full CRUD/data migration from the legacy school workflows into Supabase-backed Next.js modules and apply the SQL migration in the connected Supabase project.
+- [x] Fix the Next.js development runtime crash reporting a missing generated Webpack chunk (`./244.js`) and revalidate affected routes.
