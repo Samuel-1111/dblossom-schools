@@ -1,9 +1,10 @@
-import { cp, mkdir, writeFile } from "node:fs/promises";
+import { cp, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+await rm("dist", { recursive: true, force: true });
 await mkdir("dist", { recursive: true });
-await cp(".next/standalone", "dist", { recursive: true });
-await cp(".next/static", "dist/.next/static", { recursive: true });
+await cp(".next/standalone", "dist", { recursive: true, verbatimSymlinks: true });
+await cp(".next/static", "dist/.next/static", { recursive: true, verbatimSymlinks: true });
 
 await mkdir("dist/public", { recursive: true });
 await writeFile(

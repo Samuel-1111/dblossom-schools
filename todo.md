@@ -76,3 +76,6 @@
 - [x] Fix the Next.js development runtime crash reporting a missing generated Webpack chunk (`./244.js`) and revalidate affected routes.
 - [ ] Resolve the Next.js auto-publish packaging mismatch that expects `dist/public`, then verify the published runtime after the compatibility shim.
 - [x] Fix the managed deployment startup failure where the platform launches `/usr/src/app/dist/index.js` even though the migrated Next.js build currently emits `.next/standalone/server.js`.
+- [ ] Restore and port the complete previously working Admin, Teacher, Student, public, registration, result, report-card, media, payment, complaint, and role-restricted workflows into the Next.js + Supabase migration without removing or replacing them with placeholders.
+- [ ] Reconcile the authoritative pasted specification and amendment with the migrated application, including local school credentials, Add Student/Add Teacher form buttons, and teacher-only assigned-class result uploads.
+- [ ] Verify that the published routes expose Admin Portal, Teacher Portal, Student Portal, and all required public experiences after the Supabase migration.

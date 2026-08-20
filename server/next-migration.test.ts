@@ -3,6 +3,11 @@ import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
 const schema = readFileSync(`${root}/supabase/migrations/0001_school_management.sql`, "utf8");
+const legacySchema = readFileSync(`${root}/supabase/migrations/0002_legacy_workflows.sql`, "utf8");
+const portalLogin = readFileSync(`${root}/app/portal-login/PortalLogin.tsx`, "utf8");
+const adminLogin = readFileSync(`${root}/app/admin-login/page.tsx`, "utf8");
+const studentLogin = readFileSync(`${root}/app/student-portal/page.tsx`, "utf8");
+const teacherLogin = readFileSync(`${root}/app/teacher-portal/page.tsx`, "utf8");
 
 describe("Next.js + Supabase migration contract", () => {
   it("defines every requested school table and enables RLS", () => {
@@ -19,6 +24,22 @@ describe("Next.js + Supabase migration contract", () => {
     expect(schema).toContain("teacher_id = auth.uid()");
     expect(schema).toContain("profile_id = auth.uid()");
     expect(schema).not.toContain("service_role");
+  });
+
+  it("defines the preserved school workflow tables and identifier resolver", () => {
+    for (const table of ["portal_credentials", "results", "payments", "events", "gallery_images", "complaints"]) {
+      expect(legacySchema).toContain(`create table if not exists public.${table}`);
+      expect(legacySchema).toContain(`alter table public.${table} enable row level security`);
+    }
+    expect(legacySchema).toContain("resolve_portal_login");
+    expect(legacySchema).toContain("recorded_by = auth.uid()");
+  });
+
+  it("preserves the amended portal credential labels", () => {
+    expect(studentLogin).toContain('identifierLabel="Admission Number"');
+    expect(teacherLogin).toContain('identifierLabel="Staff ID"');
+    expect(adminLogin).toContain('identifierLabel="Username"');
+    expect(portalLogin).toContain("resolve_portal_login");
   });
 
   it("includes all migrated portal entry routes", () => {
