@@ -82,3 +82,4 @@
 - [x] Fix the Next.js production prerender failure `TypeError: a[d] is not a function` on `/_not-found` after adding the Teacher workspace, then rerun build and route validation.
 - [x] Add a Supabase-backed Teacher workspace with assigned-class student/subject loading, teacher-only result entry, and attendance recording controls.
 - [x] Revalidate the repaired Next.js build and preview routes for `/`, `/admin-login`, `/student-portal`, `/teacher-portal`, and a missing route; the missing route returns the stable Next.js 404 fallback.
+- [x] Add a Supabase-backed Student workspace with own-record profile, term-filterable grades, attendance summaries, announcements, and report-card-oriented result presentation.
