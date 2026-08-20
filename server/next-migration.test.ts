@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 const root = process.cwd();
 const schema = readFileSync(`${root}/supabase/migrations/0001_school_management.sql`, "utf8");
 const legacySchema = readFileSync(`${root}/supabase/migrations/0002_legacy_workflows.sql`, "utf8");
+const hardeningSchema = readFileSync(`${root}/supabase/migrations/0003_role_hardening.sql`, "utf8");
 const portalLogin = readFileSync(`${root}/app/portal-login/PortalLogin.tsx`, "utf8");
 const adminLogin = readFileSync(`${root}/app/admin-login/page.tsx`, "utf8");
 const studentLogin = readFileSync(`${root}/app/student-portal/page.tsx`, "utf8");
@@ -33,6 +34,14 @@ describe("Next.js + Supabase migration contract", () => {
     }
     expect(legacySchema).toContain("resolve_portal_login");
     expect(legacySchema).toContain("recorded_by = auth.uid()");
+  });
+
+  it("hardens role-scoped teacher writes and student reads", () => {
+    expect(hardeningSchema).toContain("create or replace function public.is_teacher()");
+    expect(hardeningSchema).toContain("create or replace function public.is_student()");
+    expect(hardeningSchema).toContain("public.is_teacher() and recorded_by = auth.uid()");
+    expect(hardeningSchema).toContain("public.is_student() and exists");
+    expect(hardeningSchema).toContain("attendance_student_date_unique");
   });
 
   it("preserves the amended portal credential labels", () => {

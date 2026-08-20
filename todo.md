@@ -74,7 +74,7 @@
 - [x] Validate the migration with 27 passing Vitest tests, TypeScript, production build, and browser captures for public and portal entry routes.
 - [ ] Complete the remaining full CRUD/data migration from the legacy school workflows into Supabase-backed Next.js modules and apply the SQL migration in the connected Supabase project.
 - [x] Fix the Next.js development runtime crash reporting a missing generated Webpack chunk (`./244.js`) and revalidate affected routes.
-- [ ] Resolve the Next.js auto-publish packaging mismatch that expects `dist/public`, then verify the published runtime after the compatibility shim.
+- [x] Resolve the Next.js auto-publish packaging mismatch that expects `dist/public`, then verify the published runtime after the compatibility shim.
 - [x] Fix the managed deployment startup failure where the platform launches `/usr/src/app/dist/index.js` even though the migrated Next.js build currently emits `.next/standalone/server.js`.
 - [ ] Restore and port the complete previously working Admin, Teacher, Student, public, registration, result, report-card, media, payment, complaint, and role-restricted workflows into the Next.js + Supabase migration without removing or replacing them with placeholders.
 - [ ] Reconcile the authoritative pasted specification and amendment with the migrated application, including local school credentials, Add Student/Add Teacher form buttons, and teacher-only assigned-class result uploads.
@@ -83,3 +83,4 @@
 - [x] Add a Supabase-backed Teacher workspace with assigned-class student/subject loading, teacher-only result entry, and attendance recording controls.
 - [x] Revalidate the repaired Next.js build and preview routes for `/`, `/admin-login`, `/student-portal`, `/teacher-portal`, and a missing route; the missing route returns the stable Next.js 404 fallback.
 - [x] Add a Supabase-backed Student workspace with own-record profile, term-filterable grades, attendance summaries, announcements, and report-card-oriented result presentation.
+- [x] Stabilize the Next.js App Router production build with the patched Next.js version, non-worker webpack build, explicit App Router error boundaries, dynamic root fallbacks, and complete ESM standalone artifact packaging.
