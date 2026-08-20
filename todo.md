@@ -63,3 +63,13 @@
 - [x] Restrict teacher result uploads to Class Teacher users and their assigned class in both UI and backend validation.
 - [x] Add regression coverage and verify the revised admin and teacher workflows with tests, typecheck, build, and browser captures.
 - [x] Remove administrator result-upload controls so result creation remains teacher-portal-only, while retaining administrator review and comment management.
+- [ ] Migrate the existing React/Vite/tRPC/Drizzle platform to Next.js + Supabase while preserving public, Student, Teacher, and Admin workflows.
+- [ ] Add Supabase client/server/middleware helpers, root middleware, OAuth callback, environment configuration, schema/RLS SQL, and signup profile trigger.
+- [ ] Port existing routes and workflows to the Next.js app and validate standalone export behavior.
+
+- [x] Add Next.js App Router foundation, standalone output configuration, production-mode scripts, patched Next.js runtime, and Tailwind/PostCSS styling compatibility.
+- [x] Add Supabase browser/server/middleware clients, root session middleware, OAuth callback, auth error page, and sign-out route using only the publishable key.
+- [x] Add the Supabase school-management SQL migration with profiles, classes, students, subjects, attendance, grades, announcements, signup profile trigger, RLS, and role-scoped policies.
+- [x] Add Supabase-backed Student, Teacher, and Admin login entry routes and protected dashboard shells with role checks and assigned-class/student reads.
+- [x] Validate the migration with 27 passing Vitest tests, TypeScript, production build, and browser captures for public and portal entry routes.
+- [ ] Complete the remaining full CRUD/data migration from the legacy school workflows into Supabase-backed Next.js modules and apply the SQL migration in the connected Supabase project.
