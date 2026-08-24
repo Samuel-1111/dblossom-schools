@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createLocalAdminToken, isLocalAdminCredential, LOCAL_ADMIN_COOKIE } from "../../../utils/local-admin";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: Request) {
   let body: { identifier?: string; password?: string };
   try {
