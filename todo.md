@@ -113,3 +113,7 @@
 - [x] Audit pasted_content_2.txt against Admin, Student, and Teacher portal source files and record concrete mismatches.
 - [x] Apply the uploaded specification’s shared secured-portal login hierarchy, role-specific icons/subtitles, field-level validation, loading labels, Home links, and Sonner feedback without weakening server-side authentication.
 - [x] Add the supplied circular school logo to the shared Admin, Student, and Teacher login cards as required by pasted_content_2.txt.
+- [x] Implement a secure Admin Settings password change and login override flow corresponding to pasted_content_2.txt without storing the replacement password in browser storage or exposing it to the client.
+- [x] Implement a secure Admin Settings password change and login override flow corresponding to pasted_content_2.txt without storing the replacement password in browser storage or exposing it to the client.
+- [x] Upload the supplied school logo to durable web storage, replace stale references, and serve `/manus-storage/*` through the Next.js server-side signed URL proxy.
+- [x] Exclude `.manus-logs` and generated output from Next.js development watching to prevent log-triggered recompilation and intermittent manifest JSON errors.
