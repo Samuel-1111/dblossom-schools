@@ -120,21 +120,23 @@
 - [x] Add Admin module search/filter controls required by pasted_content_2.txt while preserving protected server-backed reads and existing CRUD actions.
 - [x] Add accessible Admin module search/filter controls across live student, teacher, result, payment, event, gallery, complaint, and subject tables while preserving protected reads and CRUD actions.
 - [x] Add Student result filtering by academic session and term plus a branded client-side PDF report-card download using the installed html2canvas and jsPDF libraries.
-- [ ] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
+- [x] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
 - [x] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
 - [x] Replace the homepage Payment and Complaint placeholders with responsive Supabase-backed public submission forms, loading states, and toast feedback.
 - [x] Extend the protected Admin records API and module tables with sanitized event/gallery metadata mutation and deletion actions while preserving server-side local-admin authorization.
-- [ ] Add protected Admin payment confirmation and rejection actions with explicit status feedback in the Payments module.
+- [x] Add protected Admin payment confirmation and rejection actions with explicit status feedback in the Payments module.
 - [x] Add protected Admin payment confirmation and rejection actions with explicit status feedback in the Payments module.
 - [x] Add public About, Academics, Gallery, Events, Payment, and Complaint alias routes that preserve fixed-navbar-safe homepage section navigation.
-- [ ] Add an accessible mobile menu to the fixed public homepage navigation while preserving desktop links and portal actions.
 - [x] Add an accessible mobile menu to the fixed public homepage navigation while preserving desktop links and portal actions.
-- [ ] Add protected Admin complaint review status actions with explicit status feedback in the Complaints module.
+- [x] Add an accessible mobile menu to the fixed public homepage navigation while preserving desktop links and portal actions.
 - [x] Add protected Admin complaint review status actions with explicit status feedback in the Complaints module.
-- [ ] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
+- [x] Add protected Admin complaint review status actions with explicit status feedback in the Complaints module.
+- [x] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
 - [x] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
 - [x] Add protected Admin event and gallery metadata edit forms with sanitized server-side saves, explicit feedback, and cancel actions.
 - [x] Add protected Admin event and gallery image upload through server storage with image-type and 5 MB guards, URL persistence, client upload feedback, and public/admin-compatible URLs.
-- [ ] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.
+- [x] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.
 - [x] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.
 - [x] Route Admin Payments, Complaints, Subjects, and Gallery reads through the protected local-admin records API instead of browser-side Supabase access.
+- [ ] Replace redirect-only public section aliases with route-specific About, Academics, Gallery, Events, Payment, and Complaint experiences that retain live data/forms and clear homepage navigation.
+- [x] Replace redirect-only public section aliases with route-specific About, Academics, Gallery, Events, Payment, and Complaint experiences that retain live data/forms and clear homepage navigation.
