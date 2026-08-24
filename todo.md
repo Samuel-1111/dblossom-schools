@@ -2,8 +2,8 @@
 
 - [x] Establish the premium D'Blossom visual system: typography, color tokens, responsive spacing, states, and accessibility.
 - [x] Build separate public Home, About, Academics, Gallery, Events/News, Payment Information, and Contact experiences. Public aliases route to the corresponding Home sections with fixed-navbar scroll offsets, and footer navigation now includes every public information area; route-specific pages are implemented.
-- [ ] Add database tables for students, teachers, results, payments, events, gallery images, and complaints with required fields and relationships. (Tables are present and results now reference students; remaining entity relationships are still tracked.)
-- [ ] Implement secure role-aware backend procedures for public submissions, student access, teacher access, and admin CRUD. (Current procedures include portal access and an admin snapshot; hardening and full CRUD remain.)
+- [ ] Add database tables for students, teachers, results, payments, events, gallery images, and complaints with required fields and relationships. The repository migrations define all entities, but the connected Supabase endpoint still reports a missing teachers.staff_id column; live application and verification remain pending.
+- [x] Implement secure role-aware backend procedures for public submissions, student access, teacher access, and admin CRUD. Supabase RLS policies, the portal login resolver, protected local-admin records API, teacher assigned-class restrictions, and public submission policies are implemented.
 - [x] Implement student login by admission number and password.
 - [x] Implement student result filtering by term and session.
 - [x] Implement branded multi-subject PDF report card generation.
@@ -167,3 +167,6 @@
 - [x] Verify styled mobile layouts for Events, Gallery, Student Portal, and Teacher Portal entry routes, including circular branding, role-specific controls, unavailable states, and homepage navigation.
 - [x] Align authenticated Student and Teacher dashboard header bands with the specification’s navy background, light text hierarchy, and visible outline sign-out controls.
 - [x] Add protected Admin result deletion with explicit confirmation and server allowlisting, without enabling Admin result creation or upload.
+- [ ] Verify the connected Supabase teachers schema after the user-applied migration, including credential columns, staff index, profile linkage, and RLS.
+- [x] Validate public and secured portal layouts at phone, tablet, laptop, and wide desktop breakpoints, then fix any overflow, clipped controls, or inaccessible navigation found. Captures completed at 375, 768, 1280, and 1440px widths; no overflow or inaccessible entry controls were found.
+- [x] Fix secured Student dashboard header title contrast so the portal heading remains visible on the navy band at every viewport.
