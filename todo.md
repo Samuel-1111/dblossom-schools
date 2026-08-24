@@ -105,3 +105,10 @@
 - [x] Route Admin event and gallery record reads through the protected server endpoint so local administrators can review imported or uploaded media records safely.
 - [x] Investigate and fix the newly reported Internal Server Error shown in the live preview, then revalidate the affected route and published deployment.
 - [x] Prevent malformed Supabase auth-cookie state from causing `Unexpected end of JSON input` during public homepage rendering, with regression coverage and route verification.
+- [x] Audit pasted_content_2.txt against Admin, Student, and Teacher portal source files and record concrete mismatches.
+- [ ] Align the secured portal authentication and shared visual patterns with pasted_content_2.txt, including exact copy, validation feedback, loading labels, header bands, and responsive navigation.
+- [ ] Align Admin module behavior with pasted_content_2.txt, prioritizing localStorage password override, module-specific filters/actions, and event/gallery management behavior.
+- [ ] Align Student and Teacher portal behavior with pasted_content_2.txt, including result filtering, report-card presentation, assigned-class restrictions, and attendance/result save states.
+- [ ] Add regression coverage for the newly audited portal specification requirements and revalidate all secured routes.
+- [x] Audit pasted_content_2.txt against Admin, Student, and Teacher portal source files and record concrete mismatches.
+- [x] Apply the uploaded specification’s shared secured-portal login hierarchy, role-specific icons/subtitles, field-level validation, loading labels, Home links, and Sonner feedback without weakening server-side authentication.
