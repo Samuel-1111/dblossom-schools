@@ -120,3 +120,5 @@
 - [x] Add Admin module search/filter controls required by pasted_content_2.txt while preserving protected server-backed reads and existing CRUD actions.
 - [x] Add accessible Admin module search/filter controls across live student, teacher, result, payment, event, gallery, complaint, and subject tables while preserving protected reads and CRUD actions.
 - [x] Add Student result filtering by academic session and term plus a branded client-side PDF report-card download using the installed html2canvas and jsPDF libraries.
+- [ ] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
+- [x] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
