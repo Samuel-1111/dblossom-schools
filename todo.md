@@ -165,3 +165,4 @@
 - [x] Add focused Vitest coverage for Teacher grade persistence payloads and Admin role-specific result mutation boundaries.
 - [x] Align Student result-filter helper copy with the implemented session-and-term controls.
 - [x] Verify styled mobile layouts for Events, Gallery, Student Portal, and Teacher Portal entry routes, including circular branding, role-specific controls, unavailable states, and homepage navigation.
+- [x] Align authenticated Student and Teacher dashboard header bands with the specification’s navy background, light text hierarchy, and visible outline sign-out controls.
