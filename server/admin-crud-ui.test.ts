@@ -2,19 +2,29 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const clientSource = readFileSync(new URL("../app/admin-dashboard/AdminDashboardClient.tsx", import.meta.url), "utf8");
+const routeSource = readFileSync(new URL("../app/api/admin/records/route.ts", import.meta.url), "utf8");
 
 describe("Admin CRUD client contract", () => {
   it("provides explicit student edit and delete actions", () => {
-    expect(clientSource).toContain('supabase.from("students").update(payload).eq("id", editingStudentId)');
-    expect(clientSource).toContain('supabase.from("students").delete().eq("id", row.id)');
+    expect(clientSource).toContain('adminRequest("PATCH", "students", String(editingStudentId), payload)');
+    expect(clientSource).toContain('adminRequest("DELETE", "students", String(row.id))');
     expect(clientSource).toContain('>Edit</button>');
     expect(clientSource).toContain('>Delete</button>');
   });
 
   it("provides teacher profile edit and role-scoped delete actions", () => {
-    expect(clientSource).toContain('supabase.from("profiles").update(payload).eq("id", editingTeacherId).eq("role", "teacher")');
-    expect(clientSource).toContain('supabase.from("profiles").delete().eq("id", row.id).eq("role", "teacher")');
-    expect(clientSource).toContain("Create the Auth account first");
+    expect(clientSource).toContain('adminRequest("PATCH", "teachers", editingTeacherId, payload)');
+    expect(clientSource).toContain('adminRequest("DELETE", "teachers", String(row.id))');
+    expect(clientSource).toContain('teacher.email.trim()');
+    expect(clientSource).toContain('teacher.phone.trim()');
+  });
+
+  it("protects imported-record access with the local admin cookie and server-only client", () => {
+    expect(routeSource).toContain("isValidLocalAdminToken");
+    expect(routeSource).toContain("createServiceClient");
+    expect(routeSource).toContain('table === "students" || table === "teachers"');
+    expect(routeSource).toContain("export async function GET");
+    expect(routeSource).toContain("export async function PATCH");
   });
 
   it("keeps destructive actions behind explicit browser confirmation", () => {

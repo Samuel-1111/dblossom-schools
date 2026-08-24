@@ -91,4 +91,10 @@
 - [x] Compare the preview and published runtime after the recurring blank Internal Server Error and remove the unstable failure source without breaking the verified Admin Portal login.
 - [x] Make preview startup resilient to stale `.next` chunks by cleaning generated output before `next dev` and avoiding TypeScript watch failures while generated route types are being recreated.
 - [x] Revalidate repeated preview requests and logs after the durable startup fix, including all public and portal routes.
-- [ ] Complete the next Admin Portal CRUD increment for student and teacher records, including edit/delete controls, validation, and local-session-safe data access.
+- [x] Complete the next Admin Portal CRUD increment for student and teacher records, including edit/delete controls, validation, and local-session-safe data access.
+- [x] Import the uploaded students, teachers, and results CSV data into Supabase, preserving optional blanks, creating required reference rows, and reporting the one required blank admission number and any omitted schema fields.
+- [x] Align Admin Dashboard student/teacher queries with the live Supabase `students` and `teachers` tables so all imported records are visible and editable after CSV import.
+- [x] Add server-side local-admin Supabase record routes for imported student and teacher data so the signed local session can read and mutate records under RLS safely.
+- [x] Fix Admin student edit/create fields to use live names (`admission_number`, `full_name`, `class_id`, and related supported columns) end to end.
+- [x] Align teacher edit UX with the live `teachers` schema or add a safe server-side schema path for the imported teacher fields before claiming full editability.
+- [x] Verify local-admin load, edit, save, and reopen behavior for imported student and teacher records through `/api/admin/records`.
