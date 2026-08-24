@@ -103,3 +103,4 @@
 - [x] Replace the public homepage event/gallery placeholders with live Supabase data and safe image rendering from stored image URLs.
 - [x] Add explicit homepage error handling for gallery and event Supabase queries so backend failures are not shown as misleading empty states.
 - [x] Route Admin event and gallery record reads through the protected server endpoint so local administrators can review imported or uploaded media records safely.
+- [x] Investigate and fix the newly reported Internal Server Error shown in the live preview, then revalidate the affected route and published deployment.
