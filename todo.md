@@ -129,3 +129,5 @@
 - [x] Add public About, Academics, Gallery, Events, Payment, and Complaint alias routes that preserve fixed-navbar-safe homepage section navigation.
 - [ ] Add an accessible mobile menu to the fixed public homepage navigation while preserving desktop links and portal actions.
 - [x] Add an accessible mobile menu to the fixed public homepage navigation while preserving desktop links and portal actions.
+- [ ] Add protected Admin complaint review status actions with explicit status feedback in the Complaints module.
+- [x] Add protected Admin complaint review status actions with explicit status feedback in the Complaints module.

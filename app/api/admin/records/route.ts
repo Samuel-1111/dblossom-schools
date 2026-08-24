@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 type AdminTable = "students" | "teachers" | "results";
 type AdminMediaTable = "events" | "gallery_images";
-type AdminReadTable = AdminTable | "classes" | AdminMediaTable | "payments";
+type AdminReadTable = AdminTable | "classes" | AdminMediaTable | "payments" | "complaints";
 
 async function authorize() {
   const token = (await cookies()).get(LOCAL_ADMIN_COOKIE)?.value;
@@ -16,7 +16,7 @@ async function authorize() {
 
 function requestedTable(request: Request): AdminReadTable | null {
   const table = new URL(request.url).searchParams.get("table") ?? "";
-  if (table === "students" || table === "teachers" || table === "results" || table === "classes" || table === "events" || table === "gallery_images" || table === "payments") return table;
+  if (table === "students" || table === "teachers" || table === "results" || table === "classes" || table === "events" || table === "gallery_images" || table === "payments" || table === "complaints") return table;
   return null;
 }
 
@@ -91,10 +91,11 @@ export async function PATCH(request: Request) {
   const table = requestedTable(request);
   const id = new URL(request.url).searchParams.get("id");
   if (!table || !id) return NextResponse.json({ error: "Table and record id are required" }, { status: 400 });
-  if (table === "payments") {
+  if (table === "payments" || table === "complaints") {
     const body = await request.json();
-    if (body.status !== "Confirmed" && body.status !== "Rejected" && body.status !== "Pending") return NextResponse.json({ error: "Payment status must be Confirmed, Rejected, or Pending" }, { status: 400 });
-    const { data, error } = await createServiceClient().from("payments").update({ status: body.status }).eq("id", id).select().single();
+    const allowed = table === "payments" ? ["Confirmed", "Rejected", "Pending"] : ["New", "Reviewed", "Resolved"];
+    if (typeof body.status !== "string" || !allowed.includes(body.status)) return NextResponse.json({ error: `${table === "payments" ? "Payment" : "Complaint"} status is invalid` }, { status: 400 });
+    const { data, error } = await createServiceClient().from(table).update({ status: body.status }).eq("id", id).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ data });
   }
