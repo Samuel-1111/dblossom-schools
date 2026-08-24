@@ -5,7 +5,7 @@ import { createServiceClient } from "../../../../utils/supabase/service";
 
 export const dynamic = "force-dynamic";
 
-type AdminTable = "students" | "teachers";
+type AdminTable = "students" | "teachers" | "results";
 type AdminReadTable = AdminTable | "classes";
 
 async function authorize() {
@@ -15,11 +15,11 @@ async function authorize() {
 
 function requestedTable(request: Request): AdminReadTable | null {
   const table = new URL(request.url).searchParams.get("table") ?? "";
-  if (table === "students" || table === "teachers" || table === "classes") return table;
+  if (table === "students" || table === "teachers" || table === "results" || table === "classes") return table;
   return null;
 }
 
-function cleanPayload(table: "students" | "teachers", body: Record<string, unknown>) {
+function cleanPayload(table: AdminTable, body: Record<string, unknown>) {
   if (table === "students") {
     return {
       ...(typeof body.admission_number === "string" ? { admission_number: body.admission_number.trim() } : {}),
@@ -31,11 +31,21 @@ function cleanPayload(table: "students" | "teachers", body: Record<string, unkno
       ...(typeof body.status === "string" ? { status: body.status.toLowerCase() } : {}),
     };
   }
+  if (table === "teachers") {
+    return {
+      ...(typeof body.full_name === "string" ? { full_name: body.full_name.trim() } : {}),
+      ...(typeof body.email === "string" || body.email === null ? { email: body.email } : {}),
+      ...(typeof body.phone === "string" || body.phone === null ? { phone: body.phone } : {}),
+      ...(typeof body.status === "string" ? { status: body.status.toLowerCase() } : {}),
+    };
+  }
   return {
-    ...(typeof body.full_name === "string" ? { full_name: body.full_name.trim() } : {}),
-    ...(typeof body.email === "string" || body.email === null ? { email: body.email } : {}),
-    ...(typeof body.phone === "string" || body.phone === null ? { phone: body.phone } : {}),
-    ...(typeof body.status === "string" ? { status: body.status.toLowerCase() } : {}),
+    ...(typeof body.ca_score === "number" ? { ca_score: body.ca_score } : {}),
+    ...(typeof body.exam_score === "number" ? { exam_score: body.exam_score } : {}),
+    ...(typeof body.total_score === "number" ? { total_score: body.total_score } : {}),
+    ...(typeof body.grade === "string" ? { grade: body.grade.trim() } : {}),
+    ...(typeof body.teacher_comment === "string" || body.teacher_comment === null ? { teacher_comment: body.teacher_comment } : {}),
+    ...(typeof body.principal_comment === "string" || body.principal_comment === null ? { principal_comment: body.principal_comment } : {}),
   };
 }
 
@@ -53,7 +63,7 @@ export async function POST(request: Request) {
   if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const table = requestedTable(request);
   if (!table) return NextResponse.json({ error: "Unsupported Admin table" }, { status: 400 });
-  if (table === "classes") return NextResponse.json({ error: "Class reference mutation is not supported here" }, { status: 400 });
+  if (table === "classes" || table === "results") return NextResponse.json({ error: table === "classes" ? "Class reference mutation is not supported here" : "Administrator result creation is not supported here" }, { status: 400 });
   const payload = cleanPayload(table, await request.json());
   const { data, error } = await createServiceClient().from(table).insert(payload).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
@@ -77,6 +87,7 @@ export async function DELETE(request: Request) {
   const table = requestedTable(request);
   const id = new URL(request.url).searchParams.get("id");
   if (!table || !id) return NextResponse.json({ error: "Table and record id are required" }, { status: 400 });
+  if (table === "classes" || table === "results") return NextResponse.json({ error: table === "classes" ? "Class reference deletion is not supported here" : "Administrator result deletion is not supported here" }, { status: 400 });
   const { error } = await createServiceClient().from(table).delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ success: true });

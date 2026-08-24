@@ -22,10 +22,17 @@ describe("Admin CRUD client contract", () => {
   it("protects imported-record access with the local admin cookie and server-only client", () => {
     expect(routeSource).toContain("isValidLocalAdminToken");
     expect(routeSource).toContain("createServiceClient");
-    expect(routeSource).toContain('table === "students" || table === "teachers" || table === "classes"');
+    expect(routeSource).toContain('table === "students" || table === "teachers" || table === "results" || table === "classes"');
     expect(routeSource).toContain('table === "classes" ? await query.order("name"');
     expect(routeSource).toContain("export async function GET");
     expect(routeSource).toContain("export async function PATCH");
+    expect(routeSource).toContain("Administrator result creation is not supported here");
+  });
+
+  it("provides Admin result comment review without result creation controls", () => {
+    expect(clientSource).toContain("saveResultComments");
+    expect(clientSource).toContain("Edit comments");
+    expect(clientSource).toContain("Result uploads are teacher-only");
   });
 
   it("keeps destructive actions behind explicit browser confirmation", () => {
