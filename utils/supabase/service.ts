@@ -1,4 +1,6 @@
-import "server-only";
+// This module is imported only by server-side routes and storage adapters.
+// Avoid a `server-only` package import so the same helpers remain testable in Vitest
+// and runnable in a plain Node.js download outside the Next.js bundler.
 import { createClient } from "@supabase/supabase-js";
 
 export function createServiceClient() {
