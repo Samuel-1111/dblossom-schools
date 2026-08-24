@@ -137,3 +137,4 @@
 - [x] Add protected Admin event and gallery image upload through server storage with image-type and 5 MB guards, URL persistence, client upload feedback, and public/admin-compatible URLs.
 - [ ] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.
 - [x] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.
+- [x] Route Admin Payments, Complaints, Subjects, and Gallery reads through the protected local-admin records API instead of browser-side Supabase access.
