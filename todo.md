@@ -122,3 +122,4 @@
 - [x] Add Student result filtering by academic session and term plus a branded client-side PDF report-card download using the installed html2canvas and jsPDF libraries.
 - [ ] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
 - [x] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
+- [x] Replace the homepage Payment and Complaint placeholders with responsive Supabase-backed public submission forms, loading states, and toast feedback.
