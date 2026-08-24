@@ -60,7 +60,9 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain('studentClassFilter');
     expect(clientSource).toContain('resultTermFilter');
     expect(clientSource).toContain('adminRequest("POST", mediaForm.table, undefined, body)');
-    expect(clientSource).toContain('Save the media record before uploading an image.');
+    expect(clientSource).toContain('Event title and date are required before uploading.');
+    expect(clientSource).toContain('Unable to create the media record before uploading.');
+    expect(clientSource).not.toContain('Save the media record before uploading an image.');
     expect(clientSource).toContain('loading="lazy"');
     expect(clientSource).toContain('alt={String(row.title ?? "School media")}');
     expect(clientSource).toContain('"class_id", "subject_id", "term_id", "session"');

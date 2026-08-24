@@ -158,19 +158,35 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
   }
 
   async function uploadMedia(file: File) {
-    if (!mediaForm || !mediaForm.id) return setNotice("Save the media record before uploading an image.");
+    if (!mediaForm) return;
     if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) return setNotice("Only JPEG, PNG, WebP, or GIF images are allowed.");
     if (file.size > 5 * 1024 * 1024) return setNotice("Image must be 5 MB or smaller.");
+    const title = mediaForm.title.trim();
+    if (!title || (mediaForm.table === "events" && !mediaForm.event_date)) return setNotice(mediaForm.table === "events" ? "Event title and date are required before uploading." : "Gallery title is required before uploading.");
     setMediaUploading(true);
+    let currentForm = mediaForm;
+    if (!currentForm.id) {
+      const body = currentForm.table === "events"
+        ? { title, description: currentForm.description.trim() || null, event_date: currentForm.event_date, image_url: currentForm.image_url.trim() || null }
+        : { title, alt_text: currentForm.alt_text.trim() || null, image_url: currentForm.image_url.trim() || "pending-upload" };
+      const created = await adminRequest("POST", currentForm.table, undefined, body);
+      const createdId = created.ok ? String(created.payload.data?.id ?? created.payload.id ?? "") : "";
+      if (!created.ok || !createdId) {
+        setMediaUploading(false);
+        return setNotice(created.payload.error ?? "Unable to create the media record before uploading.");
+      }
+      currentForm = { ...currentForm, id: createdId };
+      setMediaForm(currentForm);
+    }
     const form = new FormData();
-    form.set("table", mediaForm.table);
-    form.set("id", mediaForm.id);
+    form.set("table", currentForm.table);
+    form.set("id", currentForm.id);
     form.set("file", file);
     const response = await fetch("/api/admin/media-upload", { method: "POST", credentials: "same-origin", body: form });
     const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
     setMediaUploading(false);
     setNotice(response.ok ? "Image uploaded." : payload.error ?? "Unable to upload image.");
-    if (response.ok) { setMediaForm({ ...mediaForm, image_url: payload.url ?? mediaForm.image_url }); await loadModule(mediaForm.table === "events" ? "events" : "gallery"); }
+    if (response.ok) { setMediaForm({ ...currentForm, image_url: payload.url ?? currentForm.image_url }); await loadModule(currentForm.table === "events" ? "events" : "gallery"); }
   }
 
   async function saveMedia(event: FormEvent) {

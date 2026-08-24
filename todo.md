@@ -161,3 +161,4 @@
 - [x] Add class and academic-session columns to the Admin Results review table so filtered result context is visible without opening comments.
 - [x] Recheck and recover checkpoint preview CSS after the latest production build capture rendered unstyled HTML despite successful compilation.
 - [x] Add circular school-logo branding to authenticated Student and Teacher dashboard header bands for consistent secured-portal identity.
+- [x] Allow Admin Add Event and Add Gallery image uploads to create the media record first, then persist the uploaded URL without requiring a pre-existing record ID.
