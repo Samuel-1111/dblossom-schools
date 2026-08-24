@@ -119,6 +119,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
       </section>
       <section className="mx-auto -mt-8 w-full max-w-md px-4 pb-12">
         <div className="rounded-2xl border border-[hsl(220_15%_90%)] bg-white p-8 shadow-lg">
+          <img src="/manus-storage/school-logo_a34c205b.jpg" alt="D'Blossom Model Private Schools" className="mx-auto mb-4 h-16 w-16 rounded-full object-cover" />
           <h2 className="font-heading text-2xl font-bold text-[var(--navy)]">{role === "admin" ? "Admin Login" : `${role === "student" ? "Student" : "Teacher"} Login`}</h2>
           <p className="mt-1 text-sm text-slate-500">{role === "admin" ? hint : role === "student" ? "Secondary School Only (JSS1 – SS3)" : "Sign in to manage your assigned classes."}</p>
           <form onSubmit={submit} className="mt-7 grid gap-5" noValidate>

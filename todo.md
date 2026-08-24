@@ -112,3 +112,4 @@
 - [ ] Add regression coverage for the newly audited portal specification requirements and revalidate all secured routes.
 - [x] Audit pasted_content_2.txt against Admin, Student, and Teacher portal source files and record concrete mismatches.
 - [x] Apply the uploaded specification’s shared secured-portal login hierarchy, role-specific icons/subtitles, field-level validation, loading labels, Home links, and Sonner feedback without weakening server-side authentication.
+- [x] Add the supplied circular school logo to the shared Admin, Student, and Teacher login cards as required by pasted_content_2.txt.
