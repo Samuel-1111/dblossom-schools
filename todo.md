@@ -88,3 +88,6 @@
 - [x] Reproduce and fix the live published Admin Portal rejection of `DivineBlossom` / `DBMS`; verify the exact browser flow after deployment.
 - [x] Restore the published site after the latest administrator-login deployment began returning a blank Internal Server Error; preserve and revalidate the repaired Admin Portal flow.
 - [x] Investigate the recurring published Internal Server Error after the Admin Portal checkpoint and restore a stable live deployment without losing the verified local-admin flow.
+- [x] Compare the preview and published runtime after the recurring blank Internal Server Error and remove the unstable failure source without breaking the verified Admin Portal login.
+- [x] Make preview startup resilient to stale `.next` chunks by cleaning generated output before `next dev` and avoiding TypeScript watch failures while generated route types are being recreated.
+- [x] Revalidate repeated preview requests and logs after the durable startup fix, including all public and portal routes.
