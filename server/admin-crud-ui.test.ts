@@ -30,6 +30,9 @@ describe("Admin CRUD client contract", () => {
     expect(routeSource).toContain('table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images"');
     expect(clientSource).toContain('removeMedia("events", row)');
     expect(clientSource).toContain('removeMedia("gallery_images", row)');
+    expect(clientSource).toContain('updatePaymentStatus(row, "Confirmed")');
+    expect(clientSource).toContain('updatePaymentStatus(row, "Rejected")');
+    expect(routeSource).toContain("Payment status must be Confirmed, Rejected, or Pending");
   });
 
   it("provides Admin result comment review without result creation controls", () => {
