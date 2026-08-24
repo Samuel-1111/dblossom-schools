@@ -34,6 +34,13 @@ function cleanMediaPayload(table: AdminMediaTable, body: Record<string, unknown>
   };
 }
 
+function cleanSubjectPayload(body: Record<string, unknown>) {
+  return {
+    ...(typeof body.name === "string" ? { name: body.name.trim() } : {}),
+    ...(typeof body.class_id === "string" || typeof body.class_id === "number" ? { class_id: body.class_id } : {}),
+  };
+}
+
 function cleanPayload(table: AdminTable, body: Record<string, unknown>) {
   if (table === "students") {
     return {
@@ -78,9 +85,9 @@ export async function POST(request: Request) {
   if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const table = requestedTable(request);
   if (!table) return NextResponse.json({ error: "Unsupported Admin table" }, { status: 400 });
-  if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
+  if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
   const body = await request.json();
-  const payload = table === "events" || table === "gallery_images" ? cleanMediaPayload(table, body) : cleanPayload(table, body);
+  const payload = table === "events" || table === "gallery_images" ? cleanMediaPayload(table, body) : table === "subjects" ? cleanSubjectPayload(body) : cleanPayload(table, body);
   const { data, error } = await createServiceClient().from(table).insert(payload).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ data }, { status: 201 });

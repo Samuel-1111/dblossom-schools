@@ -135,3 +135,5 @@
 - [x] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
 - [x] Add protected Admin event and gallery metadata edit forms with sanitized server-side saves, explicit feedback, and cancel actions.
 - [x] Add protected Admin event and gallery image upload through server storage with image-type and 5 MB guards, URL persistence, client upload feedback, and public/admin-compatible URLs.
+- [ ] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.
+- [x] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.

@@ -204,9 +204,9 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
 
   async function addSubject(event: FormEvent) {
     event.preventDefault();
-    const { error } = await supabase.from("subjects").insert({ name: subject.name.trim(), class_id: Number(subject.class_id) });
-    setNotice(error ? error.message : "Subject added.");
-    if (!error) { setSubject({ name: "", class_id: "" }); await loadModule("subjects"); }
+    const result = await adminRequest("POST", "subjects", undefined, { name: subject.name.trim(), class_id: Number(subject.class_id) });
+    setNotice(!result.ok ? result.payload.error ?? "Unable to add subject." : "Subject added.");
+    if (result.ok) { setSubject({ name: "", class_id: "" }); await loadModule("subjects"); }
   }
 
   async function savePassword(event: FormEvent) {

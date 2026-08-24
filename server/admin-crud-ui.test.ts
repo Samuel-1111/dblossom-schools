@@ -37,6 +37,8 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain('updateComplaintStatus(row, "Resolved")');
     expect(routeSource).toContain('table === "payments" || table === "complaints"');
     expect(clientSource).toContain('removeSubject(row)');
+    expect(clientSource).toContain('adminRequest("POST", "subjects"');
+    expect(routeSource).toContain('table === "subjects" ? cleanSubjectPayload(body)');
     expect(routeSource).toContain('table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects"');
     expect(clientSource).toContain('saveMedia');
     expect(clientSource).toContain('editMedia("events", row)');
