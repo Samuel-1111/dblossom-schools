@@ -38,7 +38,7 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
   const [mediaForm, setMediaForm] = useState<MediaForm | null>(null);
   const [mediaUploading, setMediaUploading] = useState(false);
 
-  async function adminRequest(method: "POST" | "PATCH" | "DELETE", table: "students" | "teachers" | "results" | "events" | "gallery_images" | "payments" | "complaints" | "subjects", id?: string, body?: Record<string, unknown>) {
+  async function adminRequest(method: "POST" | "PATCH" | "DELETE", table: "students" | "teachers" | "results" | "events" | "gallery_images" | "payments" | "complaints" | "subjects" | "announcements", id?: string, body?: Record<string, unknown>) {
     const url = new URL("/api/admin/records", window.location.origin);
     url.searchParams.set("table", table);
     if (id) url.searchParams.set("id", id);
@@ -50,8 +50,8 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
   async function loadModule(module: Module) {
     setLoading(true);
     setNotice("");
-    if (module === "students" || module === "teachers" || module === "results" || module === "events" || module === "gallery" || module === "payments" || module === "complaints" || module === "subjects") {
-      const table = module === "gallery" ? "gallery_images" : module;
+    if (module === "students" || module === "teachers" || module === "results" || module === "events" || module === "gallery" || module === "payments" || module === "complaints" || module === "subjects" || module === "settings") {
+      const table = module === "gallery" ? "gallery_images" : module === "settings" ? "announcements" : module;
       const response = await fetch(`/api/admin/records?table=${table}`, { credentials: "same-origin" });
       const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
       if (!response.ok) setNotice(payload.error ?? "Unable to load Admin records.");
@@ -222,11 +222,9 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
 
   async function addAnnouncement(event: FormEvent) {
     event.preventDefault();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return setNotice("Your session has expired. Sign in again.");
-    const { error } = await supabase.from("announcements").insert({ title: announcement.title.trim(), body: announcement.body.trim(), posted_by: user.id });
-    setNotice(error ? error.message : "Announcement posted.");
-    if (!error) { setAnnouncement({ title: "", body: "" }); await loadModule("settings"); }
+    const result = await adminRequest("POST", "announcements", undefined, { title: announcement.title.trim(), body: announcement.body.trim() });
+    setNotice(!result.ok ? result.payload.error ?? "Unable to post announcement." : "Announcement posted.");
+    if (result.ok) { setAnnouncement({ title: "", body: "" }); await loadModule("settings"); }
   }
 
   async function signOut() { await supabase.auth.signOut(); window.location.href = "/admin-login"; }

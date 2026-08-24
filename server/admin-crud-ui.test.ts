@@ -41,6 +41,9 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain('module === "payments" || module === "complaints" || module === "subjects"');
     expect(clientSource).toContain('module === "gallery" ? "gallery_images" : module');
     expect(routeSource).toContain('table === "subjects" ? cleanSubjectPayload(body)');
+    expect(routeSource).toContain('table === "announcements" ? cleanAnnouncementPayload(body)');
+    expect(clientSource).toContain('adminRequest("POST", "announcements"');
+    expect(clientSource).toContain('module === "settings" ? "announcements" : module');
     expect(routeSource).toContain('table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects"');
     expect(clientSource).toContain('saveMedia');
     expect(clientSource).toContain('editMedia("events", row)');

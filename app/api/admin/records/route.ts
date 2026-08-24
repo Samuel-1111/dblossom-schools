@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 type AdminTable = "students" | "teachers" | "results";
 type AdminMediaTable = "events" | "gallery_images";
-type AdminReadTable = AdminTable | "classes" | AdminMediaTable | "payments" | "complaints" | "subjects";
+type AdminReadTable = AdminTable | "classes" | AdminMediaTable | "payments" | "complaints" | "subjects" | "announcements";
 
 async function authorize() {
   const token = (await cookies()).get(LOCAL_ADMIN_COOKIE)?.value;
@@ -16,7 +16,7 @@ async function authorize() {
 
 function requestedTable(request: Request): AdminReadTable | null {
   const table = new URL(request.url).searchParams.get("table") ?? "";
-  if (table === "students" || table === "teachers" || table === "results" || table === "classes" || table === "events" || table === "gallery_images" || table === "payments" || table === "complaints" || table === "subjects") return table;
+  if (table === "students" || table === "teachers" || table === "results" || table === "classes" || table === "events" || table === "gallery_images" || table === "payments" || table === "complaints" || table === "subjects" || table === "announcements") return table;
   return null;
 }
 
@@ -31,6 +31,13 @@ function cleanMediaPayload(table: AdminMediaTable, body: Record<string, unknown>
     ...(typeof body.title === "string" ? { title: body.title.trim() } : {}),
     ...(typeof body.alt_text === "string" || body.alt_text === null ? { alt_text: body.alt_text } : {}),
     ...(typeof body.image_url === "string" ? { image_url: body.image_url } : {}),
+  };
+}
+
+function cleanAnnouncementPayload(body: Record<string, unknown>) {
+  return {
+    ...(typeof body.title === "string" ? { title: body.title.trim() } : {}),
+    ...(typeof body.body === "string" ? { body: body.body.trim() } : {}),
   };
 }
 
@@ -85,9 +92,9 @@ export async function POST(request: Request) {
   if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const table = requestedTable(request);
   if (!table) return NextResponse.json({ error: "Unsupported Admin table" }, { status: 400 });
-  if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
+  if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects" && table !== "announcements") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
   const body = await request.json();
-  const payload = table === "events" || table === "gallery_images" ? cleanMediaPayload(table, body) : table === "subjects" ? cleanSubjectPayload(body) : cleanPayload(table, body);
+  const payload = table === "events" || table === "gallery_images" ? cleanMediaPayload(table, body) : table === "subjects" ? cleanSubjectPayload(body) : table === "announcements" ? cleanAnnouncementPayload(body) : cleanPayload(table, body);
   const { data, error } = await createServiceClient().from(table).insert(payload).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ data }, { status: 201 });
