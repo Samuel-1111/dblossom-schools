@@ -7,6 +7,7 @@ describe("Student report-card specification", () => {
   it("supports session and term filters over the student result set", () => {
     expect(source).toContain("Filter results by session");
     expect(source).toContain("Filter results by term");
+    expect(source).toContain("Filter your recorded subject grades by session or term.");
     expect(source).toContain('session === "All Sessions"');
   });
 

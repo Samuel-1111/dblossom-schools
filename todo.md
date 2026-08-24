@@ -163,3 +163,4 @@
 - [x] Add circular school-logo branding to authenticated Student and Teacher dashboard header bands for consistent secured-portal identity.
 - [x] Allow Admin Add Event and Add Gallery image uploads to create the media record first, then persist the uploaded URL without requiring a pre-existing record ID.
 - [x] Add focused Vitest coverage for Teacher grade persistence payloads and Admin role-specific result mutation boundaries.
+- [x] Align Student result-filter helper copy with the implemented session-and-term controls.
