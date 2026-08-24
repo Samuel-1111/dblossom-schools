@@ -98,3 +98,4 @@
 - [x] Fix Admin student edit/create fields to use live names (`admission_number`, `full_name`, `class_id`, and related supported columns) end to end.
 - [x] Align teacher edit UX with the live `teachers` schema or add a safe server-side schema path for the imported teacher fields before claiming full editability.
 - [x] Verify local-admin load, edit, save, and reopen behavior for imported student and teacher records through `/api/admin/records`.
+- [x] Route Admin class-reference loading through the protected server endpoint so student forms can display and preserve live class UUIDs under the local-admin cookie.

@@ -22,7 +22,8 @@ describe("Admin CRUD client contract", () => {
   it("protects imported-record access with the local admin cookie and server-only client", () => {
     expect(routeSource).toContain("isValidLocalAdminToken");
     expect(routeSource).toContain("createServiceClient");
-    expect(routeSource).toContain('table === "students" || table === "teachers"');
+    expect(routeSource).toContain('table === "students" || table === "teachers" || table === "classes"');
+    expect(routeSource).toContain('table === "classes" ? await query.order("name"');
     expect(routeSource).toContain("export async function GET");
     expect(routeSource).toContain("export async function PATCH");
   });

@@ -59,7 +59,11 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
   }
 
   useEffect(() => { void loadModule(active); }, [active]);
-  useEffect(() => { void supabase.from("classes").select("*").order("name").then(({ data }) => setClasses(data ?? [])); }, []);
+  useEffect(() => {
+    void fetch("/api/admin/records?table=classes", { credentials: "same-origin" })
+      .then((response) => response.json())
+      .then((payload) => setClasses(payload.data ?? []));
+  }, []);
 
   function closeStudentForm() {
     setShowStudentForm(false);
