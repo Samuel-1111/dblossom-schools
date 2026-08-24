@@ -91,3 +91,4 @@
 - [x] Compare the preview and published runtime after the recurring blank Internal Server Error and remove the unstable failure source without breaking the verified Admin Portal login.
 - [x] Make preview startup resilient to stale `.next` chunks by cleaning generated output before `next dev` and avoiding TypeScript watch failures while generated route types are being recreated.
 - [x] Revalidate repeated preview requests and logs after the durable startup fix, including all public and portal routes.
+- [ ] Complete the next Admin Portal CRUD increment for student and teacher records, including edit/delete controls, validation, and local-session-safe data access.
