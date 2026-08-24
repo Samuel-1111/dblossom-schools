@@ -38,6 +38,9 @@ describe("Admin CRUD client contract", () => {
     expect(routeSource).toContain('table === "payments" || table === "complaints"');
     expect(clientSource).toContain('removeSubject(row)');
     expect(routeSource).toContain('table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects"');
+    expect(clientSource).toContain('saveMedia');
+    expect(clientSource).toContain('editMedia("events", row)');
+    expect(clientSource).toContain('editMedia("gallery_images", row)');
   });
 
   it("provides Admin result comment review without result creation controls", () => {

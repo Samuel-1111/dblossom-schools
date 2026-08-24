@@ -133,3 +133,4 @@
 - [x] Add protected Admin complaint review status actions with explicit status feedback in the Complaints module.
 - [ ] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
 - [x] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
+- [x] Add protected Admin event and gallery metadata edit forms with sanitized server-side saves, explicit feedback, and cancel actions.
