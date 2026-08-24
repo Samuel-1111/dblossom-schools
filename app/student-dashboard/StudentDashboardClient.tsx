@@ -24,8 +24,19 @@ export function StudentDashboardClient({ fullName, studentNumber, guardianName, 
       const canvas = await html2canvas(reportCardRef.current, { scale: 2, backgroundColor: "#ffffff" });
       const pdf = new jsPDF("p", "mm", "a4");
       const width = 190;
+      const pageHeight = 277;
       const height = (canvas.height * width) / canvas.width;
-      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 10, 10, width, Math.min(height, 277));
+      const imageData = canvas.toDataURL("image/png");
+      let heightLeft = height;
+      let position = 10;
+      pdf.addImage(imageData, "PNG", 10, position, width, height);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - height + 10;
+        pdf.addPage();
+        pdf.addImage(imageData, "PNG", 10, position, width, height);
+        heightLeft -= pageHeight;
+      }
       pdf.save(`d-blossom-report-card-${studentNumber}-${term.replaceAll(" ", "-")}.pdf`);
       setReportNotice("Report card downloaded.");
     } catch {

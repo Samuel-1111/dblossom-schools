@@ -18,5 +18,8 @@ describe("Student report-card specification", () => {
     expect(source).toContain("Generating PDF…");
     expect(source).toContain("Report card could not be generated. Please try again.");
     expect(source).toContain("downloadingReport");
+    expect(source).toContain("while (heightLeft > 0)");
+    expect(source).toContain("pdf.addPage()");
+    expect(source).toContain("const pageHeight = 277");
   });
 });

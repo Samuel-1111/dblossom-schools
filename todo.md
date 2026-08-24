@@ -156,3 +156,4 @@
 - [x] Complete the published smoke check for the homepage, Admin login, Student portal, and Teacher portal entry routes, including branded copy, fields, Home links, and responsive styling.
 - [x] Add safe Admin media thumbnails for event and gallery image URLs in the protected tables, with accessible alt text and text fallback.
 - [x] Add the supplied circular school logo to route-specific public page headers while preserving accessible navigation and responsive layout.
+- [x] Make Student report-card PDF generation multi-page instead of truncating long report cards to one A4 page.
