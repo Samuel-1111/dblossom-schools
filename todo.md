@@ -134,3 +134,4 @@
 - [ ] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
 - [x] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
 - [x] Add protected Admin event and gallery metadata edit forms with sanitized server-side saves, explicit feedback, and cancel actions.
+- [x] Add protected Admin event and gallery image upload through server storage with image-type and 5 MB guards, URL persistence, client upload feedback, and public/admin-compatible URLs.
