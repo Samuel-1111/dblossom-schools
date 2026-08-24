@@ -123,3 +123,4 @@
 - [ ] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
 - [x] Add explicit Teacher result and attendance saving states, disabled submit controls, and success/error feedback required by pasted_content_2.txt.
 - [x] Replace the homepage Payment and Complaint placeholders with responsive Supabase-backed public submission forms, loading states, and toast feedback.
+- [x] Extend the protected Admin records API and module tables with sanitized event/gallery metadata mutation and deletion actions while preserving server-side local-admin authorization.

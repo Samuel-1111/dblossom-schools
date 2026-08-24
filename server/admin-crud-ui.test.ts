@@ -27,6 +27,9 @@ describe("Admin CRUD client contract", () => {
     expect(routeSource).toContain("export async function GET");
     expect(routeSource).toContain("export async function PATCH");
     expect(routeSource).toContain("This Admin table is read-only here");
+    expect(routeSource).toContain('table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images"');
+    expect(clientSource).toContain('removeMedia("events", row)');
+    expect(clientSource).toContain('removeMedia("gallery_images", row)');
   });
 
   it("provides Admin result comment review without result creation controls", () => {
