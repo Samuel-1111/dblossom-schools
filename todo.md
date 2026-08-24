@@ -117,3 +117,5 @@
 - [x] Implement a secure Admin Settings password change and login override flow corresponding to pasted_content_2.txt without storing the replacement password in browser storage or exposing it to the client.
 - [x] Upload the supplied school logo to durable web storage, replace stale references, and serve `/manus-storage/*` through the Next.js server-side signed URL proxy.
 - [x] Exclude `.manus-logs` and generated output from Next.js development watching to prevent log-triggered recompilation and intermittent manifest JSON errors.
+- [ ] Add Admin module search/filter controls required by pasted_content_2.txt while preserving protected server-backed reads and existing CRUD actions.
+- [x] Add accessible Admin module search/filter controls across live student, teacher, result, payment, event, gallery, complaint, and subject tables while preserving protected reads and CRUD actions.
