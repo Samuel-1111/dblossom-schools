@@ -1,6 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { canTeacherUploadResult, isAdminSession } from "./routers";
+import { isLocalAdminCredential, normalizeLocalAdminIdentifier } from "../utils/local-admin";
 import { isAdminRegistrationFormOpen } from "../shared/school";
+
+describe("local administrator credentials", () => {
+  it("accepts the documented credentials with surrounding whitespace and username case differences", () => {
+    expect(normalizeLocalAdminIdentifier("  divineblossom ")).toBe("divineblossom");
+    expect(isLocalAdminCredential("  divineblossom ", "DBMS")).toBe(true);
+  });
+
+  it("rejects incorrect local administrator credentials", () => {
+    expect(isLocalAdminCredential("DivineBlossom", "wrong-password")).toBe(false);
+    expect(isLocalAdminCredential("another-user", "DBMS")).toBe(false);
+  });
+});
 
 describe("admin session authorization", () => {
   it("accepts a platform admin session", () => {

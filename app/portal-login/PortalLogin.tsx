@@ -34,6 +34,22 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
     setError("");
 
     const normalizedIdentifier = identifier.trim();
+    if (role === "admin") {
+      const response = await fetch("/api/admin-login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ identifier: normalizedIdentifier, password }),
+      });
+      if (!response.ok) {
+        setError(errorCopy.admin);
+        setLoading(false);
+        return;
+      }
+      router.push("/admin-dashboard");
+      router.refresh();
+      return;
+    }
+
     const { data: resolved, error: resolveError } = await supabase.rpc("resolve_portal_login", {
       identifier: normalizedIdentifier,
       portal_type: role,

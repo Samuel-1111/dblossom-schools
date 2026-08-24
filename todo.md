@@ -84,3 +84,5 @@
 - [x] Revalidate the repaired Next.js build and preview routes for `/`, `/admin-login`, `/student-portal`, `/teacher-portal`, and a missing route; the missing route returns the stable Next.js 404 fallback.
 - [x] Add a Supabase-backed Student workspace with own-record profile, term-filterable grades, attendance summaries, announcements, and report-card-oriented result presentation.
 - [x] Stabilize the Next.js App Router production build with the patched Next.js version, non-worker webpack build, explicit App Router error boundaries, dynamic root fallbacks, and complete ESM standalone artifact packaging.
+- [x] Fix the reported Admin Portal rejection of the documented local credentials `DivineBlossom` / `DBMS`, including normalization, session creation, and regression coverage.
+- [ ] Reproduce and fix the live published Admin Portal rejection of `DivineBlossom` / `DBMS`; verify the exact browser flow after deployment.
