@@ -170,3 +170,4 @@
 - [ ] Verify the connected Supabase teachers schema after the user-applied migration, including credential columns, staff index, profile linkage, and RLS.
 - [x] Validate public and secured portal layouts at phone, tablet, laptop, and wide desktop breakpoints, then fix any overflow, clipped controls, or inaccessible navigation found. Captures completed at 375, 768, 1280, and 1440px widths; no overflow or inaccessible entry controls were found.
 - [x] Fix secured Student dashboard header title contrast so the portal heading remains visible on the navy band at every viewport.
+- [x] Revalidate styled responsive routes after the latest managed-server restart at tablet and wide-desktop widths; phone routes are confirmed styled. Tablet and wide-desktop captures now also load the global stylesheet correctly.
