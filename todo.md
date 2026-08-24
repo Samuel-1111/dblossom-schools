@@ -1,7 +1,7 @@
 # Project TODO
 
 - [x] Establish the premium D'Blossom visual system: typography, color tokens, responsive spacing, states, and accessibility.
-- [ ] Build separate public Home, About, Academics, Gallery, Events/News, Payment Information, and Contact experiences. Public aliases route to the corresponding Home sections with fixed-navbar scroll offsets, and footer navigation now includes every public information area; true route-specific experiences remain beyond the sectioned implementation.
+- [x] Build separate public Home, About, Academics, Gallery, Events/News, Payment Information, and Contact experiences. Public aliases route to the corresponding Home sections with fixed-navbar scroll offsets, and footer navigation now includes every public information area; route-specific pages are implemented.
 - [ ] Add database tables for students, teachers, results, payments, events, gallery images, and complaints with required fields and relationships. (Tables are present and results now reference students; remaining entity relationships are still tracked.)
 - [ ] Implement secure role-aware backend procedures for public submissions, student access, teacher access, and admin CRUD. (Current procedures include portal access and an admin snapshot; hardening and full CRUD remain.)
 - [x] Implement student login by admission number and password.
@@ -138,16 +138,18 @@
 - [x] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.
 - [x] Route Admin subject creation through the protected local-admin records API with validation and refresh feedback.
 - [x] Route Admin Payments, Complaints, Subjects, and Gallery reads through the protected local-admin records API instead of browser-side Supabase access.
-- [ ] Replace redirect-only public section aliases with route-specific About, Academics, Gallery, Events, Payment, and Complaint experiences that retain live data/forms and clear homepage navigation.
 - [x] Replace redirect-only public section aliases with route-specific About, Academics, Gallery, Events, Payment, and Complaint experiences that retain live data/forms and clear homepage navigation.
-- [ ] Make the Teacher dashboard explicitly view-only when no assigned class is available, while preserving result review for teaching staff.
+- [x] Replace redirect-only public section aliases with route-specific About, Academics, Gallery, Events, Payment, and Complaint experiences that retain live data/forms and clear homepage navigation.
+- [x] Make the Teacher dashboard explicitly view-only when no assigned class is available, while preserving result review for teaching staff.
 - [x] Make the Teacher dashboard explicitly view-only when no assigned class is available, while preserving result review for teaching staff.
 - [x] Upgrade route-specific Gallery and Events pages to render live Supabase media metadata with safe error and empty states.
-- [ ] Route Admin announcement creation through the protected local-admin records API so Settings works with the local administrator session.
 - [x] Route Admin announcement creation through the protected local-admin records API so Settings works with the local administrator session.
-- [ ] Add an accessible mobile module selector to the Admin dashboard while preserving the desktop sidebar navigation.
+- [x] Route Admin announcement creation through the protected local-admin records API so Settings works with the local administrator session.
+- [x] Add an accessible mobile module selector to the Admin dashboard while preserving the desktop sidebar navigation.
 - [x] Add an accessible mobile module selector to the Admin dashboard while preserving the desktop sidebar navigation.
 - [x] Add Student report-card PDF generating state, duplicate-click protection, and visible recovery feedback required by the secured-portal specification.
 - [x] Add Admin Event and Gallery creation actions with protected POST persistence, required-field validation, upload-before-save guidance, and existing edit/delete parity.
 - [x] Revalidate preview styling after production builds do not leave stale Next.js CSS asset references; restart recovery is applied, but route-wide verification remains.
 - [x] Align Admin mobile navigation with the authoritative fixed bottom tab bar: nine ordered modules, active/inactive states, and mobile content clearance.
+- [ ] Add Admin student class filtering and Results class/term filtering while preserving protected reads and existing search/actions.
+- [x] Add Admin student class filtering and Results class/term filtering while preserving protected reads and existing search/actions.

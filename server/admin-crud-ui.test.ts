@@ -54,6 +54,11 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain('editMedia("gallery_images", row)');
     expect(clientSource).toContain('Add Event');
     expect(clientSource).toContain('Add Gallery Image');
+    expect(clientSource).toContain('Filter students by class');
+    expect(clientSource).toContain('Filter results by class');
+    expect(clientSource).toContain('Filter results by term');
+    expect(clientSource).toContain('studentClassFilter');
+    expect(clientSource).toContain('resultTermFilter');
     expect(clientSource).toContain('adminRequest("POST", mediaForm.table, undefined, body)');
     expect(clientSource).toContain('Save the media record before uploading an image.');
   });
