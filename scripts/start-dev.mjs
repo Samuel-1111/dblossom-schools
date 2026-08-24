@@ -6,7 +6,10 @@ await rm(".next", { recursive: true, force: true });
 const nextCommand = process.platform === "win32" ? "next.cmd" : "next";
 const child = spawn(nextCommand, ["dev"], {
   stdio: "inherit",
-  env: process.env,
+  env: {
+    ...process.env,
+    NODE_ENV: "development",
+  },
 });
 
 child.on("error", (error) => {
@@ -15,8 +18,6 @@ child.on("error", (error) => {
 });
 
 child.on("exit", (code, signal) => {
-  if (signal) {
-    process.kill(process.pid, signal);
-  }
+  if (signal) process.kill(process.pid, signal);
   process.exit(code ?? 1);
 });
