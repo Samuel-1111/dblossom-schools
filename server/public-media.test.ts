@@ -10,6 +10,12 @@ describe("public media rendering", () => {
     expect(pageSource).toContain("image_url");
   });
 
+  it("uses a cookie-independent public client so malformed auth state cannot crash the homepage", () => {
+    expect(pageSource).toContain('createClient as createSupabaseClient');
+    expect(pageSource).toContain('persistSession: false');
+    expect(pageSource).toContain('autoRefreshToken: false');
+  });
+
   it("keeps explicit empty states when no public media exists", () => {
     expect(pageSource).toContain("School life moments will appear here");
     expect(pageSource).toContain("Upcoming school events will appear here");

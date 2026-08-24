@@ -1,12 +1,18 @@
 export const dynamic = "force-dynamic";
 
-import { createClient } from "../utils/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 const SCHOOL_LOGO = "/manus-storage/school-logo_a34c205b.jpg";
 const HERO_IMAGE = "https://media.base44.com/images/public/69c481d93678fe5f1003a517/a857fe8fa_generated_f977333f.png";
 
 export default async function HomePage() {
-  const supabase = await createClient();
+  // The public homepage must not parse or refresh user-auth cookies. A malformed
+  // auth cookie should never turn a public read into a 500 response.
+  const supabase = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } },
+  );
   const [{ data: gallery, error: galleryError }, { data: events, error: eventsError }] = await Promise.all([
     supabase.from("gallery_images").select("id, title, alt_text, image_url").order("created_at", { ascending: false }).limit(6),
     supabase.from("events").select("id, title, description, event_date, image_url").order("event_date", { ascending: true }).limit(6),
