@@ -145,3 +145,5 @@
 - [x] Upgrade route-specific Gallery and Events pages to render live Supabase media metadata with safe error and empty states.
 - [ ] Route Admin announcement creation through the protected local-admin records API so Settings works with the local administrator session.
 - [x] Route Admin announcement creation through the protected local-admin records API so Settings works with the local administrator session.
+- [ ] Add an accessible mobile module selector to the Admin dashboard while preserving the desktop sidebar navigation.
+- [x] Add an accessible mobile module selector to the Admin dashboard while preserving the desktop sidebar navigation.
