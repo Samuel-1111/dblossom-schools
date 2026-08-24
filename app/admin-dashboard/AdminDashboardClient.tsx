@@ -45,7 +45,7 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
   async function loadModule(module: Module) {
     setLoading(true);
     setNotice("");
-    if (module === "students" || module === "teachers" || module === "results") {
+    if (module === "students" || module === "teachers" || module === "results" || module === "events" || module === "gallery") {
       const response = await fetch(`/api/admin/records?table=${module}`, { credentials: "same-origin" });
       const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
       if (!response.ok) setNotice(payload.error ?? "Unable to load Admin records.");
@@ -53,7 +53,7 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
       setLoading(false);
       return;
     }
-    const table = module === "subjects" ? "subjects" : module === "payments" ? "payments" : module === "events" ? "events" : module === "gallery" ? "gallery_images" : module === "complaints" ? "complaints" : "announcements";
+    const table = module === "subjects" ? "subjects" : module === "payments" ? "payments" : module === "complaints" ? "complaints" : "announcements";
     const { data, error } = await supabase.from(table).select("*").order("created_at", { ascending: false });
     if (error) setNotice(error.message);
     setRows(data ?? []);

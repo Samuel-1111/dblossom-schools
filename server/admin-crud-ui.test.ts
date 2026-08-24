@@ -26,7 +26,7 @@ describe("Admin CRUD client contract", () => {
     expect(routeSource).toContain('table === "classes" ? await query.order("name"');
     expect(routeSource).toContain("export async function GET");
     expect(routeSource).toContain("export async function PATCH");
-    expect(routeSource).toContain("Administrator result creation is not supported here");
+    expect(routeSource).toContain("This Admin table is read-only here");
   });
 
   it("provides Admin result comment review without result creation controls", () => {

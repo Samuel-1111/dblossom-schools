@@ -100,3 +100,6 @@
 - [x] Verify local-admin load, edit, save, and reopen behavior for imported student and teacher records through `/api/admin/records`.
 - [x] Route Admin class-reference loading through the protected server endpoint so student forms can display and preserve live class UUIDs under the local-admin cookie.
 - [x] Add Admin result review editing for teacher/principal comments through the protected results route while keeping result creation and deletion teacher-only.
+- [x] Replace the public homepage event/gallery placeholders with live Supabase data and safe image rendering from stored image URLs.
+- [x] Add explicit homepage error handling for gallery and event Supabase queries so backend failures are not shown as misleading empty states.
+- [x] Route Admin event and gallery record reads through the protected server endpoint so local administrators can review imported or uploaded media records safely.
