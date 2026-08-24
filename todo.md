@@ -154,3 +154,4 @@
 - [ ] Add Admin student class filtering and Results class/term filtering while preserving protected reads and existing search/actions.
 - [x] Add Admin student class filtering and Results class/term filtering while preserving protected reads and existing search/actions.
 - [x] Complete the published smoke check for the homepage, Admin login, Student portal, and Teacher portal entry routes, including branded copy, fields, Home links, and responsive styling.
+- [x] Add safe Admin media thumbnails for event and gallery image URLs in the protected tables, with accessible alt text and text fallback.
