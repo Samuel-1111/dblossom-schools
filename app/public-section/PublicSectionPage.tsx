@@ -9,7 +9,7 @@ export function PublicSectionPage({ title, eyebrow, intro, children }: { title: 
   return <main className="min-h-screen bg-white text-slate-900">
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
-        <Link href="/" className="font-serif text-xl font-bold text-blue-950">D&apos;Blossom</Link>
+        <Link href="/" className="flex items-center gap-2 font-serif text-xl font-bold text-blue-950"><img src="/manus-storage/school-logo_15e2310a.jpg" alt="D&apos;Blossom Model Private Schools" className="h-9 w-9 rounded-full object-cover" />D&apos;Blossom</Link>
         <nav aria-label="Public information" className="hidden gap-4 text-sm font-semibold text-slate-700 md:flex">{sections.map(([label, href]) => <Link key={href} href={href} className="transition-colors hover:text-blue-900">{label}</Link>)}</nav>
         <div className="flex gap-2"><Link href="/student-portal" className="rounded-md bg-blue-950 px-3 py-2 text-sm font-bold text-white">Student Portal</Link><Link href="/admin-login" className="rounded-md bg-amber-400 px-3 py-2 text-sm font-bold text-slate-950">Admin</Link></div>
       </div>

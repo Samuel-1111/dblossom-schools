@@ -151,7 +151,8 @@
 - [x] Add Admin Event and Gallery creation actions with protected POST persistence, required-field validation, upload-before-save guidance, and existing edit/delete parity.
 - [x] Revalidate preview styling after production builds do not leave stale Next.js CSS asset references; restart recovery is applied, but route-wide verification remains.
 - [x] Align Admin mobile navigation with the authoritative fixed bottom tab bar: nine ordered modules, active/inactive states, and mobile content clearance.
-- [ ] Add Admin student class filtering and Results class/term filtering while preserving protected reads and existing search/actions.
+- [x] Add Admin student class filtering and Results class/term filtering while preserving protected reads and existing search/actions.
 - [x] Add Admin student class filtering and Results class/term filtering while preserving protected reads and existing search/actions.
 - [x] Complete the published smoke check for the homepage, Admin login, Student portal, and Teacher portal entry routes, including branded copy, fields, Home links, and responsive styling.
 - [x] Add safe Admin media thumbnails for event and gallery image URLs in the protected tables, with accessible alt text and text fallback.
+- [x] Add the supplied circular school logo to route-specific public page headers while preserving accessible navigation and responsive layout.
