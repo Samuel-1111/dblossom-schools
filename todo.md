@@ -131,3 +131,5 @@
 - [x] Add an accessible mobile menu to the fixed public homepage navigation while preserving desktop links and portal actions.
 - [ ] Add protected Admin complaint review status actions with explicit status feedback in the Complaints module.
 - [x] Add protected Admin complaint review status actions with explicit status feedback in the Complaints module.
+- [ ] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.
+- [x] Add protected Admin subject deletion with explicit confirmation and status feedback in the Subjects module.

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 type AdminTable = "students" | "teachers" | "results";
 type AdminMediaTable = "events" | "gallery_images";
-type AdminReadTable = AdminTable | "classes" | AdminMediaTable | "payments" | "complaints";
+type AdminReadTable = AdminTable | "classes" | AdminMediaTable | "payments" | "complaints" | "subjects";
 
 async function authorize() {
   const token = (await cookies()).get(LOCAL_ADMIN_COOKIE)?.value;
@@ -16,7 +16,7 @@ async function authorize() {
 
 function requestedTable(request: Request): AdminReadTable | null {
   const table = new URL(request.url).searchParams.get("table") ?? "";
-  if (table === "students" || table === "teachers" || table === "results" || table === "classes" || table === "events" || table === "gallery_images" || table === "payments" || table === "complaints") return table;
+  if (table === "students" || table === "teachers" || table === "results" || table === "classes" || table === "events" || table === "gallery_images" || table === "payments" || table === "complaints" || table === "subjects") return table;
   return null;
 }
 
@@ -112,7 +112,7 @@ export async function DELETE(request: Request) {
   const table = requestedTable(request);
   const id = new URL(request.url).searchParams.get("id");
   if (!table || !id) return NextResponse.json({ error: "Table and record id are required" }, { status: 400 });
-  if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
+  if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
   const { error } = await createServiceClient().from(table).delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ success: true });
