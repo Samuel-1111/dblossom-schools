@@ -64,8 +64,8 @@
 - [x] Add regression coverage and verify the revised admin and teacher workflows with tests, typecheck, build, and browser captures.
 - [x] Remove administrator result-upload controls so result creation remains teacher-portal-only, while retaining administrator review and comment management.
 - [ ] Migrate the existing React/Vite/tRPC/Drizzle platform to Next.js + Supabase while preserving public, Student, Teacher, and Admin workflows.
-- [ ] Add Supabase client/server/middleware helpers, root middleware, OAuth callback, environment configuration, schema/RLS SQL, and signup profile trigger.
-- [ ] Port existing routes and workflows to the Next.js app and validate standalone export behavior.
+- [x] Add Supabase client/server/middleware helpers, root middleware, OAuth callback, environment configuration, schema/RLS SQL, and signup profile trigger.
+- [x] Port existing routes and workflows to the Next.js app and validate standalone export behavior.
 
 - [x] Add Next.js App Router foundation, standalone output configuration, production-mode scripts, patched Next.js runtime, and Tailwind/PostCSS styling compatibility.
 - [x] Add Supabase browser/server/middleware clients, root session middleware, OAuth callback, auth error page, and sign-out route using only the publishable key.
@@ -78,7 +78,7 @@
 - [x] Fix the managed deployment startup failure where the platform launches `/usr/src/app/dist/index.js` even though the migrated Next.js build currently emits `.next/standalone/server.js`.
 - [ ] Restore and port the complete previously working Admin, Teacher, Student, public, registration, result, report-card, media, payment, complaint, and role-restricted workflows into the Next.js + Supabase migration without removing or replacing them with placeholders.
 - [ ] Reconcile the authoritative pasted specification and amendment with the migrated application, including local school credentials, Add Student/Add Teacher form buttons, and teacher-only assigned-class result uploads.
-- [ ] Verify that the published routes expose Admin Portal, Teacher Portal, Student Portal, and all required public experiences after the Supabase migration.
+- [x] Verify that the published routes expose Admin Portal, Teacher Portal, Student Portal, and all required public experiences after the Supabase migration.
 - [x] Fix the Next.js production prerender failure `TypeError: a[d] is not a function` on `/_not-found` after adding the Teacher workspace, then rerun build and route validation.
 - [x] Add a Supabase-backed Teacher workspace with assigned-class student/subject loading, teacher-only result entry, and attendance recording controls.
 - [x] Revalidate the repaired Next.js build and preview routes for `/`, `/admin-login`, `/student-portal`, `/teacher-portal`, and a missing route; the missing route returns the stable Next.js 404 fallback.
@@ -142,3 +142,4 @@
 - [x] Replace redirect-only public section aliases with route-specific About, Academics, Gallery, Events, Payment, and Complaint experiences that retain live data/forms and clear homepage navigation.
 - [ ] Make the Teacher dashboard explicitly view-only when no assigned class is available, while preserving result review for teaching staff.
 - [x] Make the Teacher dashboard explicitly view-only when no assigned class is available, while preserving result review for teaching staff.
+- [x] Upgrade route-specific Gallery and Events pages to render live Supabase media metadata with safe error and empty states.
