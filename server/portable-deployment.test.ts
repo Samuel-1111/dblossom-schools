@@ -1,10 +1,17 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
+const readme = readFileSync("README.md", "utf8");
 const guide = readFileSync("PORTABLE_DEPLOYMENT.md", "utf8");
 const storage = readFileSync("server/storage.ts", "utf8");
 
 describe("portable deployment contract", () => {
+  it("provides a root download entry point", () => {
+    expect(readme).toContain("PORTABLE_DEPLOYMENT.md");
+    expect(readme).toContain("pnpm install");
+    expect(readme).toContain("pnpm start");
+  });
+
   it("documents normal Node production startup and required external configuration", () => {
     expect(guide).toContain("pnpm install");
     expect(guide).toContain("pnpm build");

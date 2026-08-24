@@ -177,3 +177,4 @@
 - [x] Isolate Next.js development output from production `.next` artifacts so building the downloaded project cannot invalidate the running preview stylesheet. Development now uses `.next-dev`, separate from production `.next`.
 - [x] Make live Supabase connectivity verification optional and time-bounded so downloaded-project tests remain deterministic when the external service is unavailable. The full suite now passes 75 tests with one explicitly skipped live integration probe unless RUN_SUPABASE_INTEGRATION=true.
 - [x] Document the optional RUN_SUPABASE_INTEGRATION=true switch for live Supabase connectivity validation in the portable deployment guide.
+- [x] Add a root README entry point that directs downloaded-project users to the portable deployment and Supabase setup instructions.
