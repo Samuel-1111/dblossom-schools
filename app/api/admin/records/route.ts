@@ -126,7 +126,7 @@ export async function DELETE(request: Request) {
   const table = requestedTable(request);
   const id = new URL(request.url).searchParams.get("id");
   if (!table || !id) return NextResponse.json({ error: "Table and record id are required" }, { status: 400 });
-  if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
+  if (table !== "students" && table !== "teachers" && table !== "results" && table !== "events" && table !== "gallery_images" && table !== "subjects") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
   const { error } = await createServiceClient().from(table).delete().eq("id", id);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ success: true });

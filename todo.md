@@ -166,3 +166,4 @@
 - [x] Align Student result-filter helper copy with the implemented session-and-term controls.
 - [x] Verify styled mobile layouts for Events, Gallery, Student Portal, and Teacher Portal entry routes, including circular branding, role-specific controls, unavailable states, and homepage navigation.
 - [x] Align authenticated Student and Teacher dashboard header bands with the specification’s navy background, light text hierarchy, and visible outline sign-out controls.
+- [x] Add protected Admin result deletion with explicit confirmation and server allowlisting, without enabling Admin result creation or upload.
