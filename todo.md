@@ -126,3 +126,4 @@
 - [x] Extend the protected Admin records API and module tables with sanitized event/gallery metadata mutation and deletion actions while preserving server-side local-admin authorization.
 - [ ] Add protected Admin payment confirmation and rejection actions with explicit status feedback in the Payments module.
 - [x] Add protected Admin payment confirmation and rejection actions with explicit status feedback in the Payments module.
+- [x] Add public About, Academics, Gallery, Events, Payment, and Complaint alias routes that preserve fixed-navbar-safe homepage section navigation.
