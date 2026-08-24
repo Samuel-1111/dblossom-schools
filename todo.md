@@ -164,3 +164,4 @@
 - [x] Allow Admin Add Event and Add Gallery image uploads to create the media record first, then persist the uploaded URL without requiring a pre-existing record ID.
 - [x] Add focused Vitest coverage for Teacher grade persistence payloads and Admin role-specific result mutation boundaries.
 - [x] Align Student result-filter helper copy with the implemented session-and-term controls.
+- [x] Verify styled mobile layouts for Events, Gallery, Student Portal, and Teacher Portal entry routes, including circular branding, role-specific controls, unavailable states, and homepage navigation.
