@@ -19,6 +19,8 @@ describe("portable deployment contract", () => {
     expect(guide).toContain("NEXT_PUBLIC_SUPABASE_URL");
     expect(guide).toContain("SUPABASE_SERVICE_ROLE_KEY");
     expect(guide).toContain("JWT_SECRET");
+    expect(guide).toContain("VITE_APP_LOGO");
+    expect(guide).toContain("NEXT_PUBLIC_SCHOOL_LOGO_URL");
   });
 
   it("supports Supabase Storage outside Manus while retaining Forge compatibility", () => {

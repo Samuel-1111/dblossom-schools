@@ -8,6 +8,8 @@ The application is not a self-contained offline desktop program because student 
 
 The current project also contains legacy TiDB/MySQL helpers, so provide `DATABASE_URL` if those server helpers are used by the chosen deployment path. The active portal data path uses Supabase and its role policies.
 
+Set `VITE_APP_LOGO` to a public logo URL when deploying outside Manus. Next.js exposes that value to browser components as `NEXT_PUBLIC_SCHOOL_LOGO_URL`; if it is omitted, the current Manus storage path remains as a compatibility fallback. Never commit `.env` files or expose `SUPABASE_SERVICE_ROLE_KEY` in browser code.
+
 ## Media without Manus
 
 Set `STORAGE_PROVIDER=supabase` and optionally `SUPABASE_STORAGE_BUCKET=school-media`. Create that bucket in the connected Supabase Storage project and configure it for public media URLs, or adapt the storage adapter to signed URLs for a private bucket. The server storage adapter retains the Manus Forge provider when Forge variables are present, but downloaded deployments can use the Supabase Storage fallback instead.

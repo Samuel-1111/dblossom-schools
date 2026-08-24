@@ -4,7 +4,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { PublicSubmissions } from "./public-submissions/PublicSubmissions";
 import { PublicNav } from "./public-nav/PublicNav";
 
-const SCHOOL_LOGO = "/manus-storage/school-logo_15e2310a.jpg";
+const SCHOOL_LOGO = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_15e2310a.jpg";
 const HERO_IMAGE = "https://media.base44.com/images/public/69c481d93678fe5f1003a517/a857fe8fa_generated_f977333f.png";
 
 export default async function HomePage() {

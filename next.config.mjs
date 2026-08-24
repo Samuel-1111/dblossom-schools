@@ -3,6 +3,9 @@ const nextConfig = {
   output: "standalone",
   distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
   experimental: { webpackBuildWorker: false },
+  env: {
+    NEXT_PUBLIC_SCHOOL_LOGO_URL: process.env.VITE_APP_LOGO || "",
+  },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "media.base44.com" }],
   },
