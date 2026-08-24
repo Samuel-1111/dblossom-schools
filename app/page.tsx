@@ -13,12 +13,23 @@ export default async function HomePage() {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } },
   );
-  const [{ data: gallery, error: galleryError }, { data: events, error: eventsError }] = await Promise.all([
-    supabase.from("gallery_images").select("id, title, alt_text, image_url").order("created_at", { ascending: false }).limit(6),
-    supabase.from("events").select("id, title, description, event_date, image_url").order("event_date", { ascending: true }).limit(6),
-  ]);
-  const galleryLoadError = galleryError?.message;
-  const eventsLoadError = eventsError?.message;
+  let gallery: Array<{ id: string; title: string; alt_text: string | null; image_url: string }> = [];
+  let events: Array<{ id: string; title: string; description: string | null; event_date: string; image_url: string | null }> = [];
+  let galleryLoadError = "";
+  let eventsLoadError = "";
+  try {
+    const [{ data: galleryData, error: galleryError }, { data: eventsData, error: eventsError }] = await Promise.all([
+      supabase.from("gallery_images").select("id, title, alt_text, image_url").order("created_at", { ascending: false }).limit(6),
+      supabase.from("events").select("id, title, description, event_date, image_url").order("event_date", { ascending: true }).limit(6),
+    ]);
+    gallery = galleryData ?? [];
+    events = eventsData ?? [];
+    galleryLoadError = galleryError?.message ?? "";
+    eventsLoadError = eventsError?.message ?? "";
+  } catch {
+    galleryLoadError = "unavailable";
+    eventsLoadError = "unavailable";
+  }
   return (
     <main>
       <header className="fixed inset-x-0 top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">

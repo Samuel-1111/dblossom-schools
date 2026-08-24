@@ -14,6 +14,8 @@ describe("public media rendering", () => {
     expect(pageSource).toContain('createClient as createSupabaseClient');
     expect(pageSource).toContain('persistSession: false');
     expect(pageSource).toContain('autoRefreshToken: false');
+    expect(pageSource).toContain('catch {');
+    expect(pageSource).toContain('galleryLoadError = "unavailable"');
   });
 
   it("keeps explicit empty states when no public media exists", () => {
