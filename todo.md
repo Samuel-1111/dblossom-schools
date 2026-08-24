@@ -149,3 +149,4 @@
 - [x] Add an accessible mobile module selector to the Admin dashboard while preserving the desktop sidebar navigation.
 - [x] Add Student report-card PDF generating state, duplicate-click protection, and visible recovery feedback required by the secured-portal specification.
 - [x] Add Admin Event and Gallery creation actions with protected POST persistence, required-field validation, upload-before-save guidance, and existing edit/delete parity.
+- [x] Revalidate preview styling after production builds do not leave stale Next.js CSS asset references; restart recovery is applied, but route-wide verification remains.
