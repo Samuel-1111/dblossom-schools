@@ -87,3 +87,4 @@
 - [x] Fix the reported Admin Portal rejection of the documented local credentials `DivineBlossom` / `DBMS`, including normalization, session creation, and regression coverage.
 - [x] Reproduce and fix the live published Admin Portal rejection of `DivineBlossom` / `DBMS`; verify the exact browser flow after deployment.
 - [x] Restore the published site after the latest administrator-login deployment began returning a blank Internal Server Error; preserve and revalidate the repaired Admin Portal flow.
+- [x] Investigate the recurring published Internal Server Error after the Admin Portal checkpoint and restore a stable live deployment without losing the verified local-admin flow.
