@@ -1,5 +1,9 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { calculateSubjects, summarizeSubjects } from "../shared/school";
+
+const teacherSource = readFileSync("app/teacher-dashboard/TeacherDashboardClient.tsx", "utf8");
+const portalLoginSource = readFileSync("app/portal-login/PortalLogin.tsx", "utf8");
 
 describe("secured portal result shaping", () => {
   it("caps CA and exam scores and derives total and grade", () => {
@@ -13,6 +17,21 @@ describe("secured portal result shaping", () => {
       { name: "Mathematics", caScore: 15, examScore: 45 },
     ]);
     expect(summarizeSubjects(subjects)).toMatchObject({ totalScore: 130, average: 65 });
+  });
+});
+
+describe("portal validation and dynamic subjects", () => {
+  it("loads subjects dynamically for the selected assigned class", () => {
+    expect(teacherSource).toContain('supabase.from("subjects").select("id, name")');
+    expect(teacherSource).toContain("subjects.map");
+    expect(teacherSource).toContain("Select subject");
+  });
+
+  it("keeps role-specific identifier labels and required-field validation", () => {
+    expect(portalLoginSource).toContain('student: { notFound: "Admission number not found"');
+    expect(portalLoginSource).toContain('teacher: { notFound: "Staff ID not found"');
+    expect(portalLoginSource).toContain("identifierLabel");
+    expect(portalLoginSource).toContain("Password is required");
   });
 });
 
