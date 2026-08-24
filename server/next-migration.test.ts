@@ -9,6 +9,8 @@ const portalLogin = readFileSync(`${root}/app/portal-login/PortalLogin.tsx`, "ut
 const adminLogin = readFileSync(`${root}/app/admin-login/page.tsx`, "utf8");
 const studentLogin = readFileSync(`${root}/app/student-portal/page.tsx`, "utf8");
 const teacherLogin = readFileSync(`${root}/app/teacher-portal/page.tsx`, "utf8");
+const nextConfig = readFileSync(`${root}/next.config.mjs`, "utf8");
+const devLauncher = readFileSync(`${root}/scripts/start-dev.mjs`, "utf8");
 
 describe("Next.js + Supabase migration contract", () => {
   it("defines every requested school table and enables RLS", () => {
@@ -49,6 +51,11 @@ describe("Next.js + Supabase migration contract", () => {
     expect(teacherLogin).toContain('identifierLabel="Staff ID"');
     expect(adminLogin).toContain('identifierLabel="Username"');
     expect(portalLogin).toContain("resolve_portal_login");
+  });
+
+  it("isolates development artifacts from production output", () => {
+    expect(nextConfig).toContain('distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next"');
+    expect(devLauncher).toContain('rm(".next-dev"');
   });
 
   it("includes all migrated portal entry routes", () => {

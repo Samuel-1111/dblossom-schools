@@ -1,7 +1,7 @@
 import { rm } from "node:fs/promises";
 import { spawn } from "node:child_process";
 
-await rm(".next", { recursive: true, force: true });
+await rm(".next-dev", { recursive: true, force: true });
 
 const nextCommand = process.platform === "win32" ? "next.cmd" : "next";
 const child = spawn(nextCommand, ["dev"], {
