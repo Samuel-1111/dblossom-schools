@@ -176,3 +176,4 @@
 - [x] Add a configurable Supabase Storage fallback for media uploads and serving, while retaining Manus Forge storage compatibility for the current deployment. `STORAGE_PROVIDER=supabase` is implemented and covered; the target bucket must still be created in Supabase for external deployment.
 - [x] Isolate Next.js development output from production `.next` artifacts so building the downloaded project cannot invalidate the running preview stylesheet. Development now uses `.next-dev`, separate from production `.next`.
 - [x] Make live Supabase connectivity verification optional and time-bounded so downloaded-project tests remain deterministic when the external service is unavailable. The full suite now passes 75 tests with one explicitly skipped live integration probe unless RUN_SUPABASE_INTEGRATION=true.
+- [x] Document the optional RUN_SUPABASE_INTEGRATION=true switch for live Supabase connectivity validation in the portable deployment guide.

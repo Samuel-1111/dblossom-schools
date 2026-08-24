@@ -16,6 +16,10 @@ Set `STORAGE_PROVIDER=supabase` and optionally `SUPABASE_STORAGE_BUCKET=school-m
 
 Apply every SQL file in `supabase/migrations/` in filename order in the target Supabase SQL Editor. In particular, `0005_teachers_table.sql` defines the dedicated teacher registration fields, profile linkage, staff ID index, and RLS policies. Verify the resulting schema in the same Supabase project used by `NEXT_PUBLIC_SUPABASE_URL`.
 
+## Test commands
+
+Run `pnpm test` for the deterministic local suite. The live Supabase connectivity probe is intentionally skipped by default so a temporary network outage does not make a downloaded project’s test run hang. Set `RUN_SUPABASE_INTEGRATION=true` when you explicitly want to test the configured Supabase endpoint, then run `pnpm test` again.
+
 ## Responsive behavior
 
 The public pages and portal entry routes have been checked at phone, tablet, laptop, and wide-desktop widths. The layouts use responsive navigation, wrapping controls, scrollable data tables, mobile-safe spacing, and fixed mobile navigation where specified.
