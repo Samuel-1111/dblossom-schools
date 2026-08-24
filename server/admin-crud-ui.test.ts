@@ -63,6 +63,7 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain('Save the media record before uploading an image.');
     expect(clientSource).toContain('loading="lazy"');
     expect(clientSource).toContain('alt={String(row.title ?? "School media")}');
+    expect(clientSource).toContain('"class_id", "subject_id", "term_id", "session"');
   });
 
   it("provides Admin result comment review without result creation controls", () => {

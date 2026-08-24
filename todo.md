@@ -158,3 +158,4 @@
 - [x] Add the supplied circular school logo to route-specific public page headers while preserving accessible navigation and responsive layout.
 - [x] Make Student report-card PDF generation multi-page instead of truncating long report cards to one A4 page.
 - [x] Add an explicit academic session field to Teacher result uploads and persist it with the protected grade record alongside the selected term.
+- [x] Add class and academic-session columns to the Admin Results review table so filtered result context is visible without opening comments.

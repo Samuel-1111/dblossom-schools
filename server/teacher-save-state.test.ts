@@ -19,6 +19,9 @@ describe("Teacher save-state specification", () => {
     expect(source).toContain("setSavingGrade(false);");
     expect(source).toContain("setSavingAttendance(false);");
     expect(source).toContain("Result could not be saved:");
+    expect(source).toContain("Academic session (e.g. 2025/2026)");
+    expect(source).toContain("Enter an academic session before saving the result.");
+    expect(source).toContain("session, score, max_score");
     expect(source).toContain("Attendance could not be saved:");
   });
 });
