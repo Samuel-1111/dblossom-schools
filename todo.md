@@ -160,3 +160,4 @@
 - [x] Add an explicit academic session field to Teacher result uploads and persist it with the protected grade record alongside the selected term.
 - [x] Add class and academic-session columns to the Admin Results review table so filtered result context is visible without opening comments.
 - [x] Recheck and recover checkpoint preview CSS after the latest production build capture rendered unstyled HTML despite successful compilation.
+- [x] Add circular school-logo branding to authenticated Student and Teacher dashboard header bands for consistent secured-portal identity.
