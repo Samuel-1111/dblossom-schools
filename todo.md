@@ -140,3 +140,5 @@
 - [x] Route Admin Payments, Complaints, Subjects, and Gallery reads through the protected local-admin records API instead of browser-side Supabase access.
 - [ ] Replace redirect-only public section aliases with route-specific About, Academics, Gallery, Events, Payment, and Complaint experiences that retain live data/forms and clear homepage navigation.
 - [x] Replace redirect-only public section aliases with route-specific About, Academics, Gallery, Events, Payment, and Complaint experiences that retain live data/forms and clear homepage navigation.
+- [ ] Make the Teacher dashboard explicitly view-only when no assigned class is available, while preserving result review for teaching staff.
+- [x] Make the Teacher dashboard explicitly view-only when no assigned class is available, while preserving result review for teaching staff.
