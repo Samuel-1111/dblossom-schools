@@ -15,5 +15,8 @@ describe("Student report-card specification", () => {
     expect(source).toContain("jsPDF");
     expect(source).toContain("Download Report Card");
     expect(source).toContain("D'Blossom Model Private Schools");
+    expect(source).toContain("Generating PDF…");
+    expect(source).toContain("Report card could not be generated. Please try again.");
+    expect(source).toContain("downloadingReport");
   });
 });

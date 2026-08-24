@@ -147,3 +147,5 @@
 - [x] Route Admin announcement creation through the protected local-admin records API so Settings works with the local administrator session.
 - [ ] Add an accessible mobile module selector to the Admin dashboard while preserving the desktop sidebar navigation.
 - [x] Add an accessible mobile module selector to the Admin dashboard while preserving the desktop sidebar navigation.
+- [x] Add Student report-card PDF generating state, duplicate-click protection, and visible recovery feedback required by the secured-portal specification.
+- [x] Add Admin Event and Gallery creation actions with protected POST persistence, required-field validation, upload-before-save guidance, and existing edit/delete parity.
