@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { PublicSubmissions } from "./public-submissions/PublicSubmissions";
+import { PublicNav } from "./public-nav/PublicNav";
 
 const SCHOOL_LOGO = "/manus-storage/school-logo_15e2310a.jpg";
 const HERO_IMAGE = "https://media.base44.com/images/public/69c481d93678fe5f1003a517/a857fe8fa_generated_f977333f.png";
@@ -44,6 +45,7 @@ export default async function HomePage() {
             <a href="/student-portal" className="rounded-md px-4 py-2 text-white" style={{ background: "var(--navy)" }}>Student Portal</a>
             <a href="/admin-login" className="rounded-md px-4 py-2" style={{ background: "var(--gold)" }}>Admin</a>
           </nav>
+          <PublicNav />
         </div>
       </header>
       <section id="home" className="relative flex min-h-screen items-center overflow-hidden pt-20" style={{ background: "var(--navy)" }}>
