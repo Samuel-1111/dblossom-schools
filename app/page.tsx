@@ -4,7 +4,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { PublicSubmissions } from "./public-submissions/PublicSubmissions";
 import { PublicNav } from "./public-nav/PublicNav";
 
-const SCHOOL_LOGO = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_1e37ce6f.jpg";
+const SCHOOL_LOGO = "/manus-storage/school-logo_57ffb7b0.jpg";
 const HERO_IMAGE = "https://media.base44.com/images/public/69c481d93678fe5f1003a517/a857fe8fa_generated_f977333f.png";
 
 export default async function HomePage() {
@@ -43,6 +43,7 @@ export default async function HomePage() {
           <nav className="hidden items-center gap-5 text-sm text-slate-600 lg:flex">
             <a href="#about">About</a><a href="#academics">Academics</a><a href="#gallery">Gallery</a><a href="#events">Events</a><a href="#payment">Payment</a><a href="#complaint">Complaint</a>
             <a href="/student-portal" className="rounded-md px-4 py-2 text-white" style={{ background: "var(--navy)" }}>Student Portal</a>
+            <a href="/teacher-portal" className="rounded-md border border-[var(--navy)] px-4 py-2 text-[var(--navy)]">Teacher Portal</a>
             <a href="/admin-login" className="rounded-md px-4 py-2" style={{ background: "var(--gold)" }}>Admin</a>
           </nav>
           <PublicNav />
@@ -55,7 +56,7 @@ export default async function HomePage() {
             <p className="mb-5 inline-block rounded-full border px-3 py-1 text-sm" style={{ borderColor: "var(--gold)", color: "var(--gold)" }}>A school for becoming</p>
             <h1 className="max-w-2xl text-5xl leading-tight md:text-7xl">Where bright minds find their <em style={{ color: "var(--gold)" }}>becoming.</em></h1>
             <p className="mt-6 max-w-xl text-lg text-white/75">D'Blossom Model Private Schools nurtures capable, kind, and confident learners in Abeokuta, Ogun State.</p>
-            <div className="mt-8 flex flex-wrap gap-3"><a href="#about" className="rounded-md px-5 py-3 font-semibold" style={{ background: "var(--gold)", color: "var(--ink)" }}>Discover our school</a><a href="/student-portal" className="rounded-md border border-white/40 px-5 py-3">Student Portal</a></div>
+            <div className="mt-8 flex flex-wrap gap-3"><a href="#about" className="rounded-md px-5 py-3 font-semibold" style={{ background: "var(--gold)", color: "var(--ink)" }}>Discover our school</a><a href="/student-portal" className="rounded-md border border-white/40 px-5 py-3">Student Portal</a><a href="/teacher-portal" className="rounded-md border border-white/40 px-5 py-3">Teacher Portal</a></div>
           </div>
           <div className="hidden self-center rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur md:block"><img src={HERO_IMAGE} alt="D'Blossom learning environment" className="aspect-[4/3] w-full rounded-xl object-cover" /><h2 className="mt-5 text-3xl">Education that feels like an invitation.</h2><p className="mt-3 text-white/70">Curiosity, discipline, and grace shape each learner's journey.</p></div>
         </div>

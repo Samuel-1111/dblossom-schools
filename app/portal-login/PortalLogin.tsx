@@ -8,7 +8,7 @@ import { createClient } from "../../utils/supabase/client";
 
 type PortalRole = "student" | "teacher" | "admin";
 
-const schoolLogoUrl = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_1e37ce6f.jpg";
+const schoolLogoUrl = "/manus-storage/school-logo_57ffb7b0.jpg";
 
 type PortalLoginProps = {
   role: PortalRole;
@@ -89,10 +89,10 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
       const resolved = await response.json().catch(() => ({})) as { login_email?: string; error?: string };
       const loginEmail = response.ok ? resolved.login_email : null;
       if (!loginEmail) {
-        const missingIdentifier = response.status === 401 || response.status === 503;
-        const error = missingIdentifier ? errorCopy[role].notFound : (resolved.error ?? "Unable to sign in right now");
-        setFieldErrors({ identifier: error });
-        toast.error(`${error}. Please check your ${role === "student" ? "admission number" : "staff ID"}.`);
+        const missingIdentifier = response.status === 404;
+        const error = missingIdentifier ? errorCopy[role].notFound : response.status === 401 ? errorCopy[role].wrongPassword : (resolved.error ?? "Unable to sign in right now");
+        setFieldErrors(missingIdentifier ? { identifier: error } : { password: error });
+        toast.error(missingIdentifier ? `${error}. Please check your ${role === "student" ? "admission number" : "staff ID"}.` : `${error}. Please try again.`);
         return;
       }
 

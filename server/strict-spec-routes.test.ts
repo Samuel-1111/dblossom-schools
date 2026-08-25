@@ -6,6 +6,13 @@ const root = process.cwd();
 const read = (file: string) => readFileSync(join(root, file), "utf8");
 
 describe("secured portal specification route contracts", () => {
+  it("keeps the uploaded logo and visible portal entry points", () => {
+    const home = read("app/page.tsx") + read("app/public-nav/PublicNav.tsx") + read("app/public-section/PublicSectionPage.tsx");
+    expect(home).toContain("/manus-storage/school-logo_57ffb7b0.jpg");
+    expect(home).toContain("/teacher-portal");
+    expect(home).toContain("Teacher Portal");
+  });
+
   it("keeps the required local login copy and identifiers", () => {
     const login = read("app/portal-login/PortalLogin.tsx") + read("app/student-portal/page.tsx") + read("app/teacher-portal/page.tsx") + read("app/admin-login/page.tsx");
     expect(login).toContain("Back to Home");

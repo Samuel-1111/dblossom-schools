@@ -67,7 +67,7 @@ describe("Next.js + Supabase migration contract", () => {
 
   it("preserves the amended portal credential labels", () => {
     expect(studentLogin).toContain('identifierLabel="Admission Number"');
-    expect(teacherLogin).toContain('identifierLabel="Staff ID"');
+    expect(teacherLogin).toContain('identifierLabel="Staff ID or email"');
     expect(adminLogin).toContain('identifierLabel="Username"');
     expect(portalLogin).toContain('fetch("/api/portal-login"');
     expect(studentDashboard).toContain("admission_number");

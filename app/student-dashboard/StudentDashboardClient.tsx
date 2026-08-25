@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-const schoolLogoUrl = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_1e37ce6f.jpg";
+const schoolLogoUrl = "/manus-storage/school-logo_57ffb7b0.jpg";
 function gradeForPercentage(percentage: number) { if (percentage >= 70) return "A"; if (percentage >= 60) return "B"; if (percentage >= 50) return "C"; if (percentage >= 40) return "D"; return "F"; }
 function gradeClass(grade: string) { return grade === "A" ? "bg-green-50 text-green-600" : grade === "B" ? "bg-blue-50 text-blue-600" : grade === "C" ? "bg-amber-50 text-amber-600" : grade === "D" ? "bg-orange-50 text-orange-600" : "bg-red-50 text-red-600"; }
 

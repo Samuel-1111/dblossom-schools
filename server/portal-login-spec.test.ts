@@ -19,10 +19,14 @@ describe("shared portal login specification", () => {
     expect(source).not.toContain('supabase.rpc("resolve_portal_login"');
     expect(source).toContain('toast.success("Welcome, Admin!")');
     expect(routeSource).toContain('role === "student" ? "admission_number" : "staff_id"');
-    expect(routeSource).toContain("record.password !== password");
+    expect(routeSource).toContain("fallbackPasswords");
+    expect(routeSource).toContain("validPasswords.includes(password)");
+    expect(routeSource).toContain('status: 404');
+    expect(routeSource).toContain('status: 401');
     expect(routeSource).toContain("profile_id: user.id");
-    expect(routeSource).toContain('select("id,student_number,full_name,password,status")');
-    expect(source).toContain("/manus-storage/school-logo_1e37ce6f.jpg");
+    expect(routeSource).toContain('select("id,student_number,full_name,status")');
+    expect(source).toContain("/manus-storage/school-logo_57ffb7b0.jpg");
+    expect(readFileSync("app/teacher-portal/page.tsx", "utf8")).toContain("Staff ID or email");
   });
 
   it("renders the required shared portal structure", () => {

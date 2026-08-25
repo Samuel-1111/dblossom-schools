@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { createClient } from "../../utils/supabase/client";
 import { getSubjects } from "../../shared/school";
 
-const schoolLogoUrl = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_1e37ce6f.jpg";
+const schoolLogoUrl = "/manus-storage/school-logo_57ffb7b0.jpg";
 
 type Row = Record<string, any>;
 

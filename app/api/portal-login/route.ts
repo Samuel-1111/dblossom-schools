@@ -6,14 +6,14 @@ export const dynamic = "force-dynamic";
 type PortalRole = "student" | "teacher";
 
 type PortalRecord = {
-  id: number;
+  id: string;
   full_name?: string | null;
   email?: string | null;
   admission_number?: string | null;
   student_number?: string | null;
-  password: string | null;
-  status: string | null;
-  profile_id: string | null;
+  password?: string | null;
+  status?: string | null;
+  profile_id?: string | null;
   staff_id?: string | null;
   role?: string | null;
   assigned_class?: string | null;
@@ -21,6 +21,12 @@ type PortalRecord = {
 
 function normalize(value: string) {
   return value.trim().toLowerCase();
+}
+
+function fallbackPasswords(fullName: string | null | undefined) {
+  const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
+  const candidates = [parts.at(-1), parts[0]].filter((value): value is string => Boolean(value));
+  return Array.from(new Set(candidates.map((value) => value.charAt(0).toUpperCase() + value.slice(1).toLowerCase())));
 }
 
 function localLoginEmail(role: PortalRole, identifier: string) {
@@ -32,22 +38,45 @@ async function getOrCreateAuthUser(supabase: ReturnType<typeof createServiceClie
   const listed = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (listed.error) throw listed.error;
   const existing = listed.data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase());
+  const metadata = { full_name: fullName, role, portal_identifier: identifier };
   if (existing) {
-    const updated = await supabase.auth.admin.updateUserById(existing.id, {
-      password,
-      user_metadata: { full_name: fullName, role, portal_identifier: identifier },
-    });
+    const updated = await supabase.auth.admin.updateUserById(existing.id, { password, user_metadata: metadata });
     if (updated.error) throw updated.error;
     return updated.data.user;
   }
-  const created = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: fullName, role, portal_identifier: identifier },
-  });
+  const created = await supabase.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: metadata });
   if (created.error) throw created.error;
   return created.data.user;
+}
+
+async function findPortalRecord(supabase: ReturnType<typeof createServiceClient>, role: PortalRole, identifier: string) {
+  const table = role === "student" ? "students" : "teachers";
+  const identifierColumn = role === "student" ? "admission_number" : "staff_id";
+  const richColumns = role === "student"
+    ? "id,admission_number,full_name,password,status,profile_id"
+    : "id,full_name,email,password,status,profile_id,staff_id,role,assigned_class";
+  const minimalColumns = role === "student"
+    ? "id,admission_number,full_name,status"
+    : "id,full_name,email,status,role,assigned_class";
+
+  const rich = await supabase.from(table).select(richColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
+  if (rich.data) return { record: rich.data as unknown as PortalRecord, schemaError: null as string | null };
+
+  const minimal = await supabase.from(table).select(minimalColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
+  if (minimal.data) return { record: minimal.data as unknown as PortalRecord, schemaError: null as string | null };
+
+  if (role === "student") {
+    const legacy = await supabase.from(table).select("id,student_number,full_name,status").ilike("student_number", identifier).limit(1).maybeSingle();
+    if (legacy.data) return { record: legacy.data as PortalRecord, schemaError: null as string | null };
+  } else {
+    const byEmail = await supabase.from(table).select(minimalColumns).ilike("email", identifier).limit(1).maybeSingle();
+    if (byEmail.data) return { record: byEmail.data as unknown as PortalRecord, schemaError: null as string | null };
+    const byName = await supabase.from(table).select(minimalColumns).ilike("full_name", identifier).limit(1).maybeSingle();
+    if (byName.data) return { record: byName.data as unknown as PortalRecord, schemaError: null as string | null };
+  }
+
+  const schemaError = rich.error?.message || minimal.error?.message || null;
+  return { record: null, schemaError };
 }
 
 export async function POST(request: Request) {
@@ -61,28 +90,15 @@ export async function POST(request: Request) {
     }
 
     const supabase = createServiceClient();
-    const table = role === "student" ? "students" : "teachers";
-    const identifierColumn = role === "student" ? "admission_number" : "staff_id";
-    const selectColumns = role === "student" ? "id,admission_number,full_name,password,status,profile_id" : "id,full_name,email,password,status,profile_id,staff_id,role,assigned_class";
-    let data: unknown = null;
-    let error: { message?: string } | null = null;
-    const primaryResult = await supabase.from(table).select(selectColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
-    data = primaryResult.data;
-    error = primaryResult.error;
-    if (error) {
-      const legacyColumns = role === "student" ? "id,admission_number,full_name,password,status" : "id,full_name,email,password,status,staff_id,role,assigned_class";
-      const legacyResult = await supabase.from(table).select(legacyColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
-      data = legacyResult.data;
-      error = legacyResult.error;
+    const { record, schemaError } = await findPortalRecord(supabase, role, identifier);
+    if (!record && schemaError && !/column .* does not exist/i.test(schemaError)) {
+      return NextResponse.json({ error: "Portal records are not configured yet" }, { status: 503 });
     }
-    if (error && role === "student") {
-      const legacyStudent = await supabase.from(table).select("id,student_number,full_name,password,status").ilike("student_number", identifier).limit(1).maybeSingle();
-      data = legacyStudent.data;
-      error = legacyStudent.error;
-    }
-    if (error) return NextResponse.json({ error: "Portal records are not configured yet" }, { status: 503 });
-    const record = data as PortalRecord | null;
-    if (!record || (record.status && !["active", "enabled"].includes(normalize(record.status))) || record.password !== password) {
+    if (!record) return NextResponse.json({ error: "Portal record not found" }, { status: 404 });
+    const storedPassword = record.password?.trim() || "";
+    const validPasswords = storedPassword ? [storedPassword] : fallbackPasswords(record.full_name);
+    const status = normalize(record.status ?? "active");
+    if ((status && !["active", "enabled"].includes(status)) || !validPasswords.includes(password)) {
       return NextResponse.json({ error: "Invalid portal credentials" }, { status: 401 });
     }
 
@@ -92,8 +108,18 @@ export async function POST(request: Request) {
     if (!user) return NextResponse.json({ error: "Unable to create portal identity" }, { status: 503 });
 
     await supabase.from("profiles").upsert({ id: user.id, full_name: fullName, role }, { onConflict: "id" });
-    if (role === "teacher") await supabase.auth.admin.updateUserById(user.id, { user_metadata: { full_name: fullName, role, portal_role: (record as PortalRecord & { role?: string | null }).role ?? "Teaching Staff", assigned_class: (record as PortalRecord & { assigned_class?: string | null }).assigned_class ?? null, portal_identifier: identifier } });
-    if (record.profile_id !== user.id) await supabase.from(table).update({ profile_id: user.id }).eq("id", record.id);
+    if (role === "teacher") {
+      await supabase.auth.admin.updateUserById(user.id, {
+        user_metadata: {
+          full_name: fullName,
+          role,
+          portal_role: record.role ?? "Teaching Staff",
+          assigned_class: record.assigned_class ?? null,
+          portal_identifier: identifier,
+        },
+      });
+    }
+    if (record.profile_id !== user.id) await supabase.from(role === "student" ? "students" : "teachers").update({ profile_id: user.id }).eq("id", record.id);
 
     return NextResponse.json({ login_email: email });
   } catch {

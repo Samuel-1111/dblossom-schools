@@ -209,3 +209,7 @@
 - [x] Add route-level regression checks for exact remaining specification claims: copy strings, layout labels, required interactions, and documented secure behavior differences.
 - [x] Keep any non-literal specification behavior explicitly labeled as an implementation difference in the audit rather than claiming strict pixel parity.
 
+- [x] Fix reported black fallback logo so the uploaded circular D'Blossom logo is used on deployed public and portal surfaces. The injected black WebDev logo was overridden with the verified uploaded asset path and visually rechecked.
+- [x] Fix and verify visible Student Portal and Teacher Portal navigation/routes. Both routes are visible from the public homepage and mobile navigation.
+- [x] Diagnose and repair real-record Student admission-number/password and Teacher staff-ID/password login failures, then add regression coverage. Legacy rows without password/profile columns now use safe name fallback compatibility; teachers may also use their existing email until Admin assigns staff IDs.
+
