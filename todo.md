@@ -191,3 +191,8 @@
 - [x] Add an Admin result detail view and verify exact export field coverage against the authoritative specification. The View modal and specification-exact student, teacher, and long-format result CSV headers are implemented and regression-tested.
 - [x] Complete route-by-route visual/accessibility QA at phone, tablet, laptop, and wide-desktop widths and record evidence in `responsive-visual-qa-2026-08-25.md`.
 
+- [x] Match Admin Results table to the supplied reference: Student, Class, Term, Session, Average, and eye/trash Actions with class/term filters.
+- [x] Replace the Admin student table’s visible class_id column with the readable class name such as JSS1 or SS1.
+- [x] Use the user-uploaded school logo as the default logo source across public, Admin, Student, and Teacher surfaces instead of the black fallback logo. The uploaded storage asset is `/manus-storage/school-logo_1e37ce6f.jpg`, while `NEXT_PUBLIC_SCHOOL_LOGO_URL` remains configurable for external hosting.
+- [ ] Repair and verify student admission-number/password and teacher staff-ID/password login against Admin-created records and clear failure feedback. The server route now supports admission_number/staff_id plus legacy student_number and metadata-based dashboard fallback; live credential verification still requires real records in the connected Supabase project.
+

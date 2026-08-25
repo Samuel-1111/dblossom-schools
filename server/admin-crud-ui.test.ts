@@ -76,7 +76,8 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).not.toContain('Save the media record before uploading an image.');
     expect(clientSource).toContain('loading="lazy"');
     expect(clientSource).toContain('alt={String(row.title ?? "School media")}');
-    expect(clientSource).toContain('"class_id", "subject_id", "term_id", "session"');
+    expect(clientSource).toContain('columns={["student", "class", "term", "session", "average"]}');
+    expect(clientSource).toContain('class: classes.find');
   });
 
   it("provides Admin result detail and comment review without result creation controls", () => {
@@ -89,7 +90,8 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain("exportResults");
     expect(clientSource).toContain('"Full Name", "Admission Number", "Class", "Gender", "Date of Birth", "Parent Name", "Parent Phone", "Parent Email", "Boarding Status", "Password", "Status"');
     expect(clientSource).toContain('"Student Name", "Class", "Term", "Session", "Subject", "CA Score", "Exam Score", "Total", "Grade", "Result Total", "Average", "Overall %", "Position", "Teacher Comment", "Principal Comment"');
-    expect(clientSource).toContain("Edit comments");
+    expect(clientSource).toContain("<Eye className=\"h-5 w-5\"");
+    expect(clientSource).toContain("<Trash2 className=\"h-5 w-5\"");
     expect(clientSource).toContain("Result uploads are teacher-only");
   });
 

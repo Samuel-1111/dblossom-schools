@@ -23,11 +23,12 @@ describe("portable deployment contract", () => {
     expect(guide).toContain("JWT_SECRET");
     expect(guide).toContain("VITE_APP_LOGO");
     expect(guide).toContain("NEXT_PUBLIC_SCHOOL_LOGO_URL");
-    expect(guide).toContain("all seven migrations");
+    expect(guide).toContain("all eight migrations");
     expect(studentCompatibility).toContain("students_admission_number_unique_idx");
     expect(setupAll).toContain("0001_school_management.sql");
     expect(setupAll).toContain("0006_student_identifier_compatibility.sql");
     expect(setupAll).toContain("0007_media_metadata_compatibility.sql");
+    expect(setupAll).toContain("0008_result_position_compatibility.sql");
   });
 
   it("supports Supabase Storage outside Manus while retaining Forge compatibility", () => {

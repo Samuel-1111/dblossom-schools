@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { calculateSubjects, summarizeSubjects } from "../shared/school";
+import { calculateSubjects, getSubjects, SUBJECT_STORAGE_KEY, summarizeSubjects } from "../shared/school";
 
 const teacherSource = readFileSync("app/teacher-dashboard/TeacherDashboardClient.tsx", "utf8");
 const portalLoginSource = readFileSync("app/portal-login/PortalLogin.tsx", "utf8");
@@ -25,6 +25,22 @@ describe("portal validation and dynamic subjects", () => {
     expect(teacherSource).toContain('supabase.from("subjects").select("id, name")');
     expect(teacherSource).toContain("subjects.map");
     expect(teacherSource).toContain("Select subject");
+    expect(teacherSource).toContain("getSubjects()");
+    expect(teacherSource).toContain('startsWith("local-")');
+  });
+
+  it("defines the specification localStorage subject bridge with safe defaults", () => {
+    expect(SUBJECT_STORAGE_KEY).toBe("dbms_subjects");
+    expect(getSubjects()).toEqual(expect.arrayContaining(["English Language", "Mathematics"]));
+  });
+
+  it("keeps the student header and report-card metadata aligned", () => {
+    const studentSource = readFileSync("app/student-dashboard/StudentDashboardClient.tsx", "utf8");
+    expect(studentSource).toContain("className");
+    expect(studentSource).toContain("Admission No:");
+    expect(studentSource).toContain("STUDENT ACADEMIC REPORT");
+    expect(studentSource).toContain("Total Score");
+    expect(studentSource).toContain("Position");
   });
 
   it("keeps role-specific identifier labels and required-field validation", () => {

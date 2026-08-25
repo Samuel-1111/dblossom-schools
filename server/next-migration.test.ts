@@ -7,6 +7,7 @@ const legacySchema = readFileSync(`${root}/supabase/migrations/0002_legacy_workf
 const hardeningSchema = readFileSync(`${root}/supabase/migrations/0003_role_hardening.sql`, "utf8");
 const studentCompatibilitySchema = readFileSync(`${root}/supabase/migrations/0006_student_identifier_compatibility.sql`, "utf8");
 const mediaCompatibilitySchema = readFileSync(`${root}/supabase/migrations/0007_media_metadata_compatibility.sql`, "utf8");
+const resultPositionSchema = readFileSync(`${root}/supabase/migrations/0008_result_position_compatibility.sql`, "utf8");
 const portalLogin = readFileSync(`${root}/app/portal-login/PortalLogin.tsx`, "utf8");
 const adminLogin = readFileSync(`${root}/app/admin-login/page.tsx`, "utf8");
 const studentLogin = readFileSync(`${root}/app/student-portal/page.tsx`, "utf8");
@@ -58,6 +59,8 @@ describe("Next.js + Supabase migration contract", () => {
     expect(studentCompatibilitySchema).toContain("set admission_number = student_number");
     expect(mediaCompatibilitySchema).toContain("add column if not exists category text not null default 'Other'");
     expect(mediaCompatibilitySchema).toContain("add column if not exists status text not null default 'Published'");
+    expect(resultPositionSchema).toContain("add column if not exists position integer");
+    expect(resultPositionSchema).toContain("results_student_position_idx");
   });
 
   it("preserves the amended portal credential labels", () => {

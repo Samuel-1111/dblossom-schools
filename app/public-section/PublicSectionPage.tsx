@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-const schoolLogoUrl = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_15e2310a.jpg";
+const schoolLogoUrl = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_1e37ce6f.jpg";
 
 const sections = [
   ["About", "/about"], ["Academics", "/academics"], ["Gallery", "/gallery"], ["Events", "/events"], ["Payment", "/payment"], ["Complaint", "/complaint"],

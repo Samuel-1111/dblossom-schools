@@ -30,3 +30,7 @@ The complete deterministic suite reports **77 passing tests and 1 intentionally 
 ## Open verification boundary
 
 This record verifies the responsive and visual implementation available in the managed preview. It does not claim successful live student/teacher login until the target Supabase project has the complete ordered setup from `supabase/SETUP_ALL.sql`, including profiles, portal credential support, role policies, and student/media compatibility fields. It also does not claim pixel-perfect parity for specification rows marked Partial in `secured-portal-spec-audit.md`.
+
+## Post-parity desktop recheck
+
+At 1280×720, `/`, `/student-portal`, `/teacher-portal`, `/admin-login`, `/events`, and `/gallery` rendered successfully after the semantic-token, localStorage-subject, and report-card updates. Portal entry cards remain centered, the navy header bands retain readable light-text hierarchy, the circular logo is visible, and public media routes show clear unavailable-state messaging with reachable home navigation when no live media rows are available. Homepage navigation and portal CTAs remain visible without horizontal overflow in the captured viewport.

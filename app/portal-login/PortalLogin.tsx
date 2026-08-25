@@ -8,7 +8,7 @@ import { createClient } from "../../utils/supabase/client";
 
 type PortalRole = "student" | "teacher" | "admin";
 
-const schoolLogoUrl = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_15e2310a.jpg";
+const schoolLogoUrl = process.env.NEXT_PUBLIC_SCHOOL_LOGO_URL || "/manus-storage/school-logo_1e37ce6f.jpg";
 
 type PortalLoginProps = {
   role: PortalRole;
@@ -113,25 +113,25 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
     }
   }
 
-  const inputClass = (hasError: boolean) => `rounded-md border px-3 py-3 font-normal outline-none transition focus-visible:ring-2 ${hasError ? "border-red-500 focus-visible:ring-red-500" : "border-[hsl(220_15%_90%)] focus-visible:border-[var(--navy)] focus-visible:ring-[var(--navy)]"}`;
+  const inputClass = (hasError: boolean) => `rounded-md border px-3 py-3 font-normal outline-none transition focus-visible:ring-2 ${hasError ? "border-red-500 focus-visible:ring-red-500" : "border-border focus-visible:border-primary focus-visible:ring-primary"}`;
 
   return (
-    <main className="min-h-screen bg-[hsl(220_15%_95%)] font-body">
-      <section className="bg-[var(--navy)] px-4 py-16 text-center md:py-24">
-        <a href="/" className="mx-auto mb-8 flex w-fit items-center gap-2 text-sm text-white/70 transition hover:text-white"><Home className="h-4 w-4" />Back to Home</a>
+    <main className="min-h-screen bg-secondary/30 font-body">
+      <section className="bg-primary px-4 py-16 text-center md:py-24">
+        <a href="/" className="mx-auto mb-8 flex w-fit items-center gap-2 text-sm text-primary-foreground/70 transition hover:text-primary-foreground"><Home className="h-4 w-4" />Back to Home</a>
         <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/10"><PortalIcon role={role} /></div>
-        <h1 className="font-heading text-4xl font-bold text-white md:text-5xl">{title}</h1>
-        <p className="mt-3 text-white/70">{portalSubtitle[role]}</p>
+        <h1 className="font-heading text-4xl font-bold text-primary-foreground md:text-5xl">{title}</h1>
+        <p className="mt-3 text-primary-foreground/70">{portalSubtitle[role]}</p>
       </section>
       <section className="mx-auto -mt-8 w-full max-w-md px-4 pb-12">
-        <div className="rounded-2xl border border-[hsl(220_15%_90%)] bg-white p-8 shadow-lg">
+        <div className="rounded-2xl border border-border bg-card p-8 shadow-lg">
           <img src={schoolLogoUrl} alt="D'Blossom Model Private Schools" className="mx-auto mb-4 h-16 w-16 rounded-full object-cover" />
           <h2 className="font-heading text-2xl font-bold text-[var(--navy)]">{role === "admin" ? "Admin Login" : `${role === "student" ? "Student" : "Teacher"} Login`}</h2>
           <p className="mt-1 text-sm text-slate-500">{role === "admin" ? hint : role === "student" ? "Secondary School Only (JSS1 – SS3)" : "Sign in to manage your assigned classes."}</p>
           <form onSubmit={submit} className="mt-7 grid gap-5" noValidate>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">{identifierLabel}<input value={identifier} onChange={(event) => { setIdentifier(event.target.value); clearField("identifier"); }} className={inputClass(Boolean(fieldErrors.identifier))} placeholder={identifierPlaceholder} autoComplete="username" aria-invalid={Boolean(fieldErrors.identifier)} />{fieldErrors.identifier && <span className="text-xs text-red-500">{fieldErrors.identifier}</span>}</label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">Password<input type="password" value={password} onChange={(event) => { setPassword(event.target.value); clearField("password"); }} className={inputClass(Boolean(fieldErrors.password))} autoComplete="current-password" aria-invalid={Boolean(fieldErrors.password)} />{fieldErrors.password && <span className="text-xs text-red-500">{fieldErrors.password}</span>}</label>
-            <button type="submit" disabled={loading} className="rounded-md bg-[var(--navy)] px-4 py-3 font-semibold text-white transition active:scale-[0.98] disabled:opacity-60">{loading ? "Logging in…" : role === "admin" ? "Login to Dashboard" : "Login"}</button>
+            <button type="submit" disabled={loading} className="rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground transition active:scale-[0.98] disabled:opacity-60">{loading ? "Logging in…" : role === "admin" ? "Login to Dashboard" : "Login"}</button>
           </form>
           <a href="/" className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-500 transition hover:text-[var(--navy)]"><Home className="h-4 w-4" />Back to Home</a>
         </div>

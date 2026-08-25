@@ -1,6 +1,30 @@
 export const CLASSES = ["JSS1", "JSS2", "JSS3", "SS1", "SS2", "SS3"] as const;
 export const TERMS = ["First Term", "Second Term", "Third Term"] as const;
 export const SUBJECTS = ["English Language", "Mathematics", "Basic Science", "Social Studies", "Computer Studies", "Civic Education", "Agricultural Science", "Home Economics"] as const;
+export const SUBJECT_STORAGE_KEY = "dbms_subjects";
+
+export function getSubjects(): string[] {
+  if (typeof window === "undefined") return [...SUBJECTS];
+  try {
+    const stored = window.localStorage.getItem(SUBJECT_STORAGE_KEY);
+    const parsed = stored ? JSON.parse(stored) : null;
+    return Array.isArray(parsed) && parsed.every((item) => typeof item === "string") && parsed.length ? parsed : [...SUBJECTS];
+  } catch {
+    return [...SUBJECTS];
+  }
+}
+
+export function saveSubjects(subjects: string[]) {
+  const unique = Array.from(new Set(subjects.map((subject) => subject.trim()).filter(Boolean)));
+  if (typeof window !== "undefined") window.localStorage.setItem(SUBJECT_STORAGE_KEY, JSON.stringify(unique));
+  return unique;
+}
+
+export function resetSubjects() {
+  const defaults = [...SUBJECTS];
+  if (typeof window !== "undefined") window.localStorage.setItem(SUBJECT_STORAGE_KEY, JSON.stringify(defaults));
+  return defaults;
+}
 
 export type SubjectScore = { name: string; caScore: number; examScore: number; total: number; grade: string };
 

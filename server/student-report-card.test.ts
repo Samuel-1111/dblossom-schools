@@ -14,7 +14,7 @@ describe("Student report-card specification", () => {
   it("provides a branded client-side report-card download action", () => {
     expect(source).toContain("html2canvas");
     expect(source).toContain("jsPDF");
-    expect(source).toContain("Download Report Card");
+    expect(source).toContain("Download Result (PDF)");
     expect(source).toContain("D'Blossom Model Private Schools");
     expect(source).toContain("Generating PDF…");
     expect(source).toContain("Report card could not be generated. Please try again.");

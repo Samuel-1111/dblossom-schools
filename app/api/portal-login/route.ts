@@ -10,6 +10,7 @@ type PortalRecord = {
   full_name?: string | null;
   email?: string | null;
   admission_number?: string | null;
+  student_number?: string | null;
   password: string | null;
   status: string | null;
   profile_id: string | null;
@@ -25,14 +26,14 @@ function localLoginEmail(role: PortalRole, identifier: string) {
   return `${role}-${safe}@local.dblossom.school`;
 }
 
-async function getOrCreateAuthUser(supabase: ReturnType<typeof createServiceClient>, email: string, password: string, fullName: string, role: PortalRole) {
+async function getOrCreateAuthUser(supabase: ReturnType<typeof createServiceClient>, email: string, password: string, fullName: string, role: PortalRole, identifier: string) {
   const listed = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (listed.error) throw listed.error;
   const existing = listed.data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase());
   if (existing) {
     const updated = await supabase.auth.admin.updateUserById(existing.id, {
       password,
-      user_metadata: { full_name: fullName, role },
+      user_metadata: { full_name: fullName, role, portal_identifier: identifier },
     });
     if (updated.error) throw updated.error;
     return updated.data.user;
@@ -41,7 +42,7 @@ async function getOrCreateAuthUser(supabase: ReturnType<typeof createServiceClie
     email,
     password,
     email_confirm: true,
-    user_metadata: { full_name: fullName, role },
+    user_metadata: { full_name: fullName, role, portal_identifier: identifier },
   });
   if (created.error) throw created.error;
   return created.data.user;
@@ -61,8 +62,22 @@ export async function POST(request: Request) {
     const table = role === "student" ? "students" : "teachers";
     const identifierColumn = role === "student" ? "admission_number" : "staff_id";
     const selectColumns = role === "student" ? "id,admission_number,full_name,password,status,profile_id" : "id,full_name,email,password,status,profile_id,staff_id";
-    const query = supabase.from(table).select(selectColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
-    const { data, error } = await query;
+    let data: unknown = null;
+    let error: { message?: string } | null = null;
+    const primaryResult = await supabase.from(table).select(selectColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
+    data = primaryResult.data;
+    error = primaryResult.error;
+    if (error) {
+      const legacyColumns = role === "student" ? "id,admission_number,full_name,password,status" : "id,full_name,email,password,status,staff_id";
+      const legacyResult = await supabase.from(table).select(legacyColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
+      data = legacyResult.data;
+      error = legacyResult.error;
+    }
+    if (error && role === "student") {
+      const legacyStudent = await supabase.from(table).select("id,student_number,full_name,password,status").ilike("student_number", identifier).limit(1).maybeSingle();
+      data = legacyStudent.data;
+      error = legacyStudent.error;
+    }
     if (error) return NextResponse.json({ error: "Portal records are not configured yet" }, { status: 503 });
     const record = data as PortalRecord | null;
     if (!record || (record.status && !["active", "enabled"].includes(normalize(record.status))) || record.password !== password) {
@@ -70,14 +85,12 @@ export async function POST(request: Request) {
     }
 
     const email = record.email?.trim() || localLoginEmail(role, identifier);
-    const fullName = record.full_name?.trim() || (role === "student" ? `Student ${record.admission_number ?? identifier}` : "Teacher");
-    const user = await getOrCreateAuthUser(supabase, email, password, fullName, role);
+    const fullName = record.full_name?.trim() || (role === "student" ? `Student ${record.admission_number ?? record.student_number ?? identifier}` : "Teacher");
+    const user = await getOrCreateAuthUser(supabase, email, password, fullName, role, identifier);
     if (!user) return NextResponse.json({ error: "Unable to create portal identity" }, { status: 503 });
 
-    const profile = await supabase.from("profiles").upsert({ id: user.id, full_name: fullName, role }, { onConflict: "id" }).select("id").single();
-    if (profile.error) return NextResponse.json({ error: "Portal profile setup is incomplete" }, { status: 503 });
-    const linked = await supabase.from(table).update({ profile_id: user.id }).eq("id", record.id);
-    if (linked.error) return NextResponse.json({ error: "Portal profile linkage failed" }, { status: 503 });
+    await supabase.from("profiles").upsert({ id: user.id, full_name: fullName, role }, { onConflict: "id" });
+    if (record.profile_id !== user.id) await supabase.from(table).update({ profile_id: user.id }).eq("id", record.id);
 
     return NextResponse.json({ login_email: email });
   } catch {

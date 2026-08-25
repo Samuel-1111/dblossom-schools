@@ -21,11 +21,13 @@ describe("shared portal login specification", () => {
     expect(routeSource).toContain('role === "student" ? "admission_number" : "staff_id"');
     expect(routeSource).toContain("record.password !== password");
     expect(routeSource).toContain("profile_id: user.id");
+    expect(routeSource).toContain('select("id,student_number,full_name,password,status")');
+    expect(source).toContain("/manus-storage/school-logo_1e37ce6f.jpg");
   });
 
   it("renders the required shared portal structure", () => {
     expect(source).toContain("Back to Home");
-    expect(source).toContain("bg-[var(--navy)]");
+    expect(source).toContain("bg-primary");
     expect(source).toContain("font-heading");
     expect(source).toContain("rounded-2xl");
   });
