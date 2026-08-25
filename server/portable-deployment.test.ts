@@ -6,6 +6,7 @@ const guide = readFileSync("PORTABLE_DEPLOYMENT.md", "utf8");
 const storage = readFileSync("server/storage.ts", "utf8");
 const studentCompatibility = readFileSync("supabase/migrations/0006_student_identifier_compatibility.sql", "utf8");
 const setupAll = readFileSync("supabase/SETUP_ALL.sql", "utf8");
+const studentCredentials = readFileSync("supabase/migrations/0009_student_portal_credentials.sql", "utf8");
 
 describe("portable deployment contract", () => {
   it("provides a root download entry point", () => {
@@ -23,12 +24,14 @@ describe("portable deployment contract", () => {
     expect(guide).toContain("JWT_SECRET");
     expect(guide).toContain("VITE_APP_LOGO");
     expect(guide).toContain("NEXT_PUBLIC_SCHOOL_LOGO_URL");
-    expect(guide).toContain("all eight migrations");
+    expect(guide).toContain("all nine migrations");
     expect(studentCompatibility).toContain("students_admission_number_unique_idx");
     expect(setupAll).toContain("0001_school_management.sql");
     expect(setupAll).toContain("0006_student_identifier_compatibility.sql");
     expect(setupAll).toContain("0007_media_metadata_compatibility.sql");
     expect(setupAll).toContain("0008_result_position_compatibility.sql");
+    expect(setupAll).toContain("Migration 0009: student portal credentials");
+    expect(studentCredentials).toContain("add column if not exists password text");
   });
 
   it("supports Supabase Storage outside Manus while retaining Forge compatibility", () => {

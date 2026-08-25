@@ -85,3 +85,10 @@ The managed Supabase project previously confirmed the teacher-table columns afte
 The deterministic regression suite currently reports **77 passing tests and one intentionally skipped live Supabase probe**. TypeScript passes. The production build passes. The standalone launcher starts on a normal `PORT`, serves the homepage with HTTP 200, and returns the expected HTTP 400 validation response for an empty portal-login request. Previous responsive captures covered phone, tablet, laptop, and wide desktop public and portal-entry routes.
 
 This record supports a **stable implementation checkpoint**, but it does not claim that every specification row marked Partial is complete or that live Supabase configuration has been verified. The remaining open tracker items intentionally preserve those distinctions.
+
+
+## Final correction addendum — 2026-08-25
+
+The final source review confirms the requested corrections are present: Admin Results now exposes Student, Class, Term, Session, Average, and accessible eye/trash Actions with class/term filters; Admin Students maps class IDs to readable class names; the uploaded logo is the default `/manus-storage/school-logo_1e37ce6f.jpg`; and portal login uses the server-side `/api/portal-login` route with admission-number/staff-ID resolution, legacy student-number fallback, Auth metadata dashboard fallback, and Class Teacher role/class restoration. `0009_student_portal_credentials.sql` and `supabase/SETUP_ALL.sql` now add the missing student password column for portable and hosted setup.
+
+The final deterministic suite reports 79 passing tests with one intentionally skipped live probe, TypeScript passes, the production build passes, and the standalone launcher returns homepage HTTP 200 plus structured portal-login validation. The only environment-dependent step is applying the complete setup script to the target Supabase project and using its real Admin-created credentials for live end-to-end login; no fake records were inserted.

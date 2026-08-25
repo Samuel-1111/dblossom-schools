@@ -15,6 +15,8 @@ type PortalRecord = {
   status: string | null;
   profile_id: string | null;
   staff_id?: string | null;
+  role?: string | null;
+  assigned_class?: string | null;
 };
 
 function normalize(value: string) {
@@ -61,14 +63,14 @@ export async function POST(request: Request) {
     const supabase = createServiceClient();
     const table = role === "student" ? "students" : "teachers";
     const identifierColumn = role === "student" ? "admission_number" : "staff_id";
-    const selectColumns = role === "student" ? "id,admission_number,full_name,password,status,profile_id" : "id,full_name,email,password,status,profile_id,staff_id";
+    const selectColumns = role === "student" ? "id,admission_number,full_name,password,status,profile_id" : "id,full_name,email,password,status,profile_id,staff_id,role,assigned_class";
     let data: unknown = null;
     let error: { message?: string } | null = null;
     const primaryResult = await supabase.from(table).select(selectColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
     data = primaryResult.data;
     error = primaryResult.error;
     if (error) {
-      const legacyColumns = role === "student" ? "id,admission_number,full_name,password,status" : "id,full_name,email,password,status,staff_id";
+      const legacyColumns = role === "student" ? "id,admission_number,full_name,password,status" : "id,full_name,email,password,status,staff_id,role,assigned_class";
       const legacyResult = await supabase.from(table).select(legacyColumns).ilike(identifierColumn, identifier).limit(1).maybeSingle();
       data = legacyResult.data;
       error = legacyResult.error;
@@ -90,6 +92,7 @@ export async function POST(request: Request) {
     if (!user) return NextResponse.json({ error: "Unable to create portal identity" }, { status: 503 });
 
     await supabase.from("profiles").upsert({ id: user.id, full_name: fullName, role }, { onConflict: "id" });
+    if (role === "teacher") await supabase.auth.admin.updateUserById(user.id, { user_metadata: { full_name: fullName, role, portal_role: (record as PortalRecord & { role?: string | null }).role ?? "Teaching Staff", assigned_class: (record as PortalRecord & { assigned_class?: string | null }).assigned_class ?? null, portal_identifier: identifier } });
     if (record.profile_id !== user.id) await supabase.from(table).update({ profile_id: user.id }).eq("id", record.id);
 
     return NextResponse.json({ login_email: email });

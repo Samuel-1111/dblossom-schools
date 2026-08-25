@@ -12,7 +12,7 @@ describe("Teacher save-state specification", () => {
     expect(source).toContain("disabled={savingAttendance}");
     expect(source).toContain("This workspace is view-only because no class is assigned");
     expect(source).toContain("canUpload");
-    expect(pageSource).toContain("canUpload={Boolean(classes?.length)}");
+    expect(pageSource).toContain("const canUpload = /class teacher/i.test(portalRole)");
   });
 
   it("recovers saving state after missing required authenticated selections", () => {
