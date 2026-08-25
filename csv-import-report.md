@@ -1,57 +1,46 @@
 # CSV Import Report
 
-The three uploaded CSV files were processed against the connected Supabase project using server-side credentials. No service-role key is included in this report.
+The uploaded CSV files were inspected and the Student and Teacher records were processed against the connected Supabase project using server-side credentials. Password values are intentionally not printed anywhere in this report.
 
 ## Exact uploaded headers
 
-| File | Exact headers | Uploaded rows |
+| File | Exact headers | Rows |
 |---|---|---:|
-| students.csv | Full Name; Admission Number; Class; Gender; Date of Birth; Parent Name; Parent Phone; Parent Email; Boarding Status; Password; Status | 122 |
-| teachers.csv | Full Name; Staff ID; Email; Phone; Subject; Role; Assigned Class; Password; Status | 5 |
-| results.csv | Student Name; Class; Term; Session; Subject; CA Score; Exam Score; Total; Grade; Result Total; Average; Overall %; Position; Teacher Comment; Principal Comment | 923 |
+| `students.csv` | Full Name; Admission Number; Class; Gender; Date of Birth; Parent Name; Parent Phone; Parent Email; Boarding Status; Password; Status | 122 |
+| `teachers.csv` | Full Name; Staff ID; Email; Phone; Subject; Role; Assigned Class; Password; Status | 5 |
+| `results.csv` | Student Name; Class; Term; Session; Subject; CA Score; Exam Score; Total; Grade; Result Total; Average; Overall %; Position; Teacher Comment; Principal Comment | 923 |
 
-## Live schema mapping
+## Student import
 
-| File | Mapped to live columns | Intentionally omitted because no live column exists |
-|---|---|---|
-| students.csv | Full Name → full_name; Admission Number → admission_number; Class → class_id; Date of Birth → date_of_birth; Parent Name → guardian_name; Parent Phone → guardian_contact; Status → status | Gender, Parent Email, Boarding Status, Password |
-| teachers.csv | Full Name → full_name; Email → email; Phone → phone; Status → status | Staff ID, Subject, Role, Assigned Class, Password |
-| results.csv | Student Name → student_id lookup; Class → class_id lookup; Term + Session → term_id lookup; Subject → subject_id lookup; CA Score → ca_score; Exam Score → exam_score; Total → total_score; Grade → grade; Teacher Comment → teacher_comment; Principal Comment → principal_comment | Result Total, Average, Overall %, Position, plus source text fields after foreign-key conversion |
+The live `students` table currently exposes `id`, `admission_number`, `full_name`, `class_id`, `date_of_birth`, `guardian_name`, `guardian_contact`, `status`, and `created_at`. The importer mapped the CSV class names to the live class UUIDs and mapped Parent Name and Parent Phone to the live guardian columns.
 
-## Reference records created
+The CSV contained 121 unique admission numbers across 122 rows. Two admission numbers (`02A` and `02925B`) were duplicated as identical duplicate rows, so they correctly resolve to one Supabase record each. The import result was **1 new student and 121 updated existing student records; 0 failed rows**. The CSV fields Gender, Parent Email, Boarding Status, and Password could not be stored because those columns do not exist in the connected live table.
 
-Classes: 5 required class reference rows are now present. Academic sessions: 2. Terms: 2. Class-subject reference rows: 45.
+The Student portal login resolver was tested using the first CSV student’s admission number and password without printing either value. It returned HTTP 200 and a valid login email. Until the missing live password column is added, the application uses the CSV student’s existing name-derived surname/first-name compatibility fallback; an explicit stored password is preferred automatically once the schema supports it.
 
-## Final result
+## Teacher import
 
-| Target | Successfully inserted | Failed | Notes |
-|---|---:|---:|---|
-| students | 120 | 0 | One blank Admission Number was stored as `PENDING-CSV-020` so the row remains editable in Admin Dashboard. |
-| teachers | 5 | 0 | Imported supported live fields; the five extra teacher fields remain omitted because the live table does not expose them. |
-| results | 905 | 18 | Rows with blank Subject could not be converted to subject_id and were not inserted. |
+The live `teachers` table exposes all required CSV credential and assignment fields. The import result was **0 new teachers and 5 updated existing teacher records; 0 failed rows**. Staff IDs, passwords, email addresses, roles, subjects, assigned classes, and normalized active statuses were written to Supabase.
 
-The live verification query returned the inserted records in Supabase. Existing records are not counted as new inserts; the importer avoided duplicating matching student and teacher records.
+The Teacher portal login resolver was tested using the first CSV teacher’s Staff ID and password without printing either value. It returned HTTP 200 and a valid login email. The five teacher rows have non-empty Staff IDs, non-empty stored passwords, and non-empty assigned classes.
 
-## Warnings and failures
+## Results CSV
 
-The student CSV contained one required-field issue: row 20 had a blank Admission Number and was stored as `PENDING-CSV-020` for later correction.
+The `results.csv` file was not re-imported during this request because the request specifically asked to load Student and Teacher credentials and assigned classes. The previously recorded results import remains unchanged: 905 successful rows and 18 rows requiring a Subject value before safe foreign-key conversion.
 
-The results failures were CSV rows 408 through 425. Each failed for the same specific reason: `Subject` was blank, so no matching `subject_id` could be determined. No result row was silently skipped for any other reason.
+## Verification summary
 
-The initial teacher attempt failed because the uploaded `Active` value violated the live table's lowercase status constraint. It was normalized to `active`, retried, and all five teacher rows then inserted successfully.
+| Check | Result |
+|---|---|
+| Student CSV headers inspected | Passed |
+| Teacher CSV headers inspected | Passed |
+| Student class-name to UUID conversion | Passed; no unmapped classes |
+| Student records processed | 122 CSV rows; 1 inserted, 121 updated, 0 failed |
+| Teacher records processed | 5 updated, 0 failed |
+| Student CSV credential resolver test | HTTP 200 |
+| Teacher CSV credential resolver test | HTTP 200 |
+| Password values exposed in output | No |
 
-## Live table row-count checks
+## Required schema follow-up
 
-| Table | HTTP status | Content-Range response |
-|---|---:|---|
-| students | 206 | 0-0/120 |
-| teachers | 206 | 0-0/5 |
-| results | 206 | 0-0/905 |
-| classes | 206 | 0-0/5 |
-| academic_sessions | 206 | 0-0/2 |
-| terms | 206 | 0-0/2 |
-| subjects | 206 | 0-0/45 |
-
-## Follow-up needed
-
-The live Supabase schema currently does not expose the CSV's teacher credential/profile fields or the student password field. Therefore those values were intentionally not sent to the database. The imported students and teachers are visible in the corresponding tables, while the 18 result rows require a Subject value before they can be safely reprocessed.
+To store every Student CSV field literally in Supabase, apply the bundled `supabase/SETUP_ALL.sql` or at minimum add the missing Student columns (`gender`, `parent_email`, `boarding_status`, and `password`) in the target Supabase SQL Editor. The current application still permits the imported students to log in through the verified compatibility path, but the explicit CSV Student Password cannot be persisted until the live schema contains a password column.

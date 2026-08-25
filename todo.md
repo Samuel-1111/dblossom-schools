@@ -213,3 +213,9 @@
 - [x] Fix and verify visible Student Portal and Teacher Portal navigation/routes. Both routes are visible from the public homepage and mobile navigation.
 - [x] Diagnose and repair real-record Student admission-number/password and Teacher staff-ID/password login failures, then add regression coverage. Legacy rows without password/profile columns now use safe name fallback compatibility; teachers may also use their existing email until Admin assigns staff IDs.
 
+- [x] Create an immediate post-login Teacher dashboard view showing assigned classes and the corresponding student list while preserving existing result-entry controls and responsive behavior.
+
+- [x] Imported and verified the uploaded teacher CSV: 5 existing teacher records updated with Staff IDs, passwords, roles, subjects, assigned classes, contact details, and active status.
+- [x] Imported and verified the uploaded student CSV: 1 new and 121 existing unique student records processed with class-name to UUID mapping; duplicate CSV rows were preserved as one matching record each.
+- [x] Added `csv-import-report.md` documenting exact headers, mappings, counts, failures, and the live student password-column limitation without exposing passwords.
+
