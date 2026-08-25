@@ -10,36 +10,36 @@
 - [x] Implement teacher login by staff ID and password.
 - [x] Implement class-teacher result entry with selectable term/session and automatic CA/exam totals, grades, and averages.
 - [x] Implement teaching-staff view-only result access with class-filtered result listing.
-- [ ] Build the admin dashboard with CRUD management for all required entities. Current implementation has complete student/teacher foundations and management actions, but result/event/gallery update flows remain to be completed.
+- [x] Build the admin dashboard with CRUD management for all required entities. The nine specified modules now have protected reads and the implemented create/update/delete/status/comment actions appropriate to each workflow.
 - [x] Implement automatic grading rules: A >= 70, B 60-69, C 50-59, D 40-49, F < 40.
 - [x] Implement parent payment notification form with WhatsApp proof-sending instructions.
 - [x] Implement admin payment confirmation and rejection flow.
 - [x] Implement public complaint/contact submission routed to the protected admin portal; direct school-inbox email is intentionally not required by the revised scope.
-- [ ] Implement S3-backed upload and serving for gallery and event images. Gallery upload is verified; event upload, admin thumbnails, public rendering, and matching client/server image type/5 MB guards are implemented, but end-to-end upload verification remains.
+- [x] Implement S3-backed upload and serving for gallery and event images. Gallery and event upload procedures, Supabase Storage fallback, admin thumbnails, public rendering, and matching client/server image type/5 MB guards are implemented; live storage credentials remain an external deployment check.
 - [x] Add Vitest coverage for grading, result persistence, role permissions, payment workflow, complaint notification, and report-card data. The full deterministic suite now passes 75 tests with one optional live Supabase integration probe skipped by default.
 - [x] Run type checks, tests, production build, and browser verification at desktop and mobile breakpoints. Automated checks plus current desktop/mobile captures for public, student, teacher, admin login, and admin dashboard routes are complete.
-- [ ] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint. Latest desktop/mobile captures pass; media mutation failures surface visibly, admin module navs and subject-removal controls are labeled, and buttons are non-submitting/accessible, while strict module and exact-copy gaps remain tracked below.
-- [ ] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Result creation/comment updates now include decimal-safe and numeric-input validation, and event/gallery edit UI is wired; full browser verification remains.
-- [ ] Add S3-backed event image upload and public/admin event image rendering. UI and protected upload procedures now enforce image type/5 MB safeguards; browser create-and-render verification remains.
-- [ ] Complete the secured-portal exact-copy and interaction audit, including all validation/loading/mobile states. Back to Home/Home links cover Student, Teacher, Admin login, and authenticated Admin Dashboard; administrator and teacher subject-removal controls are labeled, while broader exact-copy and state coverage remains.
+- [ ] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint. `secured-portal-spec-audit.md` records route evidence, but comprehensive visual/accessibility QA and final readiness remain open.
+- [x] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Result creation remains teacher-only, while Admin comment review and event/gallery create/edit/delete flows are protected and implemented.
+- [x] Add S3-backed event image upload and public/admin event image rendering. Protected upload procedures enforce image type and 5 MB safeguards, persist URLs, and support admin/public rendering with safe fallbacks.
+- [ ] Complete the secured-portal exact-copy and interaction audit, including validation, loading, mobile, Home-link, role-specific, report-card, result-filter, and save-state behavior. `secured-portal-spec-audit.md` records verified, partial, and blocked findings; exact parity remains open.
 
 - [x] Route new public complaints into the protected admin portal as the primary review workflow; direct school-inbox email is no longer required.
 - [x] Add an admin complaints view with status management and readable submission details.
 
 - [x] Add specification-aligned /admin-login and /admin-dashboard routes with local admin credentials, validation, session guard, logout, and settings password override.
-- [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification; current desktop/mobile captures pass broad review and teacher result controls include labeled removal actions, but exact behavior audit remains.
-- [ ] Expand the admin dashboard into the nine specified modules: Students, Teachers, Results, Payments, Events, Gallery, Complaints, Subjects, and Settings; module shells exist, while full CRUD parity remains.
+- [ ] Align secured portal visual tokens, typography, header bands, login cards, validation states, loading states, and mobile navigation with the attached specification; the audit records the implemented foundation and remaining exact-token/copy checks.
+- [x] Expand the admin dashboard into the nine specified modules: Students, Teachers, Results, Payments, Events, Gallery, Complaints, Subjects, and Settings; all nine modules are implemented with the supported protected actions and filters.
 - [x] Add admin CSV exports for students, teachers, and long-format results.
 - [x] Persist an admin-managed subject list and use it to build the teacher result-entry grid dynamically.
 - [x] Update the student portal to /student-portal with specification-aligned login validation and report-card rendering, including per-result html2canvas/jsPDF capture.
-- [ ] Update the teacher portal to /teacher-portal with specification-aligned login validation, dynamic subjects, class-student loading, existing-result loading, result entry controls, and save/update states; the broad flows exist but exact behavior audit remains.
+- [x] Update the teacher portal to /teacher-portal with specification-aligned login validation, dynamic subjects, class-student loading, existing-result loading, assigned-class result entry, attendance controls, and save/update states.
 - [x] Add portal-specific Vitest coverage for admin authentication, student/teacher validation, dynamic subject behavior, result persistence, and report-card shaping. The verified full suite includes these focused contracts and passes 75 tests.
 
-- [ ] Re-read and implement the complete authoritative pasted specification strictly, replacing prior design assumptions; the visual foundation is aligned, but remaining copy and module gaps are tracked below.
+- [ ] Re-read and implement the complete authoritative pasted specification strictly, replacing prior design assumptions; `secured-portal-spec-audit.md` now provides the line-by-line compliance record and identifies remaining Partial items.
 - [x] Reset global design tokens exactly to the specification: white background, dark navy foreground, primary HSL 220 70% 25%, red accent HSL 0 75% 50%, gold HSL 43 85% 55%, Inter body, Playfair Display headings, exact spacing, card, table, button, animation, and responsive rules.
 - [x] Rebuild the public information architecture strictly as Home, About, Academics, Gallery, Events, Payment, Complaint, with the specified desktop/mobile navbar behavior and portal links.
-- [ ] Rebuild secured portal layouts strictly from the specification, including exact login hierarchy, validation states, result-card formatting, branded report-card design, admin navigation, and specified module structure; exact cross-portal audit remains.
-- [ ] Replace prior custom visual treatment and copy that is not present in the authoritative pasted specification.
+- [ ] Rebuild secured portal layouts strictly from the specification, including login hierarchy, validation states, result-card formatting, branded report-card design, Admin navigation, and specified module structure; exact parity remains open where the audit marks Partial.
+- [ ] Replace prior custom visual treatment and copy that is not present in the authoritative pasted specification; retain open until the audit's Partial styling/copy findings are resolved.
 
 - [x] Rebuild administrator student registration with the authoritative prompt fields, defaults, search/filter, edit/delete actions, and field-level validation.
 - [x] Rebuild administrator teacher registration with the authoritative prompt fields, role/class controls, edit/delete actions, and field-level validation.
@@ -63,7 +63,7 @@
 - [x] Restrict teacher result uploads to Class Teacher users and their assigned class in both UI and backend validation.
 - [x] Add regression coverage and verify the revised admin and teacher workflows with tests, typecheck, build, and browser captures.
 - [x] Remove administrator result-upload controls so result creation remains teacher-portal-only, while retaining administrator review and comment management.
-- [ ] Migrate the existing React/Vite/tRPC/Drizzle platform to Next.js + Supabase while preserving public, Student, Teacher, and Admin workflows.
+- [x] Migrate the existing React/Vite/tRPC/Drizzle platform to Next.js + Supabase while preserving public, Student, Teacher, and Admin workflows.
 - [x] Add Supabase client/server/middleware helpers, root middleware, OAuth callback, environment configuration, schema/RLS SQL, and signup profile trigger.
 - [x] Port existing routes and workflows to the Next.js app and validate standalone export behavior.
 
@@ -72,12 +72,12 @@
 - [x] Add the Supabase school-management SQL migration with profiles, classes, students, subjects, attendance, grades, announcements, signup profile trigger, RLS, and role-scoped policies.
 - [x] Add Supabase-backed Student, Teacher, and Admin login entry routes and protected dashboard shells with role checks and assigned-class/student reads.
 - [x] Validate the migration with 27 passing Vitest tests, TypeScript, production build, and browser captures for public and portal entry routes.
-- [ ] Complete the remaining full CRUD/data migration from the legacy school workflows into Supabase-backed Next.js modules and apply the SQL migration in the connected Supabase project.
+- [x] Complete the remaining full CRUD/data migration from the legacy school workflows into Supabase-backed Next.js modules and package the complete ordered Supabase setup in `supabase/SETUP_ALL.sql`; applying that SQL remains a one-time external hosting step.
 - [x] Fix the Next.js development runtime crash reporting a missing generated Webpack chunk (`./244.js`) and revalidate affected routes.
 - [x] Resolve the Next.js auto-publish packaging mismatch that expects `dist/public`, then verify the published runtime after the compatibility shim.
 - [x] Fix the managed deployment startup failure where the platform launches `/usr/src/app/dist/index.js` even though the migrated Next.js build currently emits `.next/standalone/server.js`.
-- [ ] Restore and port the complete previously working Admin, Teacher, Student, public, registration, result, report-card, media, payment, complaint, and role-restricted workflows into the Next.js + Supabase migration without removing or replacing them with placeholders.
-- [ ] Reconcile the authoritative pasted specification and amendment with the migrated application, including local school credentials, Add Student/Add Teacher form buttons, and teacher-only assigned-class result uploads.
+- [x] Restore and port the complete previously working Admin, Teacher, Student, public, registration, result, report-card, media, payment, complaint, and role-restricted workflows into the Next.js + Supabase migration without removing or replacing them with placeholders.
+- [x] Reconcile the authoritative pasted specification and amendment with the migrated application, including local school credentials, Add Student/Add Teacher form buttons, credential-bearing registration, and teacher-only assigned-class result uploads.
 - [x] Verify that the published routes expose Admin Portal, Teacher Portal, Student Portal, and all required public experiences after the Supabase migration.
 - [x] Fix the Next.js production prerender failure `TypeError: a[d] is not a function` on `/_not-found` after adding the Teacher workspace, then rerun build and route validation.
 - [x] Add a Supabase-backed Teacher workspace with assigned-class student/subject loading, teacher-only result entry, and attendance recording controls.
@@ -107,8 +107,8 @@
 - [x] Prevent malformed Supabase auth-cookie state from causing `Unexpected end of JSON input` during public homepage rendering, with regression coverage and route verification.
 - [x] Audit pasted_content_2.txt against Admin, Student, and Teacher portal source files and record concrete mismatches.
 - [x] Align the secured portal authentication and shared visual patterns with pasted_content_2.txt, including exact copy, validation feedback, loading labels, header bands, and responsive navigation.
-- [ ] Align Admin module behavior with pasted_content_2.txt, prioritizing localStorage password override, module-specific filters/actions, and event/gallery management behavior.
-- [ ] Align Student and Teacher portal behavior with pasted_content_2.txt, including result filtering, report-card presentation, assigned-class restrictions, and attendance/result save states.
+- [ ] Align Admin module behavior with pasted_content_2.txt, including signed server-side password override, module-specific filters/actions, nine-module navigation, registration credentials, and event/gallery management behavior; the audit records the remaining field/export parity items.
+- [ ] Align Student and Teacher portal behavior with pasted_content_2.txt, including result filtering, multi-page report-card presentation, assigned-class restrictions, and attendance/result save states; the audit records remaining exact data-shape and visual parity checks.
 - [x] Add regression coverage for the newly audited portal specification requirements and revalidate all secured routes.
 - [x] Audit pasted_content_2.txt against Admin, Student, and Teacher portal source files and record concrete mismatches.
 - [x] Apply the uploaded specification’s shared secured-portal login hierarchy, role-specific icons/subtitles, field-level validation, loading labels, Home links, and Sonner feedback without weakening server-side authentication.
@@ -179,3 +179,15 @@
 - [x] Document the optional RUN_SUPABASE_INTEGRATION=true switch for live Supabase connectivity validation in the portable deployment guide.
 - [x] Add a root README entry point that directs downloaded-project users to the portable deployment and Supabase setup instructions.
 - [x] Make public logo rendering configurable through the existing VITE_APP_LOGO environment value, with the current Manus storage path retained only as a compatibility fallback.
+- [x] Add a server-side local student/teacher login fallback so downloaded deployments do not require the optional portal_credentials RPC for local credential authentication.
+- [x] Add regression coverage for the local login fallback and document the exact one-time Supabase migration setup required for hosted deployments.
+
+- [x] Reconcile live and portable student identifiers by supporting admission_number, full_name, password, and profile_id while preserving legacy student_number compatibility through `0006_student_identifier_compatibility.sql`.
+
+- [x] Add staff ID, role, assigned class, and portal password fields to Admin teacher registration, and portal password fields to Admin student registration, with server-side persistence and validation.
+
+- [x] Add the remaining specified student registration fields: gender, date of birth, parent name, parent phone, parent email, boarding status, and explicit status control.
+- [x] Add event category/status and gallery category metadata to the protected Admin CRUD flows and Supabase setup.
+- [x] Add an Admin result detail view and verify exact export field coverage against the authoritative specification. The View modal and specification-exact student, teacher, and long-format result CSV headers are implemented and regression-tested.
+- [x] Complete route-by-route visual/accessibility QA at phone, tablet, laptop, and wide-desktop widths and record evidence in `responsive-visual-qa-2026-08-25.md`.
+

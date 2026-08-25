@@ -17,6 +17,17 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain('adminRequest("DELETE", "teachers", String(row.id))');
     expect(clientSource).toContain('teacher.email.trim()');
     expect(clientSource).toContain('teacher.phone.trim()');
+    expect(clientSource).toContain('teacher.staff_id.trim()');
+    expect(clientSource).toContain('teacher.assigned_class.trim()');
+    expect(clientSource).toContain('teacher.password');
+    expect(clientSource).toContain('student.password');
+    expect(clientSource).toContain('student.parent_email');
+    expect(clientSource).toContain('student.boarding_status');
+    expect(clientSource).toContain('mediaForm.category');
+    expect(clientSource).toContain('mediaForm.status');
+    expect(routeSource).toContain('body.staff_id');
+    expect(routeSource).toContain('body.assigned_class');
+    expect(routeSource).toContain('body.password');
   });
 
   it("protects imported-record access with the local admin cookie and server-only client", () => {
@@ -68,8 +79,16 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain('"class_id", "subject_id", "term_id", "session"');
   });
 
-  it("provides Admin result comment review without result creation controls", () => {
+  it("provides Admin result detail and comment review without result creation controls", () => {
+    expect(clientSource).toContain("openResult");
+    expect(clientSource).toContain('role="dialog"');
+    expect(clientSource).toContain("resultSubjects");
     expect(clientSource).toContain("saveResultComments");
+    expect(clientSource).toContain("exportStudents");
+    expect(clientSource).toContain("exportTeachers");
+    expect(clientSource).toContain("exportResults");
+    expect(clientSource).toContain('"Full Name", "Admission Number", "Class", "Gender", "Date of Birth", "Parent Name", "Parent Phone", "Parent Email", "Boarding Status", "Password", "Status"');
+    expect(clientSource).toContain('"Student Name", "Class", "Term", "Session", "Subject", "CA Score", "Exam Score", "Total", "Grade", "Result Total", "Average", "Overall %", "Position", "Teacher Comment", "Principal Comment"');
     expect(clientSource).toContain("Edit comments");
     expect(clientSource).toContain("Result uploads are teacher-only");
   });

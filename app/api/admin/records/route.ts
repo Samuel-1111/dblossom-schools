@@ -25,10 +25,13 @@ function cleanMediaPayload(table: AdminMediaTable, body: Record<string, unknown>
     ...(typeof body.title === "string" ? { title: body.title.trim() } : {}),
     ...(typeof body.description === "string" || body.description === null ? { description: body.description } : {}),
     ...(typeof body.event_date === "string" ? { event_date: body.event_date } : {}),
+    ...(typeof body.category === "string" ? { category: body.category.trim() } : {}),
+    ...(typeof body.status === "string" ? { status: body.status.trim() } : {}),
     ...(typeof body.image_url === "string" || body.image_url === null ? { image_url: body.image_url } : {}),
   };
   return {
     ...(typeof body.title === "string" ? { title: body.title.trim() } : {}),
+    ...(typeof body.category === "string" ? { category: body.category.trim() } : {}),
     ...(typeof body.alt_text === "string" || body.alt_text === null ? { alt_text: body.alt_text } : {}),
     ...(typeof body.image_url === "string" ? { image_url: body.image_url } : {}),
   };
@@ -55,8 +58,14 @@ function cleanPayload(table: AdminTable, body: Record<string, unknown>) {
       ...(typeof body.full_name === "string" ? { full_name: body.full_name.trim() } : {}),
       ...(typeof body.class_id === "string" || typeof body.class_id === "number" || body.class_id === null ? { class_id: body.class_id } : {}),
       ...(typeof body.date_of_birth === "string" || body.date_of_birth === null ? { date_of_birth: body.date_of_birth } : {}),
+      ...(typeof body.gender === "string" || body.gender === null ? { gender: typeof body.gender === "string" ? body.gender.trim() : null } : {}),
+      ...(typeof body.parent_name === "string" || body.parent_name === null ? { parent_name: typeof body.parent_name === "string" ? body.parent_name.trim() : null } : {}),
+      ...(typeof body.parent_phone === "string" || body.parent_phone === null ? { parent_phone: typeof body.parent_phone === "string" ? body.parent_phone.trim() : null } : {}),
+      ...(typeof body.parent_email === "string" || body.parent_email === null ? { parent_email: typeof body.parent_email === "string" ? body.parent_email.trim() : null } : {}),
+      ...(typeof body.boarding_status === "string" ? { boarding_status: body.boarding_status.trim() } : {}),
       ...(typeof body.guardian_name === "string" || body.guardian_name === null ? { guardian_name: body.guardian_name } : {}),
       ...(typeof body.guardian_contact === "string" || body.guardian_contact === null ? { guardian_contact: body.guardian_contact } : {}),
+      ...(typeof body.password === "string" && body.password.length > 0 ? { password: body.password } : {}),
       ...(typeof body.status === "string" ? { status: body.status.toLowerCase() } : {}),
     };
   }
@@ -65,6 +74,11 @@ function cleanPayload(table: AdminTable, body: Record<string, unknown>) {
       ...(typeof body.full_name === "string" ? { full_name: body.full_name.trim() } : {}),
       ...(typeof body.email === "string" || body.email === null ? { email: body.email } : {}),
       ...(typeof body.phone === "string" || body.phone === null ? { phone: body.phone } : {}),
+      ...(typeof body.staff_id === "string" || body.staff_id === null ? { staff_id: typeof body.staff_id === "string" ? body.staff_id.trim() : null } : {}),
+      ...(typeof body.subject === "string" || body.subject === null ? { subject: typeof body.subject === "string" ? body.subject.trim() : null } : {}),
+      ...(typeof body.role === "string" ? { role: body.role.trim() } : {}),
+      ...(typeof body.assigned_class === "string" || body.assigned_class === null ? { assigned_class: typeof body.assigned_class === "string" ? body.assigned_class.trim() : null } : {}),
+      ...(typeof body.password === "string" && body.password.length > 0 ? { password: body.password } : {}),
       ...(typeof body.status === "string" ? { status: body.status.toLowerCase() } : {}),
     };
   }

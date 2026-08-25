@@ -81,14 +81,18 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
         return;
       }
 
-      const { data: resolved, error: resolveError } = await supabase.rpc("resolve_portal_login", {
-        identifier: normalizedIdentifier,
-        portal_type: role,
+      const response = await fetch("/api/portal-login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ role, identifier: normalizedIdentifier, password }),
       });
-      const loginEmail = resolveError ? null : (resolved?.[0]?.login_email ?? null);
+      const resolved = await response.json().catch(() => ({})) as { login_email?: string; error?: string };
+      const loginEmail = response.ok ? resolved.login_email : null;
       if (!loginEmail) {
-        setFieldErrors({ identifier: errorCopy[role].notFound });
-        toast.error(`${errorCopy[role].notFound}. Please check your ${role === "student" ? "admission number" : "staff ID"}.`);
+        const missingIdentifier = response.status === 401 || response.status === 503;
+        const error = missingIdentifier ? errorCopy[role].notFound : (resolved.error ?? "Unable to sign in right now");
+        setFieldErrors({ identifier: error });
+        toast.error(`${error}. Please check your ${role === "student" ? "admission number" : "staff ID"}.`);
         return;
       }
 

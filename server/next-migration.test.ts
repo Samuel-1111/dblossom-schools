@@ -5,9 +5,13 @@ const root = process.cwd();
 const schema = readFileSync(`${root}/supabase/migrations/0001_school_management.sql`, "utf8");
 const legacySchema = readFileSync(`${root}/supabase/migrations/0002_legacy_workflows.sql`, "utf8");
 const hardeningSchema = readFileSync(`${root}/supabase/migrations/0003_role_hardening.sql`, "utf8");
+const studentCompatibilitySchema = readFileSync(`${root}/supabase/migrations/0006_student_identifier_compatibility.sql`, "utf8");
+const mediaCompatibilitySchema = readFileSync(`${root}/supabase/migrations/0007_media_metadata_compatibility.sql`, "utf8");
 const portalLogin = readFileSync(`${root}/app/portal-login/PortalLogin.tsx`, "utf8");
 const adminLogin = readFileSync(`${root}/app/admin-login/page.tsx`, "utf8");
 const studentLogin = readFileSync(`${root}/app/student-portal/page.tsx`, "utf8");
+const studentDashboard = readFileSync(`${root}/app/student-dashboard/page.tsx`, "utf8");
+const teacherDashboard = readFileSync(`${root}/app/teacher-dashboard/TeacherDashboardClient.tsx`, "utf8");
 const teacherLogin = readFileSync(`${root}/app/teacher-portal/page.tsx`, "utf8");
 const nextConfig = readFileSync(`${root}/next.config.mjs`, "utf8");
 const devLauncher = readFileSync(`${root}/scripts/start-dev.mjs`, "utf8");
@@ -46,11 +50,23 @@ describe("Next.js + Supabase migration contract", () => {
     expect(hardeningSchema).toContain("attendance_student_date_unique");
   });
 
+  it("keeps legacy and portable student identifiers compatible", () => {
+    expect(studentCompatibilitySchema).toContain("add column if not exists admission_number text");
+    expect(studentCompatibilitySchema).toContain("add column if not exists full_name text");
+    expect(studentCompatibilitySchema).toContain("add column if not exists password text");
+    expect(studentCompatibilitySchema).toContain("students_admission_number_unique_idx");
+    expect(studentCompatibilitySchema).toContain("set admission_number = student_number");
+    expect(mediaCompatibilitySchema).toContain("add column if not exists category text not null default 'Other'");
+    expect(mediaCompatibilitySchema).toContain("add column if not exists status text not null default 'Published'");
+  });
+
   it("preserves the amended portal credential labels", () => {
     expect(studentLogin).toContain('identifierLabel="Admission Number"');
     expect(teacherLogin).toContain('identifierLabel="Staff ID"');
     expect(adminLogin).toContain('identifierLabel="Username"');
-    expect(portalLogin).toContain("resolve_portal_login");
+    expect(portalLogin).toContain('fetch("/api/portal-login"');
+    expect(studentDashboard).toContain("admission_number");
+    expect(teacherDashboard).toContain("admission_number");
   });
 
   it("isolates development artifacts from production output", () => {

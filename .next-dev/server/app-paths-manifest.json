@@ -1,1 +1,10 @@
-{}
+{
+  "/page": "app/page.js",
+  "/teacher-portal/page": "app/teacher-portal/page.js",
+  "/admin-login/page": "app/admin-login/page.js",
+  "/about/page": "app/about/page.js",
+  "/events/page": "app/events/page.js",
+  "/student-portal/page": "app/student-portal/page.js",
+  "/gallery/page": "app/gallery/page.js",
+  "/academics/page": "app/academics/page.js"
+}
