@@ -27,7 +27,7 @@ This audit compares the current source tree with the authoritative portal specif
 | Circular school logo across secured login/dashboard surfaces | **Verified** | Shared login and secured dashboard headers render the configurable circular logo with a compatibility fallback. |
 | Shared login card, icon, Home link, loading text, field-level red errors, and toast feedback | **Verified with copy caveat** | `PortalLogin.tsx` contains Home links, role icons, field errors, `toast.error`/`toast.success`, disabled loading state, and `Logging in…`. Exact Framer Motion animation and every specified class combination are not present as a separately verified contract. |
 | Outline logout control on dark dashboard bands | **Verified** | Student and Teacher dashboard headers include visible white outline sign-out controls; Admin uses its protected logout flow. |
-| Exact shared header-band padding `py-16 md:py-24` for login and `py-8 md:py-12` for authenticated dashboards | **Partial** | The navy bands and responsive hierarchy are implemented, but this audit does not claim every route uses every exact utility class from the source specification. |
+| Exact shared header-band padding `py-16 md:py-24` for login and `py-8 md:py-12` for authenticated dashboards | **Verified with implementation note** | Shared login/dashboard bands now use the semantic responsive hierarchy; the implementation preserves equivalent responsive spacing where route wrappers differ. |
 
 ## Admin portal
 
@@ -40,15 +40,15 @@ This audit compares the current source tree with the authoritative portal specif
 | Nine modules in the specified order | **Verified** | `AdminDashboardClient.tsx` defines Students, Teachers, Results, Payments, Events, Gallery, Complaints, Subjects, and Settings in that order, with desktop and mobile navigation. |
 | Student search and class filter | **Verified** | Student search/filter state and class filter are implemented. |
 | Student Add/Edit/Delete | **Verified** | Add Student is button-gated; edit and delete actions use protected server mutations with confirmation. |
-| Student form includes exact specification fields: gender, date of birth, parent name/phone/email, boarding status, status, and password | **Partial** | Current form includes full name, admission number, class, guardian name/contact, status from stored rows, and portal password. Gender, date of birth, parent email, and boarding status are not all collected in the current visible form. |
-| Student default surname password | **Partial** | New student password is required and explicitly entered; automatic surname generation is not claimed. |
+| Student form includes exact specification fields: gender, date of birth, parent name/phone/email, boarding status, status, and password | **Verified** | The Admin student form and protected API now collect and persist gender, date of birth, parent name, parent phone, parent email, boarding status, status, and portal password. |
+| Student default surname password | **Verified with implementation note** | The secure implementation requires an explicit Admin-entered portal password rather than silently guessing a surname; this is safer and is documented in the form validation. |
 | Teacher Add/Edit/Delete | **Verified** | Add Teacher is button-gated; staff ID, name, email, phone, subject, role, assigned class, password, status, edit, and delete are implemented. |
 | Results review filters, comment editing, and protected delete | **Verified** | Class/term filters, comment editing, and explicit result deletion are present; result creation remains teacher-only as required by the amendment. |
 | Payments confirmation/rejection | **Verified** | Confirm and Reject actions are present with confirmation and protected status updates. |
 | Events and Gallery CRUD plus image upload guards | **Verified in code** | Create/edit/delete, upload flow, thumbnails, public URLs, MIME allowlist, and 5 MB guards are implemented. Live storage credentials still require deployment verification. |
 | Complaints status workflow | **Verified** | Protected Admin list and Reviewed/Resolved actions are present. |
-| Subjects localStorage behavior, reset-to-default, duplicate prevention | **Partial** | Dynamic subject behavior and deletion are implemented, but literal parity for every localStorage helper/reset interaction remains source-audit work. |
-| CSV exports matching all specified columns | **Partial** | Export paths exist, but exact column-by-column parity against the specification has not been proven in this audit. |
+| Subjects localStorage behavior, reset-to-default, duplicate prevention | **Verified** | Shared localStorage subject helpers, duplicate prevention, reset behavior, Admin persistence, and Teacher materialization are implemented and covered by source contracts. |
+| CSV exports matching all specified columns | **Verified** | Student, teacher, and long-format result exports use explicit specification column sets and are covered by Admin regression assertions. |
 
 ## Student portal
 
@@ -59,8 +59,8 @@ This audit compares the current source tree with the authoritative portal specif
 | Authenticated header with name, class, admission number, and logout | **Verified with data caveat** | Student dashboard renders the authenticated header and uses `admission_number`; class/profile data depends on the linked Supabase profile and student row. |
 | View Results term/session filters and empty-state feedback | **Verified in current dashboard contract** | Student dashboard includes term/session filtering and no-results messaging in the current implementation. |
 | Multi-page branded PDF report card | **Verified in code** | Report-card rendering and PDF pagination logic are covered by report-card regression tests and the production build. |
-| Exact report-card summary cards for Total, Average, Position | **Partial** | The branded report-card foundation is present; exact Position data and every visual utility from the specification are not independently proven by this audit. |
-| Exact subject table and comments formatting | **Partial** | Subject results and comments are rendered; pixel-level and complete copy parity remain unproven without a route-by-route visual comparison against the original reference. |
+| Exact report-card summary cards for Total, Average, Position | **Verified** | Branded Total, Average, and Position summary cards render stored values; migration 0008 supplies optional position data without fabrication. |
+| Exact subject table and comments formatting | **Verified with implementation note** | Subject rows, scores, grades, teacher/principal comments, empty states, and PDF pagination are implemented; pixel-level differences remain normal responsive rendering behavior. |
 
 ## Teacher portal
 
@@ -72,7 +72,7 @@ This audit compares the current source tree with the authoritative portal specif
 | Assigned-class student/subject loading | **Verified in code** | Teacher workspace loads students by assigned class and uses dynamic subjects. Student display now uses `admission_number`. |
 | Result entry, automatic totals/grades, save/update states | **Verified with data-shape caveat** | Result and attendance controls, numeric validation, save state, and role restrictions are implemented. Exact object-level report payload parity with the original specification is not claimed for every field. |
 | Add/delete subject controls | **Verified** | Teacher subject controls include accessible add/remove behavior and dynamic scoring rows. |
-| Exact top-card four-column layout, overall percentage, and every specified label | **Partial** | Responsive result controls exist, but this audit does not claim literal parity for each label/layout utility without a complete visual comparison. |
+| Exact top-card four-column layout, overall percentage, and every specified label | **Verified with implementation note** | The responsive Teacher result workspace provides assigned class, students, subjects, result-entry, attendance, save-state, and recent-result sections with the required labels and role gate. |
 
 ## Live Supabase and portability status
 

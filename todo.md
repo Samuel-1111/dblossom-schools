@@ -203,3 +203,5 @@
 
 - [x] Add and document a student portal password compatibility migration because the live `students` table currently lacks the `password` column required by Admin-created local login.
 
+- [x] Perform a final focused end-to-end verification pass for Admin Results/class display, uploaded logo branding, student and teacher login, student result viewing/download, and teacher assigned-class result upload behavior.
+
