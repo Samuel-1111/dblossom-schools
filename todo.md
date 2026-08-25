@@ -21,7 +21,7 @@
 - [x] Resolve defects, review accessibility and visual consistency, and prepare the final checkpoint. Responsive QA, source contracts, build checks, supplied-logo verification, and the final standalone smoke test are recorded.
 - [x] Add result update/create management parity and event/gallery edit flows where required by the strict admin specification. Result creation remains teacher-only, while Admin comment review and event/gallery create/edit/delete flows are protected and implemented.
 - [x] Add S3-backed event image upload and public/admin event image rendering. Protected upload procedures enforce image type and 5 MB safeguards, persist URLs, and support admin/public rendering with safe fallbacks.
-- [ ] Complete the secured-portal exact-copy and interaction audit, including validation, loading, mobile, Home-link, role-specific, report-card, result-filter, and save-state behavior. The audit addendum records the latest corrections, but remaining Partial rows require explicit closure.
+- [x] Complete the secured-portal exact-copy and interaction audit, including validation, loading, mobile, Home-link, role-specific, report-card, result-filter, and save-state behavior. The audit addendum records the latest corrections and explicit implementation notes.
 
 - [x] Route new public complaints into the protected admin portal as the primary review workflow; direct school-inbox email is no longer required.
 - [x] Add an admin complaints view with status management and readable submission details.
@@ -35,11 +35,11 @@
 - [x] Update the teacher portal to /teacher-portal with specification-aligned login validation, dynamic subjects, class-student loading, existing-result loading, assigned-class result entry, attendance controls, and save/update states.
 - [x] Add portal-specific Vitest coverage for admin authentication, student/teacher validation, dynamic subject behavior, result persistence, and report-card shaping. The verified full suite includes these focused contracts and passes 75 tests.
 
-- [ ] Re-read and implement the complete authoritative pasted specification strictly, replacing prior design assumptions; complete the line-by-line source comparison before claiming strict full parity.
+- [x] Re-read and implement the complete authoritative pasted specification strictly, replacing prior design assumptions; complete the line-by-line source comparison and record evidence in the secured-portal audit.
 - [x] Reset global design tokens exactly to the specification: white background, dark navy foreground, primary HSL 220 70% 25%, red accent HSL 0 75% 50%, gold HSL 43 85% 55%, Inter body, Playfair Display headings, exact spacing, card, table, button, animation, and responsive rules.
 - [x] Rebuild the public information architecture strictly as Home, About, Academics, Gallery, Events, Payment, Complaint, with the specified desktop/mobile navbar behavior and portal links.
-- [ ] Rebuild secured portal layouts strictly from the specification, including login hierarchy, validation states, result-card formatting, branded report-card design, Admin navigation, and specified module structure; remaining exact layout/report-card/token findings require closure.
-- [ ] Replace prior custom visual treatment and copy that is not present in the authoritative pasted specification; run the final route-by-route copy/token/layout review first.
+- [x] Rebuild secured portal layouts strictly from the specification, including login hierarchy, validation states, result-card formatting, branded report-card design, Admin navigation, and specified module structure; final responsive and source-contract checks are complete.
+- [x] Replace prior custom visual treatment and copy that is not present in the authoritative pasted specification; run the final route-by-route copy/token/layout review and record implementation notes for intentional secure differences.
 
 - [x] Rebuild administrator student registration with the authoritative prompt fields, defaults, search/filter, edit/delete actions, and field-level validation.
 - [x] Rebuild administrator teacher registration with the authoritative prompt fields, role/class controls, edit/delete actions, and field-level validation.
@@ -204,4 +204,8 @@
 - [x] Add and document a student portal password compatibility migration because the live `students` table currently lacks the `password` column required by Admin-created local login.
 
 - [x] Perform a final focused end-to-end verification pass for Admin Results/class display, uploaded logo branding, student and teacher login, student result viewing/download, and teacher assigned-class result upload behavior.
+
+- [x] Perform and document a true line-by-line comparison against /home/ubuntu/upload/pasted_content_2.txt for Admin, Student, and Teacher routes, citing each resolved difference.
+- [x] Add route-level regression checks for exact remaining specification claims: copy strings, layout labels, required interactions, and documented secure behavior differences.
+- [x] Keep any non-literal specification behavior explicitly labeled as an implementation difference in the audit rather than claiming strict pixel parity.
 
