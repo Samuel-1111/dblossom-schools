@@ -219,3 +219,7 @@
 - [x] Imported and verified the uploaded student CSV: 1 new and 121 existing unique student records processed with class-name to UUID mapping; duplicate CSV rows were preserved as one matching record each.
 - [x] Added `csv-import-report.md` documenting exact headers, mappings, counts, failures, and the live student password-column limitation without exposing passwords.
 
+- [x] Add a student-first Teacher result form with assigned class, student selector, term, session, CA Score, Exam Score, computed Total, computed Grade, and complete-report save validation.
+- [x] Import `results(1).csv` into Supabase by resolving student names, classes, subjects, sessions, and terms; 905 rows updated and 18 blank-Subject rows reported without silent insertion.
+- [x] Connect the Student portal and branded report-card view to live `results` records so imported subject results, terms, sessions, scores, grades, and comments are available after login.
+

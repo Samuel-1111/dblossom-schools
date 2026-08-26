@@ -7,11 +7,13 @@ const adminClientSource = readFileSync("app/admin-dashboard/AdminDashboardClient
 
 describe("Result persistence and role boundaries", () => {
   it("persists the assigned student, subject, term, session, scores, and recorder", () => {
-    expect(teacherSource).toContain('supabase.from("grades").insert');
+    expect(teacherSource).toContain('supabase.from("results")');
     expect(teacherSource).toContain("student_id: student.id");
     expect(teacherSource).toContain("subject_id: subject.id");
-    expect(teacherSource).toContain("term: grade.term");
-    expect(teacherSource).toContain("session, score, max_score: maxScore, recorded_by: user.id");
+    expect(teacherSource).toContain("term_id: termRow.id");
+    expect(teacherSource).toContain("ca_score: ca");
+    expect(teacherSource).toContain("exam_score: exam");
+    expect(teacherSource).toContain("Complete the CA and Exam scores for every subject");
   });
 
   it("keeps Admin result mutations limited to protected comment updates", () => {

@@ -34,10 +34,14 @@ describe("secured portal specification route contracts", () => {
 
   it("keeps teacher assigned-class result entry and save-state contracts", () => {
     const teacher = read("app/teacher-dashboard/TeacherDashboardClient.tsx") + read("app/teacher-portal/page.tsx");
-    expect(teacher).toContain("Upload Result");
-    expect(teacher).toContain("Saving Result…");
+    expect(teacher).toContain("Result entry");
+    expect(teacher).toContain("Saving Complete Report…");
+    expect(teacher).toContain("Student academic result");
     expect(teacher).toContain("Select student");
-    expect(teacher).toContain("Save Result");
+    expect(teacher).toContain("Save Complete Result");
+    expect(teacher).toContain("CA Score");
+    expect(teacher).toContain("Exam Score");
+    expect(teacher).toContain("Complete the CA and Exam scores for every subject");
     expect(teacher).toContain("assigned class");
     expect(teacher).toContain("assignedClass");
     expect(teacher).toContain("Assigned classes");
