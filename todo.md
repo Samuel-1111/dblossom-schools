@@ -227,3 +227,6 @@
 - [x] Enriched Admin Results with readable Student Name, Class, Term, Session, subject breakdown, CA, Exam, Total, Grade, Average, and comments from live foreign-key records.
 - [x] Verified that imported results are available to Student portal queries and branded report-card rendering; focused tests, TypeScript, and production build passed.
 
+- [x] Processed `students(1).csv`: 122 rows matched to 5 live classes (JSS1, JSS2, JSS3, SS1, SS2); 120 assignments were already correct and 2 duplicate CSV rows were safely skipped.
+- [x] Verified all 121 live student records have a valid class_id with zero unmapped students, and Admin Students maps those UUIDs to readable class names.
+
