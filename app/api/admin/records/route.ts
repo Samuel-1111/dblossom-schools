@@ -96,6 +96,27 @@ export async function GET(request: Request) {
   if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const table = requestedTable(request);
   if (!table) return NextResponse.json({ error: "Unsupported Admin table" }, { status: 400 });
+  if (table === "results") {
+    const { data: resultRows, error: resultError } = await createServiceClient().from("results").select("id, student_id, subject_id, term_id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, approved, recorded_by, created_at, students(full_name, admission_number, class_id, classes(name)), subjects(name), terms(name, session_id, academic_sessions(name))").order("created_at", { ascending: false });
+    if (resultError) return NextResponse.json({ error: resultError.message }, { status: 400 });
+    const grouped = new Map<string, Record<string, any>>();
+    for (const item of resultRows ?? []) {
+      const student = Array.isArray((item as any).students) ? (item as any).students[0] : (item as any).students;
+      const subject = Array.isArray((item as any).subjects) ? (item as any).subjects[0] : (item as any).subjects;
+      const term = Array.isArray((item as any).terms) ? (item as any).terms[0] : (item as any).terms;
+      const academicSession = Array.isArray(term?.academic_sessions) ? term.academic_sessions[0] : term?.academic_sessions;
+      const key = `${item.student_id}:${item.term_id}`;
+      const current = grouped.get(key) ?? { id: item.id, result_ids: [], student_id: item.student_id, student_name: student?.full_name ?? student?.admission_number ?? "Student", admission_number: student?.admission_number ?? null, class_id: student?.class_id ?? null, class_name: student?.classes?.name ?? "Class not recorded", term_id: item.term_id, term: term?.name ?? "Term not recorded", session: academicSession?.name ?? "Session not recorded", subjects: [], teacher_comment: item.teacher_comment ?? null, principal_comment: item.principal_comment ?? null, approved: item.approved ?? false, created_at: item.created_at, total_score: 0, average: 0 };
+      current.result_ids.push(item.id);
+      current.subjects.push({ name: subject?.name ?? "Subject", subject_id: item.subject_id, ca_score: item.ca_score, exam_score: item.exam_score, total: item.total_score, grade: item.grade });
+      current.total_score += Number(item.total_score ?? 0);
+      current.average = current.subjects.length ? Math.round(current.total_score / current.subjects.length) : 0;
+      if (!current.teacher_comment && item.teacher_comment) current.teacher_comment = item.teacher_comment;
+      if (!current.principal_comment && item.principal_comment) current.principal_comment = item.principal_comment;
+      grouped.set(key, current);
+    }
+    return NextResponse.json({ data: [...grouped.values()] });
+  }
   const query = createServiceClient().from(table).select("*");
   const { data, error } = table === "classes" ? await query.order("name", { ascending: true }) : table === "events" ? await query.order("event_date", { ascending: true }) : await query.order("created_at", { ascending: false });
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });

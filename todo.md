@@ -223,3 +223,7 @@
 - [x] Import `results(1).csv` into Supabase by resolving student names, classes, subjects, sessions, and terms; 905 rows updated and 18 blank-Subject rows reported without silent insertion.
 - [x] Connect the Student portal and branded report-card view to live `results` records so imported subject results, terms, sessions, scores, grades, and comments are available after login.
 
+- [x] Reprocessed `results(1).csv`: 923 rows inspected, 905 valid records upserted/updated in Supabase, and 18 rows reported because Subject was blank.
+- [x] Enriched Admin Results with readable Student Name, Class, Term, Session, subject breakdown, CA, Exam, Total, Grade, Average, and comments from live foreign-key records.
+- [x] Verified that imported results are available to Student portal queries and branded report-card rendering; focused tests, TypeScript, and production build passed.
+

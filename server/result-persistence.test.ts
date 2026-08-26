@@ -22,6 +22,10 @@ describe("Result persistence and role boundaries", () => {
     expect(adminRouteSource).toContain('table === "events" || table === "gallery_images" ? cleanMediaPayload(table, body) : cleanPayload(table, body)');
     expect(adminRouteSource).toContain("teacher_comment");
     expect(adminRouteSource).toContain("principal_comment");
+    expect(adminRouteSource).toContain("students(full_name, admission_number, class_id, classes(name))");
+    expect(adminRouteSource).toContain("subjects(name)");
+    expect(adminRouteSource).toContain("terms(name, session_id, academic_sessions(name))");
+    expect(adminRouteSource).toContain("result_ids");
     expect(adminRouteSource).toContain('table !== "students" && table !== "teachers" && table !== "results"');
     expect(adminClientSource).toContain("Delete result");
   });
