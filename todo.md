@@ -260,3 +260,5 @@
 - [x] Change both Student and Teacher portal credential defaults to the first name from the uploaded record, and refresh existing imported identities without exposing password values. Refreshed 119 Student identities and all 5 Teacher records with zero failures; short Student first names use the signed local-session fallback.
 - [x] Update Admin Student and Teacher password fields to clearly state the first-name default and optional override behavior. Blank password fields now use the given first name; entered values are optional overrides.
 - [x] Add regression coverage for first-name password derivation and Admin password guidance, then rerun all portal/build checks. First-name credential tests passed; the full suite, TypeScript check, and production build passed.
+
+- [x] Verify the portable Next.js package and document the exact Netlify build, environment-variable, and Supabase setup requirements for the completed Admin and Teacher portals. `PORTABLE_DEPLOYMENT.md` documents Node 20+, `pnpm install`, `pnpm build`, required Supabase/JWT/storage variables, and applying `supabase/SETUP_ALL.sql` through migration 0010.
