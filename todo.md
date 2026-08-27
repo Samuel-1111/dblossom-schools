@@ -245,3 +245,5 @@
 
 - [x] Verify saved teacher remarks are carried into Student report-card data and displayed in the downloaded PDF, adding regression coverage for the complete flow. The Student query selects teacher_comment, the client shapes it into Teacher Remark, and the direct jsPDF renderer writes it into the PDF.
 
+- [x] Align the Student visible report card and downloaded PDF table with the supplied screenshot: Subject, CA Score, Exam Score, Total, Grade; keep Term/Session in the header and Teacher Remark below. The old Term, single Score, and Percentage table columns were removed from both screen and PDF.
+

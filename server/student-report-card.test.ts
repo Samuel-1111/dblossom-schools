@@ -20,6 +20,12 @@ describe("Student report-card specification", () => {
     expect(source).toContain("Generating PDF…");
     expect(source).toContain("Report card could not be generated. Please try again.");
     expect(source).toContain("Teacher Remark");
+    expect(source).toContain("CA Score");
+    expect(source).toContain("Exam Score");
+    expect(source).toContain("Total");
+    expect(source).toContain("Grade");
+    expect(source).not.toContain('<th className="px-3 py-3">Term</th>');
+    expect(source).not.toContain('<th className="px-3 py-3">Percentage</th>');
     expect(source).not.toContain('title="Position"');
     expect(source).toContain("downloadingReport");
     expect(source).toContain("pdf.addPage()");
