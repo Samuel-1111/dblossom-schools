@@ -10,18 +10,18 @@ const csvPath = fs.existsSync("/home/ubuntu/upload/students.csv") ? "/home/ubunt
 function parseCsv(text) { const rows=[]; let row=[],cell="",q=false; for(let i=0;i<text.length;i++){const c=text[i]; if(c==='"'){if(q&&text[i+1]==='"'){cell+='"';i++;}else q=!q;}else if(c===","&&!q){row.push(cell.trim());cell="";}else if((c==="\n"||c==="\r")&&!q){if(c==="\r"&&text[i+1]==="\n")i++;row.push(cell.trim());rows.push(row);row=[];cell="";}else cell+=c;}if(cell||row.length){row.push(cell.trim());rows.push(row);}const [h,...d]=rows.filter(x=>x.some(Boolean));return d.map(v=>Object.fromEntries(h.map((k,i)=>[k,v[i]??""]))); }
 const normalize = (value) => String(value ?? "").trim().toLowerCase();
 const loginEmail = (identifier) => `student-${normalize(identifier).replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "user"}@local.dblossom.school`;
-// The uploaded CSV writes the surname first: "Olanlokun Micheal" -> surname/password "Olanlokun".
-const surname = (fullName) => String(fullName ?? "").trim().split(/\s+/).filter(Boolean)[0] ?? "";
+// The uploaded CSV writes names as "Surname FirstName"; the given first-name token is the second word.
+const firstName = (fullName) => { const parts = String(fullName ?? "").trim().split(/\s+/).filter(Boolean); return parts.length > 1 ? parts[1] : parts[0] ?? ""; };
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const unique = new Map();
 for (const row of parseCsv(fs.readFileSync(csvPath, "utf8"))) {
   const identifier = String(row["Admission Number"] ?? "").trim();
   const fullName = String(row["Full Name"] ?? "").trim();
-  if (identifier && fullName && !unique.has(normalize(identifier))) unique.set(normalize(identifier), { identifier, fullName, password: surname(fullName) });
+  if (identifier && fullName && !unique.has(normalize(identifier))) unique.set(normalize(identifier), { identifier, fullName, password: firstName(fullName) });
 }
 
-const report = { csvPath, uniqueStudents: unique.size, updated: 0, linked: 0, profileLinkPending: 0, missingAuthIdentity: 0, shortSurnameFallback: 0, failures: [] };
+const report = { csvPath, uniqueStudents: unique.size, updated: 0, linked: 0, profileLinkPending: 0, missingAuthIdentity: 0, shortFirstNameFallback: 0, failures: [] };
 const users = [];
 for (let page = 1; page <= 3; page += 1) { const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 }); if (error) throw error; users.push(...data.users); if (data.users.length < 1000) break; }
 const userByEmail = new Map(users.filter((user) => user.email).map((user) => [user.email.toLowerCase(), user]));
@@ -44,7 +44,7 @@ for (const row of unique.values()) {
   const { error } = await supabase.auth.admin.updateUserById(user.id, authUpdate);
   if (error) { report.failures.push({ identifier: row.identifier, reason: error.message }); continue; }
   report.updated += 1;
-  if (row.password.length < 6) report.shortSurnameFallback += 1;
+  if (row.password.length < 6) report.shortFirstNameFallback += 1;
   if (student && studentPasswordColumn) {
     const { error: passwordError } = await supabase.from("students").update({ password: row.password }).eq("id", student.id);
     if (passwordError && !/column .*password.*does not exist|schema cache/i.test(passwordError.message)) report.failures.push({ identifier: row.identifier, reason: passwordError.message });

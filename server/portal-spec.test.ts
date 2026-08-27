@@ -21,12 +21,12 @@ describe("secured portal result shaping", () => {
 });
 
 describe("portal validation and dynamic subjects", () => {
-  it("loads subjects dynamically for the selected assigned class", () => {
-    expect(teacherSource).toContain('supabase.from("subjects").select("id, name")');
+  it("loads every student and subject dynamically for the selected assigned class", () => {
+    expect(teacherSource).toContain("/api/teacher/records?class_id=");
     expect(teacherSource).toContain("subjects.map");
-    expect(teacherSource).toContain("Select subject");
+    expect(teacherSource).toContain('aria-label="Select student for result"');
     expect(teacherSource).toContain("getSubjects()");
-    expect(teacherSource).toContain('startsWith("local-")');
+    expect(teacherSource).toContain("Loading every student in your assigned class");
   });
 
   it("defines the specification localStorage subject bridge with safe defaults", () => {
@@ -40,7 +40,10 @@ describe("portal validation and dynamic subjects", () => {
     expect(studentSource).toContain("Admission No:");
     expect(studentSource).toContain("STUDENT ACADEMIC REPORT");
     expect(studentSource).toContain("Total Score");
-    expect(studentSource).toContain("Position");
+    expect(studentSource).toContain("Teacher Remark");
+    expect(studentSource).toContain("CA Score");
+    expect(studentSource).toContain("Exam Score");
+    expect(studentSource).not.toContain("Position");
   });
 
   it("keeps role-specific identifier labels and required-field validation", () => {

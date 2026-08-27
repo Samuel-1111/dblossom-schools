@@ -26,6 +26,7 @@ function parseCsv(text) {
 }
 
 const normalize = (value) => String(value ?? "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+const firstName = (fullName) => { const parts = String(fullName ?? "").trim().split(/\s+/).filter(Boolean); return parts.length > 1 ? parts[1] : parts[0] ?? ""; };
 const clean = (value) => { const v = String(value ?? "").trim(); return v || null; };
 const enc = (value) => encodeURIComponent(String(value));
 
@@ -71,6 +72,7 @@ for (const [index, row] of studentRows.entries()) {
       guardian_name: clean(row["Parent Name"]),
       guardian_contact: clean(row["Parent Phone"]),
       status: (row.Status || "Active").trim().toLowerCase(),
+      password: firstName(row["Full Name"]),
     };
     await save("students", existing, payload);
     if (existing) report.students.updated += 1; else report.students.inserted += 1;
@@ -91,7 +93,7 @@ for (const [index, row] of teacherRows.entries()) {
       subject: clean(row.Subject),
       role: clean(row.Role) ?? "Teaching Staff",
       assigned_class: clean(row["Assigned Class"]),
-      password: row.Password,
+      password: firstName(row["Full Name"]),
       status: (row.Status || "Active").trim().toLowerCase(),
     };
     await save("teachers", existing, payload);

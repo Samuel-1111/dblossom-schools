@@ -20,8 +20,8 @@ describe("shared portal login specification", () => {
     expect(source).toContain('toast.success("Welcome, Admin!")');
     expect(routeSource).toContain('role === "student" ? "admission_number" : "staff_id"');
     expect(routeSource).toContain("fallbackPasswords");
-    expect(routeSource).toContain("surnameFromFullName");
-    expect(routeSource).toContain('role === "student" ? [surname]');
+    expect(routeSource).toContain("firstNameFromFullName");
+    expect(routeSource).toContain('role === "student" ? [firstName]');
     expect(routeSource).toContain("candidates.flatMap");
     expect(routeSource).toContain("createLocalStudentToken");
     expect(routeSource).toContain("local_session: true");

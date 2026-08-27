@@ -3,6 +3,12 @@ export const TERMS = ["First Term", "Second Term", "Third Term"] as const;
 export const SUBJECTS = ["English Language", "Mathematics", "Basic Science", "Social Studies", "Computer Studies", "Civic Education", "Agricultural Science", "Home Economics"] as const;
 export const SUBJECT_STORAGE_KEY = "dbms_subjects";
 
+// Uploaded school records use "Surname FirstName" order, so the given first name is the second token.
+export function firstNameFromFullName(fullName: string | null | undefined) {
+  const parts = String(fullName ?? "").trim().split(/\s+/).filter(Boolean);
+  return parts.length > 1 ? parts[1] : parts[0] ?? "";
+}
+
 export function getSubjects(): string[] {
   if (typeof window === "undefined") return [...SUBJECTS];
   try {

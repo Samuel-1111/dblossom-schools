@@ -24,14 +24,15 @@ function normalize(value: string) {
   return value.trim().toLowerCase();
 }
 
-function surnameFromFullName(fullName: string | null | undefined) {
-  return (fullName ?? "").trim().split(/\s+/).filter(Boolean)[0] ?? "";
+function firstNameFromFullName(fullName: string | null | undefined) {
+  const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
+  return parts.length > 1 ? parts[1] : parts[0] ?? "";
 }
 
 function fallbackPasswords(fullName: string | null | undefined, role: PortalRole) {
-  const surname = surnameFromFullName(fullName);
+  const firstName = firstNameFromFullName(fullName);
   const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
-  const candidates = (role === "student" ? [surname] : [parts.at(-1), parts[0]]).filter((value): value is string => Boolean(value));
+  const candidates = (role === "student" ? [firstName] : [firstName, parts.at(-1), parts[0]]).filter((value): value is string => Boolean(value));
   return Array.from(new Set(candidates.flatMap((value) => [value, value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()])));
 }
 

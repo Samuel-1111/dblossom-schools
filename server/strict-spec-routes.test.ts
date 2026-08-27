@@ -34,9 +34,8 @@ describe("secured portal specification route contracts", () => {
 
   it("keeps teacher assigned-class result entry and save-state contracts", () => {
     const teacher = read("app/teacher-dashboard/TeacherDashboardClient.tsx") + read("app/teacher-portal/page.tsx");
-    expect(teacher).toContain("Result entry");
     expect(teacher).toContain("Saving Complete Report…");
-    expect(teacher).toContain("Student academic result");
+    expect(teacher).toContain("Upload / Edit Results");
     expect(teacher).toContain("Select student");
     expect(teacher).toContain("Save Complete Result");
     expect(teacher).toContain("CA Score");
@@ -45,14 +44,14 @@ describe("secured portal specification route contracts", () => {
     expect(teacher).toContain("assigned class");
     expect(teacher).toContain("assignedClass");
     expect(teacher).toContain("Assigned classes");
-    expect(teacher).toContain("Class register");
-    expect(teacher).toContain("Students in {assignedClass}");
-    expect(teacher).toContain("Loading your student list…");
+    expect(teacher).toContain("Assigned-class register");
+    expect(teacher).toContain("Students in {currentClassName}");
+    expect(teacher).toContain("Loading every student in your assigned class…");
     expect(teacher).toContain("No students are assigned to this class yet.");
-    expect(teacher).toContain("Add Teacher Remark");
+    expect(teacher).toContain("Teacher Comment for Each Student Result");
     expect(teacher).toContain("Save Teacher Remark");
-    expect(teacher).toContain("Choose an assigned student, term, and session");
-    expect(teacher).toContain("Only students in your assigned class can be selected and updated.");
+    expect(teacher).toContain("Choose a student, term, and session");
+    expect(teacher).toContain("Only students in {currentClassName} can be selected.");
     expect(teacher).toContain("Teacher remark saved");
     expect(teacher).toContain("teacher_comment");
   });

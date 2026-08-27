@@ -2,18 +2,21 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const teacherSource = readFileSync("app/teacher-dashboard/TeacherDashboardClient.tsx", "utf8");
+const teacherRouteSource = readFileSync("app/api/teacher/records/route.ts", "utf8");
 const adminRouteSource = readFileSync("app/api/admin/records/route.ts", "utf8");
 const adminClientSource = readFileSync("app/admin-dashboard/AdminDashboardClient.tsx", "utf8");
 
 describe("Result persistence and role boundaries", () => {
   it("persists the assigned student, subject, term, session, scores, and recorder", () => {
-    expect(teacherSource).toContain('supabase.from("results")');
-    expect(teacherSource).toContain("student_id: student.id");
-    expect(teacherSource).toContain("subject_id: subject.id");
-    expect(teacherSource).toContain("term_id: termRow.id");
-    expect(teacherSource).toContain("ca_score: ca");
-    expect(teacherSource).toContain("exam_score: exam");
+    expect(teacherSource).toContain('action: "save-result"');
+    expect(teacherSource).toContain("subject_scores");
     expect(teacherSource).toContain("Complete the CA and Exam scores for every subject");
+    expect(teacherRouteSource).toContain('if (action === "save-result")');
+    expect(teacherRouteSource).toContain("student_id: target.student.id");
+    expect(teacherRouteSource).toContain("subject_id: subject.id");
+    expect(teacherRouteSource).toContain("term_id: target.term.id");
+    expect(teacherRouteSource).toContain("ca_score: ca");
+    expect(teacherRouteSource).toContain("exam_score: exam");
   });
 
   it("keeps Admin result mutations limited to protected comment updates", () => {
