@@ -48,10 +48,12 @@ describe("secured portal specification route contracts", () => {
     expect(teacher).toContain("Students in {currentClassName}");
     expect(teacher).toContain("Loading every student in your assigned class…");
     expect(teacher).toContain("No students are assigned to this class yet.");
-    expect(teacher).toContain("Teacher Comment for Each Student Result");
-    expect(teacher).toContain("Save Teacher Remark");
-    expect(teacher).toContain("Choose a student, term, and session");
-    expect(teacher).toContain("Only students in {currentClassName} can be selected.");
+    expect(teacher).toContain("Comment for this student&apos;s result");
+    expect(teacher).toContain("Save Teacher Comment");
+    expect(teacher).toContain("reportTotal");
+    expect(teacher).toContain("reportPercentage");
+    expect(teacher).toContain("It will appear on the student report card");
+    expect(teacher).not.toContain("Per-student report comment");
     expect(teacher).toContain("Teacher remark saved");
     expect(teacher).toContain("teacher_comment");
     expect(teacher).not.toContain("Record Attendance");

@@ -19,12 +19,16 @@ describe("class-linked Teacher student selector", () => {
     expect(teacherRoute).toContain("configured.includes(normalizeClassName(row.name))");
     expect(teacherClient).toContain("Every JSS1 student and every other assigned-class student is loaded into the selector.");
     expect(teacherClient).toContain('aria-label="Select student for result"');
-    expect(teacherClient).toContain('aria-label="Select student for teacher remark"');
+    expect(teacherClient).toContain("teacherRemarkForm");
+    expect(teacherClient).toContain("student${students.length === 1 ? \"\" : \"s\"} loaded from ${currentClassName}");
   });
 
   it("keeps the class register and selector driven by the same students array", () => {
     expect(teacherClient).toContain("students.map((item) => <option");
     expect(teacherClient).toContain("students.map((item, index)");
     expect(teacherClient).toContain("Students in {currentClassName}");
+    expect(teacherClient).toContain("reportTotal");
+    expect(teacherClient).toContain("reportPercentage");
+    expect(teacherClient).toContain("teacherRemarkForm");
   });
 });

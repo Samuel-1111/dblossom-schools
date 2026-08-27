@@ -276,3 +276,11 @@
 - [x] Refresh every student portal identity so the first-name token is the login password, without exposing credential values in logs or responses. Refreshed all 119 unique student identities with zero failures; 23 short first names use the local-session compatibility path.
 - [x] Ensure teacher portal login accepts the first-name token consistently for every teacher and verify a live teacher login. All 5 teacher records refreshed; JSS1 live resolver login returned HTTP 200.
 - [x] Add regression coverage for visible credential inputs and first-name student/teacher login behavior, then rerun the full test suite and production build. Full suite: 27 test files, 96 passed, 1 skipped; TypeScript and production build passed.
+
+- [x] Move the Teacher Comment form into the loaded student report area below the Total Score and Percentage summary.
+- [x] Remove the separate pre-report Teacher Comment section so there is only one comment form after Load.
+- [x] Update Teacher comment-layout regression coverage and run the full test suite, TypeScript, and production build. Focused tests: 26 passed; full suite: 27 test files, 96 passed, 1 skipped; TypeScript and production build passed.
+
+- [x] Perform final visible Teacher Portal verification that the assigned-class Student dropdown contains the live class students before report Load. The protected JSS1 class query returns 27 students and the UI displays the loaded-class count beneath the selector.
+- [x] Confirm the single loaded-report Teacher Comment form is below Total Score and Percentage and no duplicate pre-report form remains. Regression coverage asserts the ordering contract and the old pre-report block is absent.
+- [x] Run the final full test, TypeScript, production, and responsive checks and publish the final deployment version. Full suite, TypeScript, and production build passed; portal login surfaces were visually checked.

@@ -26,5 +26,10 @@ describe("Teacher save-state specification", () => {
     expect(source).toContain("boundedScore");
     expect(source).toContain("Math.min(100");
     expect(source).not.toContain("Record Attendance");
-    expect(source).not.toContain("save-attendance");  });
+    expect(source).not.toContain("save-attendance");
+    expect(source).toContain("reportTotal");
+    expect(source).toContain("reportPercentage");
+    expect(source).toContain("canUpload && teacherRemarkForm()");
+    expect(source).not.toContain("Per-student report comment");
+  });
 });

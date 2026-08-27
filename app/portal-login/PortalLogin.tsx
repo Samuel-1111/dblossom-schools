@@ -134,7 +134,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
         <div className="rounded-2xl border border-border bg-card p-8 shadow-lg">
           <img src={schoolLogoUrl} alt="D'Blossom Model Private Schools" className="mx-auto mb-4 h-16 w-16 rounded-full object-cover" />
           <h2 className="font-heading text-2xl font-bold text-[var(--navy)]">{role === "admin" ? "Admin Login" : `${role === "student" ? "Student" : "Teacher"} Login`}</h2>
-          <p className="mt-1 text-sm text-slate-500">{role === "admin" ? hint : role === "student" ? "Secondary School Only (JSS1 – SS3)" : "Sign in to manage your assigned classes."}</p>
+          <p className="mt-1 text-sm text-slate-500">{hint}</p>
           <form onSubmit={submit} className="mt-7 grid gap-5" noValidate>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">{identifierLabel}<input value={identifier} onChange={(event) => { setIdentifier(event.target.value); clearField("identifier"); }} className={inputClass(Boolean(fieldErrors.identifier))} placeholder={identifierPlaceholder} autoComplete="username" aria-invalid={Boolean(fieldErrors.identifier)} />{fieldErrors.identifier && <span className="text-xs text-red-500">{fieldErrors.identifier}</span>}</label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">Password<input type="text" value={password} onChange={(event) => { setPassword(event.target.value); clearField("password"); }} className={inputClass(Boolean(fieldErrors.password))} autoComplete="current-password" aria-invalid={Boolean(fieldErrors.password)} />{fieldErrors.password && <span className="text-xs text-red-500">{fieldErrors.password}</span>}</label>
