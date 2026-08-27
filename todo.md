@@ -243,3 +243,5 @@
 
 - [x] Add a Teacher Portal form to enter and save teacher remarks for an assigned student’s report card by term and session, with assigned-class protection and responsive states. The form updates teacher_comment across the selected student’s subject results for the selected term/session.
 
+- [x] Verify saved teacher remarks are carried into Student report-card data and displayed in the downloaded PDF, adding regression coverage for the complete flow. The Student query selects teacher_comment, the client shapes it into Teacher Remark, and the direct jsPDF renderer writes it into the PDF.
+

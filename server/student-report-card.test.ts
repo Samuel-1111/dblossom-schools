@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const source = readFileSync("app/student-dashboard/StudentDashboardClient.tsx", "utf8");
+const pageSource = readFileSync("app/student-dashboard/page.tsx", "utf8");
 
 describe("Student report-card specification", () => {
   it("supports session and term filters over the student result set", () => {
@@ -24,5 +25,8 @@ describe("Student report-card specification", () => {
     expect(source).toContain("pdf.addPage()");
     expect(source).toContain("pdf.addImage(logoData");
     expect(source).toContain("pdf.splitTextToSize(teacherRemark");
+    expect(source).toContain("item.teacher_comment?.trim()");
+    expect(pageSource).toContain("teacher_comment, principal_comment");
+    expect(pageSource).toContain("teacher_comment: item.teacher_comment");
   });
 });
