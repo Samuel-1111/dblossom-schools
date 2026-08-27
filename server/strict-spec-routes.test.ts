@@ -54,6 +54,8 @@ describe("secured portal specification route contracts", () => {
     expect(teacher).toContain("Only students in {currentClassName} can be selected.");
     expect(teacher).toContain("Teacher remark saved");
     expect(teacher).toContain("teacher_comment");
+    expect(teacher).not.toContain("Record Attendance");
+    expect(teacher).not.toContain("save-attendance");
   });
 
   it("keeps the Admin Results table and nine-module navigation contract", () => {

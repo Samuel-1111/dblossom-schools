@@ -6,6 +6,7 @@ import { getSubjects } from "../../shared/school";
 
 const schoolLogoUrl = "/manus-storage/school-logo_57ffb7b0.jpg";
 function letterGrade(total: number) { if (total >= 70) return "A"; if (total >= 60) return "B"; if (total >= 50) return "C"; if (total >= 40) return "D"; return "F"; }
+function boundedScore(value: string, maximum: number) { if (value === "") return ""; const numeric = Number(value); if (!Number.isFinite(numeric)) return ""; return String(Math.min(maximum, Math.max(0, numeric))); }
 
 type Row = Record<string, any>;
 type SubjectScore = { ca: string; exam: string };
@@ -18,16 +19,15 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
   const [loadingClass, setLoadingClass] = useState(false);
   const [subjects, setSubjects] = useState<Row[]>([]);
   const [results, setResults] = useState<Row[]>([]);
+  const [reportLoaded, setReportLoaded] = useState(false);
   const [notice, setNotice] = useState("");
   const [savingGrade, setSavingGrade] = useState(false);
-  const [savingAttendance, setSavingAttendance] = useState(false);
-  const [grade, setGrade] = useState({ student_id: "", term: "First Term", session: "", max_score: "100" });
+  const [grade, setGrade] = useState({ student_id: "", term: "", session: "" });
   const [subjectScores, setSubjectScores] = useState<Record<string, SubjectScore>>({});
-  const [attendance, setAttendance] = useState({ student_id: "", date: new Date().toISOString().slice(0, 10), status: "present" });
   const [remark, setRemark] = useState({ student_id: "", term: "First Term", session: "", teacher_comment: "" });
 
   async function loadClass(classId: string) {
-    if (!classId) { setStudents([]); setSubjects([]); setResults([]); setSubjectScores({}); return; }
+    if (!classId) { setStudents([]); setSubjects([]); setResults([]); setSubjectScores({}); setReportLoaded(false); return; }
     setLoadingClass(true);
     setNotice("");
     try {
@@ -40,12 +40,12 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
       setStudents(studentRows);
       setSubjects(resolvedSubjects);
       setResults(Array.isArray(workspace.results) ? workspace.results : []);
+      setReportLoaded(false);
       setSubjectScores(Object.fromEntries(resolvedSubjects.map((item: Row) => [String(item.id), { ca: "", exam: "" }] )));
       setGrade((current) => ({ ...current, student_id: studentRows[0]?.id ? String(studentRows[0].id) : "" }));
-      setAttendance((current) => ({ ...current, student_id: studentRows[0]?.id ? String(studentRows[0].id) : "" }));
       setRemark((current) => ({ ...current, student_id: studentRows[0]?.id ? String(studentRows[0].id) : "" }));
     } catch (error) {
-      setStudents([]); setSubjects([]); setResults([]); setSubjectScores({});
+      setStudents([]); setSubjects([]); setResults([]); setSubjectScores({}); setReportLoaded(false);
       setNotice(error instanceof Error ? error.message : "Students could not be loaded.");
     } finally {
       setLoadingClass(false);
@@ -63,6 +63,7 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
     const filled = subjects.filter((subject) => subjectScores[String(subject.id)]?.ca !== "" || subjectScores[String(subject.id)]?.exam !== "");
     const incomplete = subjects.find((subject) => subjectScores[String(subject.id)]?.ca === "" || subjectScores[String(subject.id)]?.exam === "");
     if (!student) { setNotice("Select an assigned student while signed in."); setSavingGrade(false); return; }
+    if (!grade.term) { setNotice("Select a term before saving the result."); setSavingGrade(false); return; }
     if (!sessionName) { setNotice("Enter an academic session before saving the result."); setSavingGrade(false); return; }
     if (!subjects.length) { setNotice("No subjects are configured for this class yet."); setSavingGrade(false); return; }
     if (filled.length !== subjects.length || incomplete) { setNotice("Complete the CA and Exam scores for every subject before saving this report."); setSavingGrade(false); return; }
@@ -76,9 +77,15 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
   function loadSavedReport() {
     const student = students.find((item) => String(item.id) === grade.student_id);
     const sessionName = grade.session.trim();
-    if (!student || !sessionName) { setNotice("Select a student and enter an academic session before loading the report."); return; }
+    if (!student || !grade.term || !sessionName) { setNotice("Select a student, term, and academic session before loading the report."); return; }
     const saved = results.filter((item) => String(item.student_id) === String(student.id) && item.term === grade.term && item.session === sessionName);
-    if (!saved.length) { setNotice("No saved subject results exist for this student, term, and session yet."); return; }
+    if (!saved.length) {
+      setSubjectScores(Object.fromEntries(subjects.map((subject) => [String(subject.id), { ca: "", exam: "" }])));
+      setRemark((current) => ({ ...current, student_id: String(student.id), term: grade.term, session: sessionName, teacher_comment: "" }));
+      setReportLoaded(true);
+      setNotice(`Ready to enter a new report for ${student.full_name || student.admission_number}.`);
+      return;
+    }
     setSubjectScores((current) => {
       const next = { ...current };
       for (const item of saved) if (item.subject_id) next[String(item.subject_id)] = { ca: String(item.ca_score ?? ""), exam: String(item.exam_score ?? "") };
@@ -86,6 +93,7 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
     });
     const savedRemark = saved.find((item) => String(item.teacher_comment ?? "").trim())?.teacher_comment ?? "";
     setRemark((current) => ({ ...current, student_id: String(student.id), term: grade.term, session: sessionName, teacher_comment: savedRemark }));
+    setReportLoaded(true);
     setNotice(`Loaded ${saved.length} saved subject result${saved.length === 1 ? "" : "s"} for ${student.full_name || student.admission_number}.`);
   }
 
@@ -106,17 +114,6 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
     const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
     setNotice(response.ok ? payload.data?.message ?? `Teacher remark saved for ${student.full_name || student.admission_number}.` : payload.error ?? "Teacher remark could not be saved.");
     if (response.ok) await loadClass(selectedClass);
-  }
-
-  async function saveAttendance(event: FormEvent) {
-    event.preventDefault();
-    if (savingAttendance) return;
-    setSavingAttendance(true);
-    if (!attendance.student_id) { setNotice("Select a student before recording attendance."); setSavingAttendance(false); return; }
-    const response = await fetch("/api/teacher/records", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "save-attendance", class_id: selectedClass, student_id: attendance.student_id, date: attendance.date, status: attendance.status }) });
-    const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
-    setNotice(response.ok ? payload.data?.message ?? "Attendance recorded." : payload.error ?? "Attendance could not be saved.");
-    setSavingAttendance(false);
   }
 
   async function signOut() { await supabase.auth.signOut(); window.location.href = "/teacher-portal"; }
@@ -140,7 +137,7 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
 
       <section className="bg-primary px-4 py-10 text-primary-foreground md:px-8 md:py-14">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
-          <div><p className="text-sm text-primary-foreground/70">Class Teacher · {currentClassName}</p><h1 className="mt-2 font-heading text-3xl font-bold md:text-4xl">{fullName}</h1><p className="mt-2 text-sm text-primary-foreground/75">Manage assigned students, results, remarks, and attendance.</p></div>
+          <div><p className="text-sm text-primary-foreground/70">Class Teacher · {currentClassName}</p><h1 className="mt-2 font-heading text-3xl font-bold md:text-4xl">{fullName}</h1><p className="mt-2 text-sm text-primary-foreground/75">Manage assigned students, results, and teacher remarks.</p></div>
           <div className="hidden rounded-xl border border-white/20 bg-white/10 px-5 py-4 text-right sm:block"><p className="text-xs uppercase tracking-[0.15em] text-amber-300">Students</p><p className="mt-1 text-3xl font-bold">{loadingClass ? "…" : students.length}</p></div>
         </div>
       </section>
@@ -154,12 +151,12 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
           {!canUpload ? <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-600">This workspace is view-only because no class is assigned to this teacher.</div> : <form onSubmit={saveGrade}>
             <div className="mb-6 grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.2fr)_auto]">
               <label className="grid gap-2 text-sm font-semibold text-slate-700">Student<select required aria-label="Select student for result" value={grade.student_id} onChange={(e) => setGrade({ ...grade, student_id: e.target.value })} disabled={loadingClass || !students.length} className="rounded border border-slate-300 bg-white p-3 font-normal"><option value="">{loadingClass ? "Loading students…" : students.length ? "Select student" : "No students in this class"}</option>{students.map((item) => <option key={item.id} value={item.id}>{item.full_name || "Student"} · {item.admission_number}</option>)}</select></label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">Term<select required value={grade.term} onChange={(e) => setGrade({ ...grade, term: e.target.value })} className="rounded border border-slate-300 bg-white p-3 font-normal"><option>First Term</option><option>Second Term</option><option>Third Term</option></select></label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">Term<select required value={grade.term} onChange={(e) => setGrade({ ...grade, term: e.target.value })} className="rounded border border-slate-300 bg-white p-3 font-normal"><option value="">Select term</option><option>First Term</option><option>Second Term</option><option>Third Term</option></select></label>
               <label className="grid gap-2 text-sm font-semibold text-slate-700">Session<input required placeholder="2025/2026" value={grade.session} onChange={(e) => setGrade({ ...grade, session: e.target.value })} className="rounded border border-slate-300 bg-white p-3 font-normal" /></label>
               <button type="button" onClick={loadSavedReport} disabled={loadingClass || !students.length} className="self-end rounded bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60">Load</button>
             </div>
-            <div className="overflow-x-auto rounded-lg border border-slate-200"><table className="w-full min-w-[620px] text-left text-sm"><thead><tr className="bg-primary text-white"><th className="px-4 py-3">Subject</th><th className="w-32 px-4 py-3">CA Score</th><th className="w-32 px-4 py-3">Exam Score</th><th className="w-28 px-4 py-3">Total</th><th className="w-24 px-4 py-3">Grade</th></tr></thead><tbody>{subjects.map((subject) => { const scores = subjectScores[String(subject.id)] ?? { ca: "", exam: "" }; const total = (Number(scores.ca) || 0) + (Number(scores.exam) || 0); return <tr key={subject.id} className="border-b border-slate-200 last:border-0 even:bg-slate-50"><td className="px-4 py-3 font-semibold text-slate-800">{subject.name}</td><td className="px-4 py-2"><input required aria-label={`${subject.name} CA score`} type="number" min="0" step="0.01" value={scores.ca} onChange={(e) => setSubjectScores((current) => ({ ...current, [String(subject.id)]: { ...scores, ca: e.target.value } }))} className="w-full rounded border border-slate-300 p-2" /></td><td className="px-4 py-2"><input required aria-label={`${subject.name} Exam score`} type="number" min="0" step="0.01" value={scores.exam} onChange={(e) => setSubjectScores((current) => ({ ...current, [String(subject.id)]: { ...scores, exam: e.target.value } }))} className="w-full rounded border border-slate-300 p-2" /></td><td className="px-4 py-3 font-semibold text-primary">{total}</td><td className="px-4 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-bold text-primary">{letterGrade(total)}</span></td></tr>; })}{!subjects.length && <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">No subjects are configured for this class.</td></tr>}</tbody></table></div>
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-slate-500">Complete CA and Exam for every subject before saving this student&apos;s report.</p><button disabled={savingGrade || !students.length || !subjects.length} className="rounded bg-primary px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{savingGrade ? "Saving Complete Report…" : "Save Complete Result"}</button></div>
+            {reportLoaded ? <div className="overflow-x-auto rounded-lg border border-slate-200"><table className="w-full min-w-[620px] text-left text-sm"><thead><tr className="bg-primary text-white"><th className="px-4 py-3">Subject</th><th className="w-32 px-4 py-3">CA Score</th><th className="w-32 px-4 py-3">Exam Score</th><th className="w-28 px-4 py-3">Total</th><th className="w-24 px-4 py-3">Grade</th></tr></thead><tbody>{subjects.map((subject) => { const scores = subjectScores[String(subject.id)] ?? { ca: "", exam: "" }; const total = Math.min(100, (Number(scores.ca) || 0) + (Number(scores.exam) || 0)); return <tr key={subject.id} className="border-b border-slate-200 last:border-0 even:bg-slate-50"><td className="px-4 py-3 font-semibold text-slate-800">{subject.name}</td><td className="px-4 py-2"><input required aria-label={`${subject.name} CA score`} type="number" min="0" max="30" step="0.01" value={scores.ca} onChange={(e) => setSubjectScores((current) => ({ ...current, [String(subject.id)]: { ...scores, ca: boundedScore(e.target.value, 30) } }))} className="w-full rounded border border-slate-300 p-2" /></td><td className="px-4 py-2"><input required aria-label={`${subject.name} Exam score`} type="number" min="0" max="70" step="0.01" value={scores.exam} onChange={(e) => setSubjectScores((current) => ({ ...current, [String(subject.id)]: { ...scores, exam: boundedScore(e.target.value, 70) } }))} className="w-full rounded border border-slate-300 p-2" /></td><td className="px-4 py-3 font-semibold text-primary">{total}</td><td className="px-4 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-bold text-primary">{letterGrade(total)}</span></td></tr>; })}{!subjects.length && <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">No subjects are configured for this class.</td></tr>}</tbody></table>
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-slate-500">CA (30) + Exam (70) = Total / 100. Complete every subject before saving.</p><button disabled={savingGrade || !students.length || !subjects.length} className="rounded bg-primary px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{savingGrade ? "Saving Complete Report…" : "Save Complete Result"}</button></div></div> : <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">Select a student, term, and session, then press <span className="font-semibold text-primary">Load</span> to enter or edit this report.</div>}
           </form>}
         </section>
 
@@ -167,7 +164,6 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-7"><div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-600">Assigned-class register</p><h2 className="mt-1 font-heading text-2xl font-bold text-primary">Students in {currentClassName}</h2></div><span className="rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800">{loadingClass ? "Loading…" : `${students.length} student${students.length === 1 ? "" : "s"}`}</span></div>{loadingClass ? <div className="rounded-lg bg-slate-50 p-6 text-center text-sm text-slate-500">Loading every student in your assigned class…</div> : students.length ? <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm"><thead><tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500"><th className="px-3 py-3">#</th><th className="px-3 py-3">Student</th><th className="px-3 py-3">Admission number</th><th className="px-3 py-3">Guardian</th></tr></thead><tbody>{students.map((item, index) => <tr key={item.id} className="border-b border-slate-200 last:border-0"><td className="px-3 py-3 text-slate-500">{index + 1}</td><td className="px-3 py-3 font-semibold text-slate-800">{item.full_name || "Student"}</td><td className="px-3 py-3 text-slate-600">{item.admission_number || "—"}</td><td className="px-3 py-3 text-slate-600">{item.guardian_name || "—"}</td></tr>)}</tbody></table></div> : <div className="rounded-lg bg-slate-50 p-6 text-center text-sm text-slate-500">No students are assigned to this class yet.</div>}</section>
 
-        {canUpload && <form onSubmit={saveAttendance} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-7"><h2 className="mb-4 font-heading text-xl font-bold text-primary">Record Attendance</h2><div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto_auto_auto]"><select required aria-label="Select student for attendance" value={attendance.student_id} onChange={(e) => setAttendance({ ...attendance, student_id: e.target.value })} className="rounded border border-slate-300 p-3"><option value="">Select student</option>{students.map((item) => <option key={item.id} value={item.id}>{item.full_name || "Student"} · {item.admission_number}</option>)}</select><input required type="date" value={attendance.date} onChange={(e) => setAttendance({ ...attendance, date: e.target.value })} className="rounded border border-slate-300 p-3" /><select value={attendance.status} onChange={(e) => setAttendance({ ...attendance, status: e.target.value })} className="rounded border border-slate-300 p-3"><option value="present">Present</option><option value="absent">Absent</option><option value="late">Late</option><option value="excused">Excused</option></select><button disabled={savingAttendance} className="rounded bg-primary px-4 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{savingAttendance ? "Saving Attendance…" : "Save Attendance"}</button></div></form>}
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:p-7"><div className="mb-4"><p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-600">Saved reports</p><h2 className="font-heading text-xl font-bold text-primary">Recent Recorded Results and Comments</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead><tr className="border-b border-slate-200"><th className="px-3 py-3">Student</th><th className="px-3 py-3">Term</th><th className="px-3 py-3">Session</th><th className="px-3 py-3">Comment</th><th className="px-3 py-3">Action</th></tr></thead><tbody>{results.slice(0, 20).map((item) => <tr key={item.id} className="border-b border-slate-200"><td className="px-3 py-3 font-semibold">{item.student_name}</td><td className="px-3 py-3">{item.term}</td><td className="px-3 py-3">{item.session}</td><td className="max-w-xs px-3 py-3 text-slate-600">{item.teacher_comment || "No comment saved"}</td><td className="px-3 py-3"><button type="button" onClick={() => useResultForRemark(item)} className="font-semibold text-primary underline">{item.teacher_comment ? "Edit comment" : "Add comment"}</button></td></tr>)}{!results.length && <tr><td colSpan={5} className="px-3 py-8 text-center text-slate-500">No results recorded yet.</td></tr>}</tbody></table></div></section>
       </section>

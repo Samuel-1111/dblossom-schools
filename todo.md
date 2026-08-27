@@ -262,3 +262,12 @@
 - [x] Add regression coverage for first-name password derivation and Admin password guidance, then rerun all portal/build checks. First-name credential tests passed; the full suite, TypeScript check, and production build passed.
 
 - [x] Verify the portable Next.js package and document the exact Netlify build, environment-variable, and Supabase setup requirements for the completed Admin and Teacher portals. `PORTABLE_DEPLOYMENT.md` documents Node 20+, `pnpm install`, `pnpm build`, required Supabase/JWT/storage variables, and applying `supabase/SETUP_ALL.sql` through migration 0010.
+
+- [x] Match the Teacher result selector to the supplied reference with only Student, Term, Session, and Load before the result table. The result table stays hidden until Load is pressed and the selector begins with Select term.
+- [x] Remove attendance and attendance-related controls from the Teacher Portal as requested. Attendance controls and client save-attendance actions are no longer rendered.
+- [x] Enforce CA maximum 30 and Exam maximum 70, calculate Total automatically as /100, and derive the grade from the computed total. Browser and protected API validation both enforce the bounds.
+- [x] Update Teacher Portal regression coverage and run tests, TypeScript, production build, and responsive verification for the simplified result workflow. Full suite: 26 test files, 94 passed, 1 skipped; TypeScript and production build passed.
+
+- [x] Link every Admin Student record to its live class row and use that class_id link for the Teacher Portal student selector. Idempotent live verification matched 122 CSV rows, updated 0, confirmed 120 unchanged, and reported 2 duplicate CSV rows with no missing classes/students.
+- [x] Verify JSS1 and every other assigned class show all linked students in the Teacher result and remark selectors. Live class coverage is JSS1 27, JSS2 29, JSS3 19, SS1 28, SS2 19; all five classes are linked and available to the protected selector.
+- [x] Add regression coverage for Admin class assignment persistence and Teacher assigned-class student loading, then rerun tests and build checks. Class-link regression coverage is included in the 94 passing tests.
