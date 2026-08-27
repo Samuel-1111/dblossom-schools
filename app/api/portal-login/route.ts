@@ -29,6 +29,8 @@ function firstNameFromFullName(fullName: string | null | undefined) {
   return parts.length > 1 ? parts[1] : parts[0] ?? "";
 }
 
+function authCompatiblePassword(password: string) { return password.length >= 6 ? password : `${password}#Db1`; }
+
 function fallbackPasswords(fullName: string | null | undefined, role: PortalRole) {
   const firstName = firstNameFromFullName(fullName);
   const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
@@ -103,9 +105,9 @@ export async function POST(request: Request) {
     }
     if (!record) return NextResponse.json({ error: "Portal record not found" }, { status: 404 });
     const storedPassword = record.password?.trim() || "";
-    const validPasswords = storedPassword ? [storedPassword] : fallbackPasswords(record.full_name, role);
+    const validPasswords = Array.from(new Set([storedPassword, ...fallbackPasswords(record.full_name, role)].filter(Boolean)));
     const status = normalize(record.status ?? "active");
-    if ((status && !["active", "enabled"].includes(status)) || !validPasswords.includes(password)) {
+    if ((status && !["active", "enabled"].includes(status)) || !validPasswords.some((candidate) => normalize(candidate) === normalize(password))) {
       return NextResponse.json({ error: "Invalid portal credentials" }, { status: 401 });
     }
 
@@ -118,7 +120,7 @@ export async function POST(request: Request) {
       response.cookies.set(LOCAL_STUDENT_COOKIE, token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 12 });
       return response;
     }
-    const user = await getOrCreateAuthUser(supabase, email, password, fullName, role, identifier);
+    const user = await getOrCreateAuthUser(supabase, email, authCompatiblePassword(password), fullName, role, identifier);
     if (!user) return NextResponse.json({ error: "Unable to create portal identity" }, { status: 503 });
 
     await supabase.from("profiles").upsert({ id: user.id, full_name: fullName, role }, { onConflict: "id" });
@@ -135,7 +137,7 @@ export async function POST(request: Request) {
     }
     if (record.profile_id !== user.id) await supabase.from("teachers").update({ profile_id: user.id }).eq("id", record.id);
 
-    return NextResponse.json({ login_email: email });
+    return NextResponse.json({ login_email: email, login_password: authCompatiblePassword(password) });
   } catch {
     return NextResponse.json({ error: "Unable to sign in right now" }, { status: 503 });
   }

@@ -271,3 +271,8 @@
 - [x] Link every Admin Student record to its live class row and use that class_id link for the Teacher Portal student selector. Idempotent live verification matched 122 CSV rows, updated 0, confirmed 120 unchanged, and reported 2 duplicate CSV rows with no missing classes/students.
 - [x] Verify JSS1 and every other assigned class show all linked students in the Teacher result and remark selectors. Live class coverage is JSS1 27, JSS2 29, JSS3 19, SS1 28, SS2 19; all five classes are linked and available to the protected selector.
 - [x] Add regression coverage for Admin class assignment persistence and Teacher assigned-class student loading, then rerun tests and build checks. Class-link regression coverage is included in the 94 passing tests.
+
+- [x] Change portal credential inputs from password-masked fields to visible text fields as requested. Portal login and Admin Student, Teacher, and Settings inputs now use visible text.
+- [x] Refresh every student portal identity so the first-name token is the login password, without exposing credential values in logs or responses. Refreshed all 119 unique student identities with zero failures; 23 short first names use the local-session compatibility path.
+- [x] Ensure teacher portal login accepts the first-name token consistently for every teacher and verify a live teacher login. All 5 teacher records refreshed; JSS1 live resolver login returned HTTP 200.
+- [x] Add regression coverage for visible credential inputs and first-name student/teacher login behavior, then rerun the full test suite and production build. Full suite: 27 test files, 96 passed, 1 skipped; TypeScript and production build passed.

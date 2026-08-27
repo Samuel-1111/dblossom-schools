@@ -86,7 +86,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ role, identifier: normalizedIdentifier, password }),
       });
-      const resolved = await response.json().catch(() => ({})) as { login_email?: string; local_session?: boolean; error?: string };
+      const resolved = await response.json().catch(() => ({})) as { login_email?: string; login_password?: string; local_session?: boolean; error?: string };
       const loginEmail = response.ok ? resolved.login_email : null;
       if (!loginEmail) {
         const missingIdentifier = response.status === 404;
@@ -103,7 +103,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
         return;
       }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: loginEmail, password: resolved.login_password ?? password });
       if (signInError) {
         setFieldErrors({ password: errorCopy[role].wrongPassword });
         toast.error(`${errorCopy[role].wrongPassword}. Please try again.`);
@@ -137,7 +137,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
           <p className="mt-1 text-sm text-slate-500">{role === "admin" ? hint : role === "student" ? "Secondary School Only (JSS1 – SS3)" : "Sign in to manage your assigned classes."}</p>
           <form onSubmit={submit} className="mt-7 grid gap-5" noValidate>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">{identifierLabel}<input value={identifier} onChange={(event) => { setIdentifier(event.target.value); clearField("identifier"); }} className={inputClass(Boolean(fieldErrors.identifier))} placeholder={identifierPlaceholder} autoComplete="username" aria-invalid={Boolean(fieldErrors.identifier)} />{fieldErrors.identifier && <span className="text-xs text-red-500">{fieldErrors.identifier}</span>}</label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">Password<input type="password" value={password} onChange={(event) => { setPassword(event.target.value); clearField("password"); }} className={inputClass(Boolean(fieldErrors.password))} autoComplete="current-password" aria-invalid={Boolean(fieldErrors.password)} />{fieldErrors.password && <span className="text-xs text-red-500">{fieldErrors.password}</span>}</label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">Password<input type="text" value={password} onChange={(event) => { setPassword(event.target.value); clearField("password"); }} className={inputClass(Boolean(fieldErrors.password))} autoComplete="current-password" aria-invalid={Boolean(fieldErrors.password)} />{fieldErrors.password && <span className="text-xs text-red-500">{fieldErrors.password}</span>}</label>
             <button type="submit" disabled={loading} className="rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground transition active:scale-[0.98] disabled:opacity-60">{loading ? "Logging in…" : role === "admin" ? "Login to Dashboard" : "Login"}</button>
           </form>
           <a href="/" className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-500 transition hover:text-[var(--navy)]"><Home className="h-4 w-4" />Back to Home</a>

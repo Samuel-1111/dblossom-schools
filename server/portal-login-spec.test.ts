@@ -26,7 +26,7 @@ describe("shared portal login specification", () => {
     expect(routeSource).toContain("createLocalStudentToken");
     expect(routeSource).toContain("local_session: true");
     expect(source).toContain("resolved.local_session");
-    expect(routeSource).toContain("validPasswords.includes(password)");
+    expect(routeSource).toContain("validPasswords.some");
     expect(routeSource).toContain('status: 404');
     expect(routeSource).toContain('status: 401');
     expect(routeSource).toContain("profile_id: user.id");
