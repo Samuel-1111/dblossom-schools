@@ -95,6 +95,14 @@ describe("Admin CRUD client contract", () => {
     expect(clientSource).toContain("Result uploads are teacher-only");
   });
 
+  it("reveals and focuses edit forms after an edit action", () => {
+    expect(clientSource).toContain("studentFormRef");
+    expect(clientSource).toContain("teacherFormRef");
+    expect(clientSource).toContain('scrollIntoView({ behavior: "smooth", block: "start" })');
+    expect(clientSource).toContain('focus({ preventScroll: true })');
+    expect(clientSource).toContain("ring-2 ring-amber-200");
+  });
+
   it("keeps destructive actions behind explicit browser confirmation", () => {
     expect(clientSource).toContain("Delete student");
     expect(clientSource).toContain("Delete teacher");

@@ -27,57 +27,50 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
   const [remark, setRemark] = useState({ student_id: "", term: "First Term", session: "", teacher_comment: "" });
 
   async function loadClass(classId: string) {
-    if (!classId) { setStudents([]); setSubjects([]); setSubjectScores({}); return; }
+    if (!classId) { setStudents([]); setSubjects([]); setResults([]); setSubjectScores({}); return; }
     setLoadingClass(true);
-    const [{ data: studentRows, error: studentError }, { data: subjectRows }] = await Promise.all([
-      supabase.from("students").select("id, admission_number, full_name, profile_id, guardian_name").eq("class_id", classId).order("admission_number"),
-      supabase.from("subjects").select("id, name").eq("class_id", classId).order("name"),
-    ]);
-    const resolvedSubjects = subjectRows?.length ? subjectRows : getSubjects().map((name, index) => ({ id: `local-${index}`, name }));
-    setStudents(studentRows ?? []);
-    setSubjects(resolvedSubjects);
-    setSubjectScores(Object.fromEntries(resolvedSubjects.map((item) => [String(item.id), { ca: "", exam: "" }])));
-    setGrade((current) => ({ ...current, student_id: studentRows?.[0]?.id ? String(studentRows[0].id) : "" }));
-    setAttendance((current) => ({ ...current, student_id: studentRows?.[0]?.id ? String(studentRows[0].id) : "" }));
-    setRemark((current) => ({ ...current, student_id: studentRows?.[0]?.id ? String(studentRows[0].id) : "" }));
-    if (studentError) setNotice(`Students could not be loaded: ${studentError.message}`);
-    setLoadingClass(false);
+    setNotice("");
+    try {
+      const response = await fetch(`/api/teacher/records?class_id=${encodeURIComponent(classId)}`, { credentials: "same-origin" });
+      const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
+      if (!response.ok) throw new Error(payload.error ?? "Students could not be loaded.");
+      const workspace = payload.data ?? {};
+      const studentRows = Array.isArray(workspace.students) ? workspace.students : [];
+      const resolvedSubjects = Array.isArray(workspace.subjects) && workspace.subjects.length ? workspace.subjects : getSubjects().map((name, index) => ({ id: `local-${index}`, name }));
+      setStudents(studentRows);
+      setSubjects(resolvedSubjects);
+      setResults(Array.isArray(workspace.results) ? workspace.results : []);
+      setSubjectScores(Object.fromEntries(resolvedSubjects.map((item: Row) => [String(item.id), { ca: "", exam: "" }])));
+      setGrade((current) => ({ ...current, student_id: studentRows[0]?.id ? String(studentRows[0].id) : "" }));
+      setAttendance((current) => ({ ...current, student_id: studentRows[0]?.id ? String(studentRows[0].id) : "" }));
+      setRemark((current) => ({ ...current, student_id: studentRows[0]?.id ? String(studentRows[0].id) : "" }));
+    } catch (error) {
+      setStudents([]); setSubjects([]); setResults([]); setSubjectScores({});
+      setNotice(error instanceof Error ? error.message : "Students could not be loaded.");
+    } finally {
+      setLoadingClass(false);
+    }
   }
 
   useEffect(() => { void loadClass(selectedClass); }, [selectedClass]);
-  useEffect(() => { void supabase.from("results").select("id, student_name, class_name, term, session, average, teacher_comment").order("created_at", { ascending: false }).then(({ data }) => setResults(data ?? [])); }, []);
 
   async function saveGrade(event: FormEvent) {
     event.preventDefault();
     if (savingGrade) return;
     setSavingGrade(true);
-    const { data: { user } } = await supabase.auth.getUser();
     const student = students.find((item) => String(item.id) === grade.student_id);
     const sessionName = grade.session.trim();
     const filled = subjects.filter((subject) => subjectScores[String(subject.id)]?.ca !== "" || subjectScores[String(subject.id)]?.exam !== "");
     const incomplete = subjects.find((subject) => subjectScores[String(subject.id)]?.ca === "" || subjectScores[String(subject.id)]?.exam === "");
-    if (!student || !user) { setNotice("Select an assigned student while signed in."); setSavingGrade(false); return; }
+    if (!student) { setNotice("Select an assigned student while signed in."); setSavingGrade(false); return; }
     if (!sessionName) { setNotice("Enter an academic session before saving the result."); setSavingGrade(false); return; }
     if (!subjects.length) { setNotice("No subjects are configured for this class yet."); setSavingGrade(false); return; }
     if (filled.length !== subjects.length || incomplete) { setNotice("Complete the CA and Exam scores for every subject before saving this report."); setSavingGrade(false); return; }
-    const { data: sessionRow, error: sessionError } = await supabase.from("academic_sessions").select("id").eq("name", sessionName).maybeSingle();
-    if (sessionError || !sessionRow) { setNotice(sessionError ? `Session could not be found: ${sessionError.message}` : "Choose a session that exists in the school records."); setSavingGrade(false); return; }
-    const { data: termRow, error: termError } = await supabase.from("terms").select("id").eq("name", grade.term).eq("session_id", sessionRow.id).maybeSingle();
-    if (termError || !termRow) { setNotice(termError ? `Term could not be found: ${termError.message}` : "Choose a term that exists for the selected session."); setSavingGrade(false); return; }
-    const failures: string[] = [];
-    for (const subject of subjects) {
-      if (String(subject.id).startsWith("local-")) { failures.push(`${subject.name}: subject is not configured in Supabase`); continue; }
-      const scores = subjectScores[String(subject.id)];
-      const ca = Number(scores.ca);
-      const exam = Number(scores.exam);
-      const total = ca + exam;
-      const existing = await supabase.from("results").select("id").eq("student_id", student.id).eq("subject_id", subject.id).eq("term_id", termRow.id).maybeSingle();
-      const payload = { student_id: student.id, subject_id: subject.id, term_id: termRow.id, ca_score: ca, exam_score: exam, total_score: total, grade: letterGrade(total), recorded_by: user.id };
-      const result = existing.data?.id ? await supabase.from("results").update(payload).eq("id", existing.data.id) : await supabase.from("results").insert(payload);
-      if (result.error) failures.push(`${subject.name}: ${result.error.message}`);
-    }
-    setNotice(failures.length ? `Some subject results could not be saved: ${failures.join("; ")}` : `Complete report saved for ${student.full_name || student.admission_number}.`);
+    const response = await fetch("/api/teacher/records", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "save-result", class_id: selectedClass, student_id: grade.student_id, term: grade.term, session: sessionName, subject_scores: subjectScores }) });
+    const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
+    setNotice(response.ok ? payload.data?.message ?? `Complete report saved for ${student.full_name || student.admission_number}.` : payload.error ?? "The complete report could not be saved.");
     setSavingGrade(false);
+    if (response.ok) await loadClass(selectedClass);
   }
 
   async function saveRemark(event: FormEvent) {
@@ -85,28 +78,21 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
     if (!remark.student_id || !remark.session.trim() || !remark.teacher_comment.trim()) { setNotice("Select a student, term, and session, then enter a teacher remark."); return; }
     const student = students.find((item) => String(item.id) === remark.student_id);
     if (!student) { setNotice("Select a student from your assigned class."); return; }
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { setNotice("Please sign in again before saving a teacher remark."); return; }
-    const { data: sessionRow, error: sessionError } = await supabase.from("academic_sessions").select("id").eq("name", remark.session.trim()).maybeSingle();
-    if (sessionError || !sessionRow) { setNotice(sessionError ? `Session could not be found: ${sessionError.message}` : "Choose a session that exists in the school records."); return; }
-    const { data: termRow, error: termError } = await supabase.from("terms").select("id").eq("name", remark.term).eq("session_id", sessionRow.id).maybeSingle();
-    if (termError || !termRow) { setNotice(termError ? `Term could not be found: ${termError.message}` : "Choose a term that exists for the selected session."); return; }
     setNotice("Saving teacher remark…");
-    const { data: resultRows, error: resultError } = await supabase.from("results").select("id").eq("student_id", student.id).eq("term_id", termRow.id);
-    if (resultError) { setNotice(`Results could not be found: ${resultError.message}`); return; }
-    if (!resultRows?.length) { setNotice("No subject results exist for this student and term yet. Save the complete result first."); return; }
-    const { error } = await supabase.from("results").update({ teacher_comment: remark.teacher_comment.trim(), recorded_by: user.id }).eq("student_id", student.id).eq("term_id", termRow.id);
-    setNotice(error ? `Teacher remark could not be saved: ${error.message}` : `Teacher remark saved for ${student.full_name || student.admission_number}.`);
+    const response = await fetch("/api/teacher/records", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "save-remark", class_id: selectedClass, student_id: remark.student_id, term: remark.term, session: remark.session.trim(), teacher_comment: remark.teacher_comment.trim() }) });
+    const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
+    setNotice(response.ok ? payload.data?.message ?? `Teacher remark saved for ${student.full_name || student.admission_number}.` : payload.error ?? "Teacher remark could not be saved.");
+    if (response.ok) await loadClass(selectedClass);
   }
 
   async function saveAttendance(event: FormEvent) {
     event.preventDefault();
     if (savingAttendance) return;
     setSavingAttendance(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user || !attendance.student_id) { setNotice("Select a student before recording attendance."); setSavingAttendance(false); return; }
-    const { error } = await supabase.from("attendance").upsert({ student_id: attendance.student_id, date: attendance.date, status: attendance.status, recorded_by: user.id }, { onConflict: "student_id,date" });
-    setNotice(error ? `Attendance could not be saved: ${error.message}` : "Attendance recorded.");
+    if (!attendance.student_id) { setNotice("Select a student before recording attendance."); setSavingAttendance(false); return; }
+    const response = await fetch("/api/teacher/records", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "save-attendance", class_id: selectedClass, student_id: attendance.student_id, date: attendance.date, status: attendance.status }) });
+    const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
+    setNotice(response.ok ? payload.data?.message ?? "Attendance recorded." : payload.error ?? "Attendance could not be saved.");
     setSavingAttendance(false);
   }
 

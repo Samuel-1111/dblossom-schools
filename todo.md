@@ -247,3 +247,13 @@
 
 - [x] Align the Student visible report card and downloaded PDF table with the supplied screenshot: Subject, CA Score, Exam Score, Total, Grade; keep Term/Session in the header and Teacher Remark below. The old Term, single Score, and Percentage table columns were removed from both screen and PDF.
 
+- [ ] Update Teacher Portal to show every student from each teacher's assigned class in the student selector, including JSS1 class-teacher coverage, with reliable class-name filtering and loading/empty states.
+- [ ] Add a safe admin-only password display/edit path for student records without exposing passwords in teacher or public views.
+- [ ] Ensure teachers can save and view a separate comment/remark for each selected student's result and that it appears in the student report card/PDF.
+- [ ] Restyle Teacher Portal and Admin Portal to match the supplied reference screenshots while preserving responsive behavior across phone, tablet, and laptop.
+- [ ] Add regression tests for assigned-class student selection, password privacy, per-student remarks, and portal layout contracts; run TypeScript and production build checks.
+- [x] Make Student Result PDF downloads use a sanitized filename containing the student’s full name.
+- [x] Restore the Student portal password rule to the surname from the uploaded student record, with no password values exposed in public or teacher views. The CSV refresh completed for 119 unique students with zero failures; 13 short surnames use the local portal-session fallback.
+- [x] Add regression coverage for student-name PDF filenames and surname credential verification, then rerun TypeScript and production checks. Focused tests, TypeScript, and production build passed.
+- [x] Make Admin Student and Teacher Edit actions scroll the opened form into view and focus its first field so the form is visibly confirmed to the administrator.
+- [x] Add regression coverage for edit-form visibility behavior and rerun TypeScript, tests, and production checks. The edit visibility contract, focused portal/report tests, TypeScript, and production build passed.

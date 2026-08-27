@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import jsPDF from "jspdf";
 
 const schoolLogoUrl = "/manus-storage/school-logo_57ffb7b0.jpg";
+function safeFilenamePart(value: string) { return value.trim().replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "") || "student"; }
 function gradeForPercentage(percentage: number) { if (percentage >= 70) return "A"; if (percentage >= 60) return "B"; if (percentage >= 50) return "C"; if (percentage >= 40) return "D"; return "F"; }
 function gradeClass(grade: string) { return grade === "A" ? "bg-green-50 text-green-600" : grade === "B" ? "bg-blue-50 text-blue-600" : grade === "C" ? "bg-amber-50 text-amber-600" : grade === "D" ? "bg-orange-50 text-orange-600" : "bg-red-50 text-red-600"; }
 
@@ -102,7 +103,7 @@ export function StudentDashboardClient({ fullName, studentNumber, className, gua
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(70, 70, 70);
       pdf.text(pdf.splitTextToSize(teacherRemark, tableRight - left), left, y + 6);
-      pdf.save(`d-blossom-report-card-${studentNumber}-${term.replaceAll(" ", "-")}.pdf`);
+      pdf.save(`d-blossom-report-card-${safeFilenamePart(fullName)}-${safeFilenamePart(studentNumber)}-${safeFilenamePart(term)}.pdf`);
       setReportNotice("Report card downloaded.");
     } catch {
       setReportNotice("Report card could not be generated. Please try again.");
