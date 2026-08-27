@@ -230,3 +230,6 @@
 - [x] Processed `students(1).csv`: 122 rows matched to 5 live classes (JSS1, JSS2, JSS3, SS1, SS2); 120 assignments were already correct and 2 duplicate CSV rows were safely skipped.
 - [x] Verified all 121 live student records have a valid class_id with zero unmapped students, and Admin Students maps those UUIDs to readable class names.
 
+- [ ] Reconcile the requested Supabase schema objects: students.boarding_status, subjects.created_at, public.complaints, gallery_images, and public.events. Idempotent SQL is prepared in migration 0010 and SETUP_ALL.sql; the target Supabase SQL Editor must execute it because the connected application SQL connection is not the Supabase Postgres project.
+- [x] Update student portal passwords from the surname values in the uploaded students CSV without exposing password values, then verify login readiness. 119 unique CSV students were provisioned/refreshed successfully with zero failures; the live route retains surname fallback while the password column is absent.
+
