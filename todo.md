@@ -238,3 +238,6 @@
 - [x] Run all available code and tests and document the exact manual Supabase SQL execution step if direct DDL remains unavailable.
 
 - [x] Correct all Student portal passwords to use the first name in the uploaded CSV, refresh every Student Auth identity, and verify first-name login without revealing credentials. All 119 unique CSV student logins and a signed-session dashboard smoke test passed.
+- [x] Fix the Student report-card PDF generation failure so Download Result works reliably. Replaced the fragile canvas export with a direct jsPDF letterhead renderer and an optional logo fetch fallback.
+- [x] Replace the Position field with Teacher Remark on the Student report card. Visible and downloaded report cards now show teacher remarks and no Position field.
+

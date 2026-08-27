@@ -12,15 +12,17 @@ describe("Student report-card specification", () => {
   });
 
   it("provides a branded client-side report-card download action", () => {
-    expect(source).toContain("html2canvas");
+    expect(source).not.toContain("html2canvas");
     expect(source).toContain("jsPDF");
     expect(source).toContain("Download Result (PDF)");
     expect(source).toContain("D'Blossom Model Private Schools");
     expect(source).toContain("Generating PDF…");
     expect(source).toContain("Report card could not be generated. Please try again.");
+    expect(source).toContain("Teacher Remark");
+    expect(source).not.toContain('title="Position"');
     expect(source).toContain("downloadingReport");
-    expect(source).toContain("while (heightLeft > 0)");
     expect(source).toContain("pdf.addPage()");
-    expect(source).toContain("const pageHeight = 277");
+    expect(source).toContain("pdf.addImage(logoData");
+    expect(source).toContain("pdf.splitTextToSize(teacherRemark");
   });
 });
