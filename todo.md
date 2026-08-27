@@ -241,3 +241,5 @@
 - [x] Fix the Student report-card PDF generation failure so Download Result works reliably. Replaced the fragile canvas export with a direct jsPDF letterhead renderer and an optional logo fetch fallback.
 - [x] Replace the Position field with Teacher Remark on the Student report card. Visible and downloaded report cards now show teacher remarks and no Position field.
 
+- [x] Add a Teacher Portal form to enter and save teacher remarks for an assigned student’s report card by term and session, with assigned-class protection and responsive states. The form updates teacher_comment across the selected student’s subject results for the selected term/session.
+

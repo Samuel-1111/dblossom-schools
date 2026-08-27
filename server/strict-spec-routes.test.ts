@@ -49,6 +49,12 @@ describe("secured portal specification route contracts", () => {
     expect(teacher).toContain("Students in {assignedClass}");
     expect(teacher).toContain("Loading your student list…");
     expect(teacher).toContain("No students are assigned to this class yet.");
+    expect(teacher).toContain("Add Teacher Remark");
+    expect(teacher).toContain("Save Teacher Remark");
+    expect(teacher).toContain("Choose an assigned student, term, and session");
+    expect(teacher).toContain("Only students in your assigned class can be selected and updated.");
+    expect(teacher).toContain("Teacher remark saved");
+    expect(teacher).toContain("teacher_comment");
   });
 
   it("keeps the Admin Results table and nine-module navigation contract", () => {
