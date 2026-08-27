@@ -86,13 +86,20 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ role, identifier: normalizedIdentifier, password }),
       });
-      const resolved = await response.json().catch(() => ({})) as { login_email?: string; error?: string };
+      const resolved = await response.json().catch(() => ({})) as { login_email?: string; local_session?: boolean; error?: string };
       const loginEmail = response.ok ? resolved.login_email : null;
       if (!loginEmail) {
         const missingIdentifier = response.status === 404;
         const error = missingIdentifier ? errorCopy[role].notFound : response.status === 401 ? errorCopy[role].wrongPassword : (resolved.error ?? "Unable to sign in right now");
         setFieldErrors(missingIdentifier ? { identifier: error } : { password: error });
         toast.error(missingIdentifier ? `${error}. Please check your ${role === "student" ? "admission number" : "staff ID"}.` : `${error}. Please try again.`);
+        return;
+      }
+
+      if (role === "student" && resolved.local_session) {
+        toast.success("Welcome to the student portal!");
+        router.push("/student-dashboard");
+        router.refresh();
         return;
       }
 

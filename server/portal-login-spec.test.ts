@@ -20,6 +20,11 @@ describe("shared portal login specification", () => {
     expect(source).toContain('toast.success("Welcome, Admin!")');
     expect(routeSource).toContain('role === "student" ? "admission_number" : "staff_id"');
     expect(routeSource).toContain("fallbackPasswords");
+    expect(routeSource).toContain('role === "student" ? [parts[0]]');
+    expect(routeSource).toContain("candidates.flatMap");
+    expect(routeSource).toContain("createLocalStudentToken");
+    expect(routeSource).toContain("local_session: true");
+    expect(source).toContain("resolved.local_session");
     expect(routeSource).toContain("validPasswords.includes(password)");
     expect(routeSource).toContain('status: 404');
     expect(routeSource).toContain('status: 401');

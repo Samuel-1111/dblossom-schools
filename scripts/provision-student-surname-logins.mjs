@@ -1,10 +1,10 @@
 import fs from "node:fs";
 const csvPath = fs.existsSync("/home/ubuntu/upload/students.csv") ? "/home/ubuntu/upload/students.csv" : "/home/ubuntu/upload/students(1).csv";
 function parseCsv(text) { const rows=[]; let row=[],cell="",q=false; for(let i=0;i<text.length;i++){const c=text[i]; if(c==='"'){if(q&&text[i+1]==='"'){cell+='"';i++;}else q=!q;}else if(c===','&&!q){row.push(cell.trim());cell='';}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&text[i+1]==='\n')i++;row.push(cell.trim());rows.push(row);row=[];cell='';}else cell+=c;}if(cell||row.length){row.push(cell.trim());rows.push(row);}const [h,...d]=rows.filter(x=>x.some(Boolean));return d.map(v=>Object.fromEntries(h.map((k,i)=>[k,v[i]??'']))); }
-const surname = (name) => String(name ?? "").trim().split(/\s+/).filter(Boolean).at(-1) ?? "";
+const firstName = (name) => String(name ?? "").trim().split(/\s+/).filter(Boolean)[0] ?? "";
 const rows = parseCsv(fs.readFileSync(csvPath, "utf8"));
 const unique = new Map();
-for (const row of rows) { const id=String(row["Admission Number"]??"").trim(); const name=String(row["Full Name"]??"").trim(); if(id && name && !unique.has(id)) unique.set(id,{id,name,password:surname(name)}); }
+for (const row of rows) { const id=String(row["Admission Number"]??"").trim(); const name=String(row["Full Name"]??"").trim(); if(id && name && !unique.has(id)) unique.set(id,{id,name,password:firstName(name)}); }
 const endpoint = process.env.PORTAL_LOGIN_URL || "http://127.0.0.1:3000/api/portal-login";
 const report = { csvPath, csvRows: rows.length, uniqueStudents: unique.size, success: 0, notFound: 0, invalid: 0, unavailable: 0, failed: [] };
 for (const student of unique.values()) {

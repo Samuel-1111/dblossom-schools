@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createServiceClient } from "../../../utils/supabase/service";
+import { createLocalStudentToken, LOCAL_STUDENT_COOKIE } from "../../../utils/local-student";
 
 export const dynamic = "force-dynamic";
 
@@ -23,10 +24,10 @@ function normalize(value: string) {
   return value.trim().toLowerCase();
 }
 
-function fallbackPasswords(fullName: string | null | undefined) {
+function fallbackPasswords(fullName: string | null | undefined, role: PortalRole) {
   const parts = (fullName ?? "").trim().split(/\s+/).filter(Boolean);
-  const candidates = [parts.at(-1), parts[0]].filter((value): value is string => Boolean(value));
-  return Array.from(new Set(candidates.map((value) => value.charAt(0).toUpperCase() + value.slice(1).toLowerCase())));
+  const candidates = (role === "student" ? [parts[0]] : [parts.at(-1), parts[0]]).filter((value): value is string => Boolean(value));
+  return Array.from(new Set(candidates.flatMap((value) => [value, value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()])));
 }
 
 function localLoginEmail(role: PortalRole, identifier: string) {
@@ -96,7 +97,7 @@ export async function POST(request: Request) {
     }
     if (!record) return NextResponse.json({ error: "Portal record not found" }, { status: 404 });
     const storedPassword = record.password?.trim() || "";
-    const validPasswords = storedPassword ? [storedPassword] : fallbackPasswords(record.full_name);
+    const validPasswords = storedPassword ? [storedPassword] : fallbackPasswords(record.full_name, role);
     const status = normalize(record.status ?? "active");
     if ((status && !["active", "enabled"].includes(status)) || !validPasswords.includes(password)) {
       return NextResponse.json({ error: "Invalid portal credentials" }, { status: 401 });
@@ -104,6 +105,13 @@ export async function POST(request: Request) {
 
     const email = record.email?.trim() || localLoginEmail(role, identifier);
     const fullName = record.full_name?.trim() || (role === "student" ? `Student ${record.admission_number ?? record.student_number ?? identifier}` : "Teacher");
+    if (role === "student") {
+      const admissionNumber = record.admission_number ?? record.student_number ?? identifier;
+      const token = await createLocalStudentToken(admissionNumber, fullName);
+      const response = NextResponse.json({ login_email: email, local_session: true });
+      response.cookies.set(LOCAL_STUDENT_COOKIE, token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 12 });
+      return response;
+    }
     const user = await getOrCreateAuthUser(supabase, email, password, fullName, role, identifier);
     if (!user) return NextResponse.json({ error: "Unable to create portal identity" }, { status: 503 });
 
@@ -119,7 +127,7 @@ export async function POST(request: Request) {
         },
       });
     }
-    if (record.profile_id !== user.id) await supabase.from(role === "student" ? "students" : "teachers").update({ profile_id: user.id }).eq("id", record.id);
+    if (record.profile_id !== user.id) await supabase.from("teachers").update({ profile_id: user.id }).eq("id", record.id);
 
     return NextResponse.json({ login_email: email });
   } catch {

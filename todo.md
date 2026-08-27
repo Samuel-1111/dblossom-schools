@@ -237,3 +237,4 @@
 - [x] Prepare and validate a complete idempotent non-destructive SMS migration file without dropping or resetting any tables.
 - [x] Run all available code and tests and document the exact manual Supabase SQL execution step if direct DDL remains unavailable.
 
+- [x] Correct all Student portal passwords to use the first name in the uploaded CSV, refresh every Student Auth identity, and verify first-name login without revealing credentials. All 119 unique CSV student logins and a signed-session dashboard smoke test passed.
