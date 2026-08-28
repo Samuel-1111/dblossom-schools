@@ -14,30 +14,37 @@ type TeacherDashboardProps = { fullName: string; role: string; assignedClass: st
 
 export function TeacherDashboardClient({ fullName, role, assignedClass, classes, canUpload }: TeacherDashboardProps) {
   const supabase = createClient();
+  const [availableClasses, setAvailableClasses] = useState<Row[]>(classes);
   const [selectedClass, setSelectedClass] = useState(classes[0]?.id ? String(classes[0].id) : "");
   const [students, setStudents] = useState<Row[]>([]);
   const [loadingClass, setLoadingClass] = useState(false);
+  const [classSubjects, setClassSubjects] = useState<Row[]>([]);
   const [subjects, setSubjects] = useState<Row[]>([]);
   const [results, setResults] = useState<Row[]>([]);
   const [reportLoaded, setReportLoaded] = useState(false);
   const [notice, setNotice] = useState("");
   const [savingGrade, setSavingGrade] = useState(false);
+  const [deletingSubjectId, setDeletingSubjectId] = useState("");
   const [grade, setGrade] = useState({ student_id: "", term: "", session: "" });
   const [subjectScores, setSubjectScores] = useState<Record<string, SubjectScore>>({});
   const [remark, setRemark] = useState({ student_id: "", term: "First Term", session: "", teacher_comment: "" });
 
-  async function loadClass(classId: string) {
-    if (!classId) { setStudents([]); setSubjects([]); setResults([]); setSubjectScores({}); setReportLoaded(false); return; }
+  async function loadClass(classId?: string) {
     setLoadingClass(true);
     setNotice("");
     try {
-      const response = await fetch(`/api/teacher/records?class_id=${encodeURIComponent(classId)}`, { credentials: "same-origin" });
+      const endpoint = classId ? `/api/teacher/records?class_id=${encodeURIComponent(classId)}` : "/api/teacher/records";
+      const response = await fetch(endpoint, { credentials: "same-origin" });
       const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
       if (!response.ok) throw new Error(payload.error ?? "Students could not be loaded.");
       const workspace = payload.data ?? {};
+      const returnedClasses = Array.isArray(workspace.classes) ? workspace.classes : [];
+      if (returnedClasses.length) setAvailableClasses(returnedClasses);
+      if (!selectedClass && workspace.selectedClass?.id) setSelectedClass(String(workspace.selectedClass.id));
       const studentRows = Array.isArray(workspace.students) ? workspace.students : [];
       const resolvedSubjects = Array.isArray(workspace.subjects) && workspace.subjects.length ? workspace.subjects : getSubjects().map((name, index) => ({ id: `local-${index}`, name }));
       setStudents(studentRows);
+      setClassSubjects(resolvedSubjects);
       setSubjects(resolvedSubjects);
       setResults(Array.isArray(workspace.results) ? workspace.results : []);
       setReportLoaded(false);
@@ -45,14 +52,14 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
       setGrade((current) => ({ ...current, student_id: studentRows[0]?.id ? String(studentRows[0].id) : "" }));
       setRemark((current) => ({ ...current, student_id: studentRows[0]?.id ? String(studentRows[0].id) : "" }));
     } catch (error) {
-      setStudents([]); setSubjects([]); setResults([]); setSubjectScores({}); setReportLoaded(false);
+      setStudents([]); setClassSubjects([]); setSubjects([]); setResults([]); setSubjectScores({}); setReportLoaded(false);
       setNotice(error instanceof Error ? error.message : "Students could not be loaded.");
     } finally {
       setLoadingClass(false);
     }
   }
 
-  useEffect(() => { void loadClass(selectedClass); }, [selectedClass]);
+  useEffect(() => { void loadClass(selectedClass || undefined); }, [selectedClass]);
 
   async function saveGrade(event: FormEvent) {
     event.preventDefault();
@@ -67,11 +74,29 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
     if (!sessionName) { setNotice("Enter an academic session before saving the result."); setSavingGrade(false); return; }
     if (!subjects.length) { setNotice("No subjects are configured for this class yet."); setSavingGrade(false); return; }
     if (filled.length !== subjects.length || incomplete) { setNotice("Complete the CA and Exam scores for every subject before saving this report."); setSavingGrade(false); return; }
-    const response = await fetch("/api/teacher/records", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "save-result", class_id: selectedClass, student_id: grade.student_id, term: grade.term, session: sessionName, subject_scores: subjectScores }) });
+    const response = await fetch("/api/teacher/records", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "save-result", class_id: selectedClass, student_id: grade.student_id, term: grade.term, session: sessionName, subject_ids: subjects.map((subject) => subject.id), subject_scores: subjectScores }) });
     const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
     setNotice(response.ok ? payload.data?.message ?? `Complete report saved for ${student.full_name || student.admission_number}.` : payload.error ?? "The complete report could not be saved.");
     setSavingGrade(false);
     if (response.ok) await loadClass(selectedClass);
+  }
+
+  async function deleteLoadedSubject(subject: Row) {
+    if (!grade.student_id || !grade.term || !grade.session.trim()) { setNotice("Load a student report before removing a subject."); return; }
+    if (!window.confirm(`Remove ${subject.name} from this report? This deletes its saved result for the selected term.`)) return;
+    setDeletingSubjectId(String(subject.id));
+    setNotice("");
+    try {
+      const response = await fetch("/api/teacher/records", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "delete-subject", class_id: selectedClass, student_id: grade.student_id, term: grade.term, session: grade.session.trim(), subject_id: subject.id }) });
+      const payload = await response.json().catch(() => ({ error: "The server returned an invalid response." }));
+      if (!response.ok) { setNotice(payload.error ?? "The subject could not be removed."); return; }
+      setSubjects((current) => current.filter((item) => String(item.id) !== String(subject.id)));
+      setSubjectScores((current) => { const next = { ...current }; delete next[String(subject.id)]; return next; });
+      setResults((current) => current.filter((item) => !(String(item.student_id) === String(grade.student_id) && String(item.subject_id) === String(subject.id) && item.term === grade.term && item.session === grade.session.trim())));
+      setNotice(payload.data?.message ?? `${subject.name} was removed from this report.`);
+    } finally {
+      setDeletingSubjectId("");
+    }
   }
 
   function loadSavedReport() {
@@ -79,15 +104,19 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
     const sessionName = grade.session.trim();
     if (!student || !grade.term || !sessionName) { setNotice("Select a student, term, and academic session before loading the report."); return; }
     const saved = results.filter((item) => String(item.student_id) === String(student.id) && item.term === grade.term && item.session === sessionName);
+    const subjectById = new Map(classSubjects.map((subject) => [String(subject.id), subject]));
+    const existingSubjects = Array.from(new Map(saved.filter((item) => item.subject_id).map((item) => { const subject = subjectById.get(String(item.subject_id)) ?? { id: item.subject_id, name: item.subject_name ?? "Subject" }; return [String(subject.id), subject]; })).values());
     if (!saved.length) {
-      setSubjectScores(Object.fromEntries(subjects.map((subject) => [String(subject.id), { ca: "", exam: "" }])));
+      setSubjects(classSubjects);
+      setSubjectScores(Object.fromEntries(classSubjects.map((subject) => [String(subject.id), { ca: "", exam: "" }])));
       setRemark((current) => ({ ...current, student_id: String(student.id), term: grade.term, session: sessionName, teacher_comment: "" }));
       setReportLoaded(true);
       setNotice(`Ready to enter a new report for ${student.full_name || student.admission_number}.`);
       return;
     }
-    setSubjectScores((current) => {
-      const next = { ...current };
+      if (existingSubjects.length) setSubjects(existingSubjects);
+    setSubjectScores(() => {
+      const next = Object.fromEntries((existingSubjects.length ? existingSubjects : classSubjects).map((subject) => [String(subject.id), { ca: "", exam: "" }]));
       for (const item of saved) if (item.subject_id) next[String(item.subject_id)] = { ca: String(item.ca_score ?? ""), exam: String(item.exam_score ?? "") };
       return next;
     });
@@ -121,7 +150,7 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
   }
 
   async function signOut() { await supabase.auth.signOut(); window.location.href = "/teacher-portal"; }
-  const currentClass = classes.find((item) => String(item.id) === selectedClass);
+  const currentClass = availableClasses.find((item) => String(item.id) === selectedClass);
   const currentClassName = currentClass?.name ?? assignedClass;
   const reportTotal = subjects.reduce((sum, subject) => { const score = subjectScores[String(subject.id)] ?? { ca: "", exam: "" }; return sum + Math.min(100, (Number(score.ca) || 0) + (Number(score.exam) || 0)); }, 0);
   const reportPercentage = subjects.length ? Math.round(reportTotal / subjects.length) : 0;
@@ -161,7 +190,7 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
               <label className="grid gap-2 text-sm font-semibold text-slate-700">Session<input required placeholder="2025/2026" value={grade.session} onChange={(e) => { setGrade({ ...grade, session: e.target.value }); setReportLoaded(false); }} className="rounded border border-slate-300 bg-white p-3 font-normal" /></label>
               <button type="button" onClick={loadSavedReport} disabled={loadingClass || !students.length} className="self-end rounded bg-primary px-5 py-3 font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60">Load</button>
             </div>
-            {reportLoaded ? <div className="overflow-x-auto rounded-lg border border-slate-200"><table className="w-full min-w-[620px] text-left text-sm"><thead><tr className="bg-primary text-white"><th className="px-4 py-3">Subject</th><th className="w-32 px-4 py-3">CA Score</th><th className="w-32 px-4 py-3">Exam Score</th><th className="w-28 px-4 py-3">Total</th><th className="w-24 px-4 py-3">Grade</th></tr></thead><tbody>{subjects.map((subject) => { const scores = subjectScores[String(subject.id)] ?? { ca: "", exam: "" }; const total = Math.min(100, (Number(scores.ca) || 0) + (Number(scores.exam) || 0)); return <tr key={subject.id} className="border-b border-slate-200 last:border-0 even:bg-slate-50"><td className="px-4 py-3 font-semibold text-slate-800">{subject.name}</td><td className="px-4 py-2"><input required aria-label={`${subject.name} CA score`} type="number" min="0" max="30" step="0.01" value={scores.ca} onChange={(e) => setSubjectScores((current) => ({ ...current, [String(subject.id)]: { ...scores, ca: boundedScore(e.target.value, 30) } }))} className="w-full rounded border border-slate-300 p-2" /></td><td className="px-4 py-2"><input required aria-label={`${subject.name} Exam score`} type="number" min="0" max="70" step="0.01" value={scores.exam} onChange={(e) => setSubjectScores((current) => ({ ...current, [String(subject.id)]: { ...scores, exam: boundedScore(e.target.value, 70) } }))} className="w-full rounded border border-slate-300 p-2" /></td><td className="px-4 py-3 font-semibold text-primary">{total}</td><td className="px-4 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-bold text-primary">{letterGrade(total)}</span></td></tr>; })}{!subjects.length && <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-500">No subjects are configured for this class.</td></tr>}</tbody></table>
+            {reportLoaded ? <div className="overflow-x-auto rounded-lg border border-slate-200"><table className="w-full min-w-[620px] text-left text-sm"><thead><tr className="bg-primary text-white"><th className="px-4 py-3">Subject</th><th className="w-32 px-4 py-3">CA Score</th><th className="w-32 px-4 py-3">Exam Score</th><th className="w-28 px-4 py-3">Total</th><th className="w-24 px-4 py-3">Grade</th><th className="w-24 px-4 py-3">Action</th></tr></thead><tbody>{subjects.map((subject) => { const scores = subjectScores[String(subject.id)] ?? { ca: "", exam: "" }; const total = Math.min(100, (Number(scores.ca) || 0) + (Number(scores.exam) || 0)); return <tr key={subject.id} className="border-b border-slate-200 last:border-0 even:bg-slate-50"><td className="px-4 py-3 font-semibold text-slate-800">{subject.name}</td><td className="px-4 py-2"><input required aria-label={`${subject.name} CA score`} type="number" min="0" max="30" step="0.01" value={scores.ca} onChange={(e) => setSubjectScores((current) => ({ ...current, [String(subject.id)]: { ...scores, ca: boundedScore(e.target.value, 30) } }))} className="w-full rounded border border-slate-300 p-2" /></td><td className="px-4 py-2"><input required aria-label={`${subject.name} Exam score`} type="number" min="0" max="70" step="0.01" value={scores.exam} onChange={(e) => setSubjectScores((current) => ({ ...current, [String(subject.id)]: { ...scores, exam: boundedScore(e.target.value, 70) } }))} className="w-full rounded border border-slate-300 p-2" /></td><td className="px-4 py-3 font-semibold text-primary">{total}</td><td className="px-4 py-3"><span className="rounded-full bg-blue-50 px-2 py-1 text-xs font-bold text-primary">{letterGrade(total)}</span></td><td className="px-4 py-3"><button type="button" onClick={() => void deleteLoadedSubject(subject)} disabled={deletingSubjectId === String(subject.id) || subjects.length === 1} className="rounded border border-red-200 px-2 py-1 text-xs font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-50" title={subjects.length === 1 ? "Keep at least one subject in the report" : "Remove this subject from the report"}>{deletingSubjectId === String(subject.id) ? "Removing…" : "Remove"}</button></td></tr>; })}{!subjects.length && <tr><td colSpan={6} className="px-4 py-8 text-center text-slate-500">No subjects are configured for this class.</td></tr>}</tbody></table>
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-slate-500">CA (30) + Exam (70) = Total / 100. Complete every subject before saving.</p><button disabled={savingGrade || !students.length || !subjects.length} className="rounded bg-primary px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60">{savingGrade ? "Saving Complete Report…" : "Save Complete Result"}</button></div><div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3"><div className="rounded-lg bg-blue-50 p-4"><p className="text-xs text-slate-500">Total Score</p><p className="mt-1 text-xl font-bold text-blue-950">{reportTotal}</p></div><div className="rounded-lg bg-amber-50 p-4"><p className="text-xs text-slate-500">Percentage</p><p className="mt-1 text-xl font-bold text-amber-700">{reportPercentage}%</p></div></div>{canUpload && teacherRemarkForm()}</div> : <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">Select a student, term, and session, then press <span className="font-semibold text-primary">Load</span> to enter or edit this report.</div>}
           </form>}
         </section>

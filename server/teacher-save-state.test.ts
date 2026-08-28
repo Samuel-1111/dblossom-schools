@@ -25,8 +25,14 @@ describe("Teacher save-state specification", () => {
     expect(source).toContain('max="70"');
     expect(source).toContain("boundedScore");
     expect(source).toContain("Math.min(100");
+    expect(source).toContain("classSubjects");
+    expect(source).toContain("existingSubjects");
+    expect(source).toContain('title={subjects.length === 1 ? "Keep at least one subject in the report"');
+    expect(source).toContain('title={subjects.length === 1 ? "Keep at least one subject in the report" : "Remove this subject from the report"}');
+    expect(source).toContain('action: "delete-subject"');
     expect(source).not.toContain("Record Attendance");
     expect(source).not.toContain("save-attendance");
+    expect(source).toContain("subject_name");
     expect(source).toContain("reportTotal");
     expect(source).toContain("reportPercentage");
     expect(source).toContain("canUpload && teacherRemarkForm()");

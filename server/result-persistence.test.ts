@@ -17,6 +17,12 @@ describe("Result persistence and role boundaries", () => {
     expect(teacherRouteSource).toContain("term_id: target.term.id");
     expect(teacherRouteSource).toContain("ca_score: ca");
     expect(teacherRouteSource).toContain("exam_score: exam");
+    expect(teacherSource).toContain("subject_ids: subjects.map((subject) => subject.id)");
+    expect(teacherSource).toContain("const existingSubjects = Array.from");
+    expect(teacherSource).toContain("deleteLoadedSubject");
+    expect(teacherRouteSource).toContain('if (action === "delete-subject")');
+    expect(teacherRouteSource).toContain("That subject is not part of the assigned class.");
+    expect(teacherRouteSource).toContain('.eq("subject_id", subject.id)');
   });
 
   it("keeps Admin result mutations limited to protected comment updates", () => {

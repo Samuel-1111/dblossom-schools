@@ -68,7 +68,7 @@ async function workspace(context: TeacherContext, classId: string) {
   const typedSubjects = (subjects ?? []) as Row[];
   const studentIds = typedStudents.map((row: Row) => row.id);
   const { data: resultRows } = studentIds.length
-    ? await context.supabase.from("results").select("id, student_id, term_id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, created_at").in("student_id", studentIds).order("created_at", { ascending: false }).limit(200)
+    ? await context.supabase.from("results").select("id, student_id, term_id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, created_at").in("student_id", studentIds).order("created_at", { ascending: false }).limit(2000)
     : { data: [] as Row[] };
   const typedResultRows = (resultRows ?? []) as Row[];
   const termIds = Array.from(new Set(typedResultRows.map((row: Row) => row.term_id).filter(Boolean)));
@@ -78,11 +78,12 @@ async function workspace(context: TeacherContext, classId: string) {
   const { data: sessions } = sessionIds.length ? await context.supabase.from("academic_sessions").select("id, name").in("id", sessionIds) : { data: [] as Row[] };
   const typedSessions = (sessions ?? []) as Row[];
   const studentById = new Map(typedStudents.map((row: Row) => [String(row.id), row]));
+  const subjectById = new Map(typedSubjects.map((row: Row) => [String(row.id), row]));
   const termById = new Map(typedTerms.map((row: Row) => [String(row.id), row]));
   const sessionById = new Map(typedSessions.map((row: Row) => [String(row.id), row]));
   const results = typedResultRows.map((row: Row) => {
     const term = termById.get(String(row.term_id));
-    return { ...row, student_name: studentById.get(String(row.student_id))?.full_name ?? studentById.get(String(row.student_id))?.admission_number ?? "Student", class_name: selectedClass.name, term: term?.name ?? "Term not recorded", session: sessionById.get(String(term?.session_id))?.name ?? "Session not recorded" };
+    return { ...row, student_name: studentById.get(String(row.student_id))?.full_name ?? studentById.get(String(row.student_id))?.admission_number ?? "Student", subject_name: subjectById.get(String(row.subject_id))?.name ?? row.subject_name ?? "Subject", class_name: selectedClass.name, term: term?.name ?? "Term not recorded", session: sessionById.get(String(term?.session_id))?.name ?? "Session not recorded" };
   });
   return { classes: context.classes, selectedClass, students: typedStudents, subjects: typedSubjects, results };
 }
@@ -125,11 +126,14 @@ export async function POST(request: Request) {
   if (action === "save-result") {
     const target = await resultContext(context, body);
     if ("error" in target) return NextResponse.json({ error: target.error }, { status: 400 });
-    const { data: subjects, error: subjectError } = await context.supabase.from("subjects").select("id, name, class_id").eq("class_id", target.selectedClass.id).order("name");
+    const { data: allSubjects, error: subjectError } = await context.supabase.from("subjects").select("id, name, class_id").eq("class_id", target.selectedClass.id).order("name");
     if (subjectError) return NextResponse.json({ error: subjectError.message }, { status: 400 });
+    const requestedSubjectIds = Array.isArray(body.subject_ids) ? new Set(body.subject_ids.map((value: unknown) => String(value))) : null;
+    const subjects = requestedSubjectIds ? (allSubjects ?? []).filter((subject) => requestedSubjectIds.has(String(subject.id))) : (allSubjects ?? []);
+    if (!subjects.length) return NextResponse.json({ error: "Keep at least one subject in the report before saving." }, { status: 400 });
     const scores = (body.subject_scores ?? {}) as Record<string, ScoreInput>;
     const failures: string[] = [];
-    for (const subject of subjects ?? []) {
+    for (const subject of subjects) {
       const score = scores[String(subject.id)];
       const ca = Number(score?.ca);
       const exam = Number(score?.exam);
@@ -144,6 +148,17 @@ export async function POST(request: Request) {
     }
     if (failures.length) return NextResponse.json({ error: `Some subject results could not be saved: ${failures.join("; ")}` }, { status: 400 });
     return NextResponse.json({ data: { message: `Complete report saved for ${target.student.full_name || target.student.admission_number}.` } });
+  }
+  if (action === "delete-subject") {
+    const target = await resultContext(context, body);
+    if ("error" in target) return NextResponse.json({ error: target.error }, { status: 400 });
+    const subjectId = String(body.subject_id ?? "");
+    const { data: subject } = await context.supabase.from("subjects").select("id, name").eq("id", subjectId).eq("class_id", target.selectedClass.id).maybeSingle();
+    if (!subject) return NextResponse.json({ error: "That subject is not part of the assigned class." }, { status: 400 });
+    const { data: deletedRows, error: deleteError } = await context.supabase.from("results").delete().eq("student_id", target.student.id).eq("subject_id", subject.id).eq("term_id", target.term.id).select("id");
+    if (deleteError) return NextResponse.json({ error: deleteError.message }, { status: 400 });
+    if (!deletedRows?.length) return NextResponse.json({ error: "No saved result exists for that subject in this report." }, { status: 404 });
+    return NextResponse.json({ data: { message: `${subject.name} was removed from this report.` } });
   }
   if (action === "save-remark") {
     const target = await resultContext(context, body);

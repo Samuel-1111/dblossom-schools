@@ -19,16 +19,10 @@ export default async function TeacherDashboardPage() {
 
   const identifier = String(user.user_metadata?.portal_identifier ?? "");
   const { data: teacher } = await dataClient.from("teachers").select("assigned_class").eq("staff_id", identifier).maybeSingle();
-  const { data: linkedClasses } = await dataClient.from("classes").select("id, name, grade_level, academic_year").eq("teacher_id", user.id).order("name");
-
-  const configuredClassName = teacher?.assigned_class ?? user.user_metadata?.assigned_class ?? "";
-  let assignedClasses = linkedClasses ?? [];
-  if (!assignedClasses.length && configuredClassName) {
-    const { data: namedClasses } = await dataClient.from("classes").select("id, name, grade_level, academic_year").order("name");
-    const fallbackClass = (namedClasses ?? []).find((item) => normalizeClassName(item.name) === normalizeClassName(configuredClassName));
-    if (fallbackClass) assignedClasses = [fallbackClass];
-  }
-
+  const configuredClassName = String(teacher?.assigned_class ?? user.user_metadata?.assigned_class ?? "");
+  const configuredNames = configuredClassName.split(/[,;|]/).map(normalizeClassName).filter(Boolean);
+  const { data: classRows } = await dataClient.from("classes").select("id, name, grade_level, academic_year").order("name");
+  const assignedClasses = (classRows ?? []).filter((item) => configuredNames.includes(normalizeClassName(item.name)));
   const assignedClassName = assignedClasses[0]?.name ?? configuredClassName ?? "No class assigned";
   const portalRole = String(user.user_metadata?.portal_role ?? "Teaching Staff");
   const canUpload = /class teacher/i.test(portalRole) && assignedClassName !== "No class assigned";
