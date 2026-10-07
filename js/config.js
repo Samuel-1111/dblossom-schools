@@ -1,0 +1,1 @@
+let configPromise;export async function getConfig(){if(!configPromise){configPromise=fetch("/.netlify/functions/config",{cache:"no-store"}).then(r=>{if(!r.ok)throw new Error("Configuration unavailable");return r.json()});}return configPromise}
