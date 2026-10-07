@@ -18,8 +18,8 @@ export default async function StudentDashboardPage() {
 
   const identifier = localSession?.admissionNumber ?? String(user?.user_metadata?.portal_identifier ?? "");
   const profileStudent = user ? await dataClient.from("students").select("id, admission_number, guardian_name, classes(name)").eq("profile_id", user.id).maybeSingle() : { data: null };
-  const directStudent = identifier ? await dataClient.from("students").select("id, admission_number, guardian_name, classes(name)").ilike("admission_number", identifier).maybeSingle() : { data: null };
-  const student = directStudent.data ?? profileStudent.data;
+  const directStudent = !user && identifier ? await dataClient.from("students").select("id, admission_number, guardian_name, classes(name)").ilike("admission_number", identifier).maybeSingle() : { data: null };
+  const student = profileStudent.data ?? directStudent.data;
   const displayName = localSession?.fullName ?? profile?.full_name ?? user?.user_metadata?.full_name ?? user?.email ?? "Student";
   if (!student) return <StudentDashboardClient fullName={displayName} studentNumber={identifier || "Not assigned yet"} className="Class not assigned" guardianName={null} grades={[]} attendance={[]} announcements={[]} hasResultAccess={false} />;
 
