@@ -36,7 +36,7 @@ export function AdminLinking() {
     const body = type === "teacher" ? { type, student_id: selected.id, teacher_id: teacherId } : { type, student_id: selected.id, parent_name: parent.name, parent_email: parent.email, parent_phone: parent.phone, relationship: parent.relationship };
     const response = await fetch("/api/admin/student-links", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const payload = await response.json().catch(() => ({}));
-    setNotice(payload.error ?? payload.data?.message ?? (response.ok ? "Link saved." : "Unable to save link."));
+    setNotice(payload.error ?? payload.data?.portal_message ?? payload.data?.message ?? (response.ok ? "Link saved." : "Unable to save link."));
     setSaving(false);
     if (response.ok) { setSelected(null); setQuery(""); setStudents([]); if (type === "parent") setParent({ name: "", email: "", phone: "", relationship: "Parent" }); }
   }
