@@ -107,7 +107,6 @@ function cleanPayload(table: AdminTable, body: Record<string, unknown>) {
       ...(typeof body.subject === "string" || body.subject === null ? { subject: typeof body.subject === "string" ? body.subject.trim() : null } : {}),
       ...(typeof body.role === "string" ? { role: body.role.trim() } : {}),
       ...(typeof body.assigned_class === "string" || body.assigned_class === null ? { assigned_class: typeof body.assigned_class === "string" ? body.assigned_class.trim() : null } : {}),
-      ...(typeof body.password === "string" && body.password.length > 0 ? { password: body.password } : {}),
       ...(typeof body.status === "string" ? { status: body.status.toLowerCase() } : {}),
     };
   }
