@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-type Student = { id: number; full_name?: string; admission_number?: string };
+type Student = { id: string; full_name?: string; admission_number?: string };
 type Parent = { id: string; full_name?: string; email?: string };
 type Admission = { id: string; application_number: string; applicant_name: string; class_applied?: string; parent_name?: string; status: string; created_at: string };
 
@@ -52,7 +52,7 @@ export function AdminOperations() {
 
   async function createInvoice() {
     try {
-      await post({ type: "invoice", student_id: Number(studentId), due_date: dueDate, items: [{ description: invoiceDescription, amount: Number(invoiceAmount) }] });
+      await post({ type: "invoice", student_id: studentId, due_date: dueDate, items: [{ description: invoiceDescription, amount: Number(invoiceAmount) }] });
       setNotice("Fee invoice created.");
       setInvoiceAmount(""); setStudentId(""); setStudentQuery("");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Invoice could not be created."); }
