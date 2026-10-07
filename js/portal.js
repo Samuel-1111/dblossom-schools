@@ -15,12 +15,6 @@ const setBusy=(button,busy,label)=>{if(!button)return;button.disabled=busy;butto
 function showError(message){if(notice){notice.className="notice danger";notice.textContent=message}}
 function clearError(){if(notice){notice.className="notice";notice.textContent=""}}
 
-async function adminLogin(username,password){
- const r=await fetch("/.netlify/functions/admin-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username,password})});
- const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error||"Unable to sign in.");
- const sb=await getSupabase();const{error}=await sb.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});if(error)throw error;
-}
-
 async function doLogin(e){
  e.preventDefault();clearError();const fd=new FormData(loginForm);const identifier=String(fd.get("identifier")||"").trim(),password=String(fd.get("password")||"");
  let valid=true;
@@ -31,7 +25,7 @@ async function doLogin(e){
  const b=loginForm.querySelector("button[type=submit]");setBusy(b,true,"Logging in…");
  try{
   const sb=await getSupabase();
-  if(role==="admin")await adminLogin(identifier,password);
+  if(role==="admin"){const{error}=await sb.auth.signInWithPassword({email:identifier,password});if(error)throw Error("Incorrect administrator email or password.");const{data:me}=await sb.auth.getUser();const{data:profile}=await sb.from("profiles").select("role").eq("id",me.user.id).maybeSingle();if(!profile||!["admin","super_admin"].includes(String(profile.role))){await sb.auth.signOut();throw Error("This account is not authorised for the administrator portal.")}}
   else{
    const r=await fetch("/.netlify/functions/portal-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({role,identifier})});
    const p=await r.json().catch(()=>({}));if(!r.ok||!p.login_email)throw Error(p.error||"Portal account not found.");
@@ -127,7 +121,7 @@ async function renderAdminPanel(tab){
   else if(tab==="gallery"){const{data,error}=await sb.from("gallery_images").select("id,title,category,image_url").order("created_at",{ascending:false}).limit(300);if(error)throw error;panel.innerHTML=adminCards("Gallery",data||[],"gallery")}
   else if(tab==="complaints"){const{data,error}=await sb.from("complaints").select("*").order("created_at",{ascending:false}).limit(300);if(error)throw error;panel.innerHTML='<div class="section-head"><h2>Complaints</h2></div>'+(data||[]).map(x=>'<article class="dashboard-card complaint-card"><div class="section-head"><strong>'+esc(x.name||"Unknown")+'</strong>'+badge(x.status)+'</div><p>'+esc(x.message||"")+'</p><small>'+esc(x.email||"")+' · '+esc(x.created_at?.slice(0,10)||"")+'</small></article>').join("")}
   else if(tab==="subjects"){const{data,error}=await sb.from("subjects").select("id,name").order("name");if(error)throw error;panel.innerHTML='<div class="section-head"><div><h2>Subjects</h2><p class="muted">Manage the central subject list used by result entry.</p></div></div><div class="subject-list">'+(data||[]).map(x=>'<div class="subject-row"><span>'+esc(x.name)+'</span><button class="small-btn danger-btn" data-delete-table="subjects" data-id="'+esc(x.id)+'">Delete</button></div>').join("")+'</div><form id="subject-form" class="inline-form"><input name="name" placeholder="New subject" required><button class="btn navy-btn">Add Subject</button></form>';document.querySelector("#subject-form").addEventListener("submit",async e=>{e.preventDefault();const name=new FormData(e.currentTarget).get("name").trim();try{const{error}=await sb.from("subjects").insert({name});if(error)throw error;toast("Subject added","success");renderAdminPanel("subjects")}catch(x){toast(x.message,"error")}});bindAdminDeletes()}
-  else if(tab==="settings"){panel.innerHTML='<section class="dashboard-card"><h2>Settings</h2><p class="muted">Authentication and authorization are handled by Supabase. Do not store administrator passwords in localStorage.</p><button class="btn navy-btn" id="refresh-admin">Refresh dashboard data</button></section><section class="dashboard-card"><h3>Live counts</h3><div class="stats"><div class="stat"><small>Students</small><strong>'+Number(d.students||0)+'</strong></div><div class="stat"><small>Teachers</small><strong>'+Number(d.teachers||0)+'</strong></div><div class="stat"><small>Results</small><strong>'+Number(d.results||0)+'</strong></div></div></section>';document.querySelector("#refresh-admin").onclick=()=>location.reload()}
+  else if(tab==="settings"){const p=await api("/.netlify/functions/dashboard-data"),d=p.stats||{};panel.innerHTML='<section class="dashboard-card"><h2>Settings</h2><p class="muted">Authentication and authorization are handled by Supabase. Do not store administrator passwords in localStorage.</p><button class="btn navy-btn" id="refresh-admin">Refresh dashboard data</button></section><section class="dashboard-card"><h3>Live counts</h3><div class="stats"><div class="stat"><small>Students</small><strong>'+Number(d.students||0)+'</strong></div><div class="stat"><small>Teachers</small><strong>'+Number(d.teachers||0)+'</strong></div><div class="stat"><small>Results</small><strong>'+Number(d.results||0)+'</strong></div></div></section>';document.querySelector("#refresh-admin").onclick=()=>location.reload()}
  }catch(e){panel.innerHTML='<div class="notice danger">'+esc(e.message||"This module could not be loaded.")+'</div>'}
 }
 function adminTable(title,headers,rows){return '<div class="section-head"><div><h2>'+title+'</h2><p class="muted">Live records from the school database.</p></div><button class="small-btn" onclick="window.print()">Print</button></div><div class="table-wrap"><table class="data-table"><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join("")+'</tr></thead><tbody>'+((rows.length?rows.map(r=>'<tr>'+r.split("¦").map(c=>'<td>'+c+'</td>').join("")+'</tr>').join(""):'<tr><td colspan="'+headers.length+'">No records found.</td></tr>'))+'</tbody></table></div>'}
