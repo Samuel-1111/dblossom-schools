@@ -1,21 +1,25 @@
 const{admin}=require("./_supabase");
-const USERNAME=process.env.ADMIN_USERNAME||"DivineBlossom";
-const BOOTSTRAP_PASSWORD=process.env.ADMIN_PASSWORD;
+const crypto=require("crypto");
+const USERNAME="DivineBlossom";
+const ADMIN_PASSWORD_SHA256="e8b791d8ba7e8f3451834859a3b54c426a2198016d369f0ca5e1b41f601f8258";
 const EMAIL="divineblossom@dblossom.local";
 const json=(statusCode,body)=>({statusCode,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify(body)});
 exports.handler=async event=>{
  if(event.httpMethod!=="POST")return json(405,{error:"Method Not Allowed"});
  try{
   const b=JSON.parse(event.body||"{}"),username=String(b.username||"").trim(),password=String(b.password||"");
-  if(username!==USERNAME)return json(401,{error:"Incorrect username or password."});
+  const passwordHash=crypto.createHash("sha256").update(password).digest("hex");
+  if(username!==USERNAME||passwordHash!==ADMIN_PASSWORD_SHA256)return json(401,{error:"Incorrect username or password."});
   const db=admin(),listed=await db.auth.admin.listUsers({page:1,perPage:1000});
   if(listed.error)throw listed.error;
   let user=(listed.data.users||[]).find(x=>String(x.email).toLowerCase()===EMAIL.toLowerCase())||null;
   if(!user){
-   if(!BOOTSTRAP_PASSWORD||password!==BOOTSTRAP_PASSWORD)return json(401,{error:"Incorrect username or password."});
-   const created=await db.auth.admin.createUser({email:EMAIL,password:BOOTSTRAP_PASSWORD,email_confirm:true,user_metadata:{full_name:"D'Blossom Administrator"}});
+   const created=await db.auth.admin.createUser({email:EMAIL,password,user_metadata:{full_name:"D'Blossom Administrator"},email_confirm:true});
    if(created.error)throw created.error;
    user=created.data.user;
+  }else{
+   const{error}=await db.auth.admin.updateUserById(user.id,{password,email_confirm:true});
+   if(error)throw error;
   }
   const{data:profile,error:pe}=await db.from("profiles").select("id,role").eq("id",user.id).maybeSingle();
   if(pe)throw pe;
