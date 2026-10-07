@@ -1,15 +1,46 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/student-portal", "destination": "/pages/student-login.html" },
-    { "source": "/parent-portal", "destination": "/pages/parent-login.html" },
-    { "source": "/teacher-portal", "destination": "/pages/teacher-login.html" },
-    { "source": "/admissions", "destination": "/pages/admissions.html" },
-    { "source": "/admission-status", "destination": "/pages/admission-status.html" },
-    { "source": "/.netlify/functions/:path*", "destination": "/api/:path*" }
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/student-portal",
+      "destination": "/pages/student-login.html"
+    },
+    {
+      "source": "/parent-portal",
+      "destination": "/pages/parent-login.html"
+    },
+    {
+      "source": "/teacher-portal",
+      "destination": "/pages/teacher-login.html"
+    },
+    {
+      "source": "/admissions",
+      "destination": "/pages/admissions.html"
+    },
+    {
+      "source": "/admission-status",
+      "destination": "/pages/admission-status.html"
+    },
+    {
+      "source": "/.netlify/functions/:path*",
+      "destination": "/api/:path*"
+    }
   ],
   "headers": [
-    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
-  ]
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ],
+  "outputDirectory": ".",
+  "buildCommand": ""
 }
