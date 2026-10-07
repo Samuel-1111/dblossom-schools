@@ -93,14 +93,14 @@ exports.handler = async event => {
         const auth=await createOrUpdateAuth(db,{profileId:null,role:"student",password,identifier:b.admission_number,email:null});
         profileId=auth.profileId;
         await upsertProfile(db,profileId,clean(b.full_name),"student");
-        const {data,error}=await db.from("students").insert({admission_number:clean(b.admission_number),full_name:clean(b.full_name),class_id:clean(b.class_id),date_of_birth:b.date_of_birth||null,guardian_name:clean(b.guardian_name)||null,guardian_contact:clean(b.guardian_contact)||null,status:clean(b.status)||"active",profile_id:profileId}).select().single();
+        const {data,error}=await db.from("students").insert({admission_number:clean(b.admission_number),full_name:clean(b.full_name),class_id:clean(b.class_id),date_of_birth:b.date_of_birth||null,guardian_name:clean(b.guardian_name)||null,guardian_contact:clean(b.guardian_contact)||null,gender:clean(b.gender)||null,parent_email:clean(b.parent_email)||null,boarding_status:clean(b.boarding_status)||null,status:clean(b.status)||"active",profile_id:profileId}).select().single();
         if(error){await db.auth.admin.deleteUser(profileId);throw error}
         await audit(db,user,"create","student",data.id,{admission_number:data.admission_number});
         return json(201,{data});
       }
       const {data:old}=await db.from("students").select("profile_id").eq("id",id).maybeSingle(); if(!old)return json(404,{error:"Student not found."});
       if(password&&old.profile_id) await createOrUpdateAuth(db,{profileId:old.profile_id,role:"student",password,identifier:b.admission_number});
-      const {data,error}=await db.from("students").update({admission_number:clean(b.admission_number),full_name:clean(b.full_name),class_id:clean(b.class_id),date_of_birth:b.date_of_birth||null,guardian_name:clean(b.guardian_name)||null,guardian_contact:clean(b.guardian_contact)||null,status:clean(b.status)||"active"}).eq("id",id).select().single();
+      const {data,error}=await db.from("students").update({admission_number:clean(b.admission_number),full_name:clean(b.full_name),class_id:clean(b.class_id),date_of_birth:b.date_of_birth||null,guardian_name:clean(b.guardian_name)||null,guardian_contact:clean(b.guardian_contact)||null,gender:clean(b.gender)||null,parent_email:clean(b.parent_email)||null,boarding_status:clean(b.boarding_status)||null,status:clean(b.status)||"active"}).eq("id",id).select().single();
       if(error)throw error; if(old.profile_id)await upsertProfile(db,old.profile_id,data.full_name,"student"); await audit(db,user,"update","student",id,{}); return json(200,{data});
     }
 
