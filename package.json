@@ -1,0 +1,7 @@
+{
+  "name": "dblossom-school-manus",
+  "private": true,
+  "version": "1.0.0",
+  "engines": { "node": "24.x" },
+  "dependencies": { "@supabase/supabase-js": "^2.57.4" }
+}
