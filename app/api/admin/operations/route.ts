@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const type = new URL(request.url).searchParams.get("type");
   const db = createServiceClient();
-  const table = type === "invoices" ? "fee_invoices" : type === "payments" ? "fee_payments" : type === "admissions" ? "admission_applications" : type === "messages" ? "parent_messages" : type === "calendar" ? "parent_calendar_events" : type === "categories" ? "fee_categories" : type === "audit" ? "audit_logs" : "announcements";
+  const table = type === "invoices" ? "fee_invoices" : type === "payments" ? "fee_payments" : type === "admissions" ? "admission_applications" : type === "messages" ? "parent_messages" : type === "calendar" ? "parent_calendar_events" : type === "categories" ? "fee_categories" : type === "audit" ? "audit_logs" : type === "parents" ? "parent_profiles" : "announcements";
   const query = db.from(table).select("*");
   const { data, error } = await query.order("created_at", { ascending: false }).limit(200);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
