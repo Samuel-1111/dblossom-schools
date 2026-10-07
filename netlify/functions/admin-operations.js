@@ -67,6 +67,7 @@ exports.handler = async event => {
         }
         return json(200,result);
       }
+      if(table==="parent_messages"){const {data,error,count}=await db.from("parent_messages").select("id,parent_id,sender_profile_id,recipient_profile_id,student_id,subject,body,read_at,created_at,parent_profiles(full_name,email,phone),students(full_name,admission_number)",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);if(error)throw error;return json(200,{data:data||[],count:count||0,page:p,pageSize:size});}
       if(table==="results") {
         const term=clean(event.queryStringParameters?.term), classId=clean(event.queryStringParameters?.class_id);
         const {data,error}=await db.from("results").select("id,student_id,subject_id,term_id,ca_score,exam_score,total_score,grade,teacher_comment,principal_comment,approved,created_at,students(full_name,admission_number,class_id,classes(name)),subjects(name),terms(name,session_id,academic_sessions(name))").order("created_at",{ascending:false}).range((p-1)*size,p*size-1);
