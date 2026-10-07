@@ -95,7 +95,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
         const missingIdentifier = response.status === 404;
         const error = missingIdentifier ? errorCopy[role].notFound : response.status === 401 ? errorCopy[role].wrongPassword : (resolved.error ?? "Unable to sign in right now");
         setFieldErrors(missingIdentifier ? { identifier: error } : { password: error });
-        toast.error(missingIdentifier ? `${error}. Please check your ${role === "student" ? "admission number" : "staff ID"}.` : `${error}. Please try again.`);
+        toast.error(missingIdentifier ? `${error}. Please check your ${role === "student" ? "admission number" : role === "parent" ? "parent email or phone" : "staff ID"}.` : `${error}. Please try again.`);
         return;
       }
 
@@ -140,7 +140,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
           <p className="mt-1 text-sm text-slate-500">{hint}</p>
           <form onSubmit={submit} className="mt-7 grid gap-5" noValidate>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">{identifierLabel}<input value={identifier} onChange={(event) => { setIdentifier(event.target.value); clearField("identifier"); }} className={inputClass(Boolean(fieldErrors.identifier))} placeholder={identifierPlaceholder} autoComplete="username" aria-invalid={Boolean(fieldErrors.identifier)} />{fieldErrors.identifier && <span className="text-xs text-red-500">{fieldErrors.identifier}</span>}</label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">Password<input type="text" value={password} onChange={(event) => { setPassword(event.target.value); clearField("password"); }} className={inputClass(Boolean(fieldErrors.password))} autoComplete="current-password" aria-invalid={Boolean(fieldErrors.password)} />{fieldErrors.password && <span className="text-xs text-red-500">{fieldErrors.password}</span>}</label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">Password<input type="password" value={password} onChange={(event) => { setPassword(event.target.value); clearField("password"); }} className={inputClass(Boolean(fieldErrors.password))} autoComplete="current-password" aria-invalid={Boolean(fieldErrors.password)} />{fieldErrors.password && <span className="text-xs text-red-500">{fieldErrors.password}</span>}</label>
             <button type="submit" disabled={loading} className="rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground transition active:scale-[0.98] disabled:opacity-60">{loading ? "Logging in…" : role === "admin" ? "Login to Dashboard" : "Login"}</button>
           </form>
           <a href="/" className="mt-6 flex items-center justify-center gap-2 text-sm text-slate-500 transition hover:text-[var(--navy)]"><Home className="h-4 w-4" />Back to Home</a>
