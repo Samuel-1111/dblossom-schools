@@ -15,7 +15,7 @@ function appendHashSuffix(relKey: string): string {
 }
 
 function useSupabaseStorage(): boolean {
-  return process.env.STORAGE_PROVIDER === "supabase" || !ENV.forgeApiUrl || !ENV.forgeApiKey;
+  return process.env.STORAGE_PROVIDER !== "forge";
 }
 
 function supabaseBucket(): string {
