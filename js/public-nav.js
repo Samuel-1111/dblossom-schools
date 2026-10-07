@@ -1,1 +1,4 @@
-const menu=document.querySelector("#menu-button");const nav=document.querySelector("#mobile-nav");if(menu&&nav){menu.addEventListener("click",()=>{const open=nav.classList.toggle("open");menu.setAttribute("aria-expanded",String(open));menu.innerHTML=open?"✕ <span>Close</span>":"☰ <span>Menu</span>"})}document.querySelectorAll("#mobile-nav details").forEach(d=>d.addEventListener("toggle",()=>{if(d.open)document.querySelectorAll("#mobile-nav details").forEach(x=>{if(x!==d)x.open=false})}));
+const menu=document.querySelector("#menu-button");
+const nav=document.querySelector("#mobile-nav");
+function closeMenu(){if(!menu||!nav)return;nav.classList.remove("open");menu.setAttribute("aria-expanded","false");menu.innerHTML="☰ <span>Menu</span>"}
+if(menu&&nav){menu.addEventListener("click",()=>{const open=nav.classList.toggle("open");menu.setAttribute("aria-expanded",String(open));menu.innerHTML=open?"✕ <span>Close</span>":"☰ <span>Menu</span>"});nav.querySelectorAll("a").forEach(link=>link.addEventListener("click",closeMenu));document.addEventListener("keydown",e=>{if(e.key==="Escape")closeMenu()})}
