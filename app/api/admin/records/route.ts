@@ -136,9 +136,12 @@ export async function GET(request: Request) {
   const db = createServiceClient();
 
   if (table === "results") {
-    const { data, error } = await db.rpc("admin_result_groups", { p_page: page, p_page_size: pageSize });
-    if (error) return NextResponse.json({ error: "Unable to load result records." }, { status: 500 });
-    return NextResponse.json({ data: data ?? [], page, pageSize });
+    const [{ data, error }, { data: totalCount, error: countError }] = await Promise.all([
+      db.rpc("admin_result_groups", { p_page: page, p_page_size: pageSize }),
+      db.rpc("admin_result_group_count"),
+    ]);
+    if (error || countError) return NextResponse.json({ error: "Unable to load result records." }, { status: 500 });
+    return NextResponse.json({ data: data ?? [], page, pageSize, total: Number(totalCount ?? 0) });
   }
 
   const select = table === "students"
