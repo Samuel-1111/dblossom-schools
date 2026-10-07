@@ -8,7 +8,7 @@ type Row = Record<string, any>;
 type ScoreInput = { ca: string; exam: string };
 
 type TeacherContext = {
-  user: { id: string; email?: string | null; user_metadata?: Record<string, any> | null };
+  user: { id: string; email?: string | null };
   teacher: Row | null;
   classes: Row[];
   supabase: ReturnType<typeof createServiceClient>;
