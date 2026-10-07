@@ -186,3 +186,37 @@ body{background:#fbfcfd;color:var(--ink);line-height:1.6}
 .floating-whatsapp{background:#1f7a50}
 @media(max-width:900px){.school-identity-card{min-height:360px}.hero-accent-one{width:360px;height:360px;right:-180px}.hero-accent-two{display:none}}
 @media(max-width:600px){.school-identity-card{min-height:330px;padding:28px}.school-mark{width:76px;height:76px;margin-bottom:18px}.school-identity-card h2{font-size:2rem}.identity-line{font-size:10px}.hero-grid{padding-block:64px}.floating-whatsapp{right:14px;bottom:14px}}
+
+/* Final professional public-site polish */
+.hero{background-image:none!important;background-color:#0b1f33!important}
+.hero::after{content:"";position:absolute;inset:auto 0 0;height:180px;background:linear-gradient(to bottom,transparent,rgba(11,31,51,.22));pointer-events:none}
+.section-heading{position:relative;padding-left:18px}
+.section-heading::before{content:"";position:absolute;left:0;top:4px;width:3px;height:44px;background:var(--gold);border-radius:3px}
+.section-heading p:last-child{max-width:680px;color:#667583;line-height:1.8}
+.public-section:nth-of-type(even){background:#f7f9fb}
+.public-section .cards{margin-top:34px}
+.public-section .card{position:relative;overflow:hidden}
+.public-section .card::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:linear-gradient(90deg,var(--navy),var(--gold));opacity:.85}
+.academic-home-cards .card{min-height:205px;padding:32px}
+.academic-home-cards .card h3{margin-top:12px}
+.feature-number{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--gold-soft);color:var(--navy);font-size:11px;font-weight:800;letter-spacing:.08em}
+.exam-home-card,.exam-card{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.exam-home-card:hover,.exam-card:hover{transform:translateY(-3px)}
+.contact-page,.contact-intro{background:#f7f9fb}
+.contact-page{min-height:60vh}
+.contact-page-grid{padding-bottom:40px}
+.contact-page-grid .contact-panel{background:#fff}
+.contact-page-grid .contact-form-card{background:#fff}
+.contact-actions .whatsapp-btn{background:#218c5a;color:#fff!important}
+.whatsapp-btn:hover{background:#176b44!important}
+.floating-whatsapp{background:#218c5a!important}
+.proprietor-card{align-items:center}
+.proprietor-photo{background:#eef2f5}
+.proprietor-photo span{font-size:11px;color:#7a8793}
+.site-footer{box-shadow:0 -10px 35px rgba(12,32,51,.06)}
+@media(max-width:600px){
+  .section-heading{padding-left:14px}
+  .section-heading::before{height:36px}
+  .academic-home-cards .card{min-height:0}
+  .hero::after{height:100px}
+}
