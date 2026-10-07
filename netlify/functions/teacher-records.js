@@ -30,6 +30,7 @@ exports.handler=async event=>{
   if(studentClass!==teacher.assigned_class)return json(403,{error:"You can only enter results for your assigned class."});
   const{data:subject}=await db.from("subjects").select("id").eq("id",b.subject_id).maybeSingle();if(!subject)return json(400,{error:"Subject not found."});
   const{data:term}=await db.from("terms").select("id").eq("id",b.term_id).maybeSingle();if(!term)return json(400,{error:"Term not found."});
+  const{data:lock}=await db.from("result_locks").select("locked").eq("class_id",student.class_id).eq("term_id",b.term_id).maybeSingle();if(lock?.locked)return json(423,{error:"Results for this class and term are locked by the administrator."});
   const ca=Number(b.ca_score),exam=Number(b.exam_score);if(!Number.isFinite(ca)||!Number.isFinite(exam)||ca<0||ca>30||exam<0||exam>70)return json(400,{error:"CA must be 0-30 and Exam must be 0-70."});
   const total=ca+exam,grade=total>=70?"A":total>=60?"B":total>=50?"C":total>=40?"D":"F";
   const payload={student_id:b.student_id,subject_id:b.subject_id,term_id:b.term_id,ca_score:ca,exam_score:exam,total_score:total,grade,teacher_comment:String(b.teacher_comment||"").trim()||null,recorded_by:teacher.id};
