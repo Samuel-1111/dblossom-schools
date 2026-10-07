@@ -35,14 +35,15 @@ async function upsertProfile(db,id,full_name,role) {
   const { error } = await db.from("profiles").upsert({id,full_name,role},{onConflict:"id"});
   if(error) throw error;
 }
-async function listData(db, table, page, pageSize, search, order="created_at") {
+async function listData(db, table, page, pageSize, search, order="created_at", eventClassId="") {
   let q = db.from(table).select("*",{count:"exact"});
   if(search) {
     const s = search.replace(/[%_,]/g," ");
-    if(table==="students") q=q.or("full_name.ilike.%"+s+"%,admission_number.ilike.%"+s+"%");
+    if(table==="students") q=q.or("full_name.ilike.%"+s+"%,admission_number.ilike.%"+s+"%,guardian_name.ilike.%"+s+"%,guardian_contact.ilike.%"+s+"%");
     if(table==="teachers") q=q.or("full_name.ilike.%"+s+"%,staff_id.ilike.%"+s+"%");
     if(table==="complaints") q=q.or("name.ilike.%"+s+"%,subject.ilike.%"+s+"%,email.ilike.%"+s+"%");
   }
+  if(table==="students" && eventClassId) q=q.eq("class_id",eventClassId);
   const from=(page-1)*pageSize,to=from+pageSize-1;
   q=q.order(order,{ascending:false,nullsFirst:false}).range(from,to);
   const {data,error,count}=await q;
@@ -58,7 +59,7 @@ exports.handler = async event => {
     if(event.httpMethod==="GET") {
       const p=safePage(event), size=safeSize(event), q=clean(event.queryStringParameters?.q), classId=clean(event.queryStringParameters?.class_id), table=clean(event.queryStringParameters?.table);
       if(table==="students"||table==="teachers"||table==="complaints"||table==="events"||table==="gallery_images"||table==="subjects"||table==="fee_payments"||table==="fee_invoices"||table==="announcements"||table==="admission_applications") {
-        const result=await listData(db,table,p,size,q);
+        const result=await listData(db,table,p,size,q,"created_at",classId);
         if(table==="fee_payments"){const {data,error,count}=await db.from("fee_payments").select("id,invoice_id,student_id,parent_id,amount,method,reference,status,paid_at,created_at,students(full_name,admission_number,class_id,classes(name))",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);if(error)throw error;return json(200,{data:data||[],count:count||0,page:p,pageSize:size});}
       if(table==="students"){
           const ids=[...new Set(result.data.map(x=>x.class_id).filter(Boolean))];
@@ -86,9 +87,9 @@ exports.handler = async event => {
     const b=JSON.parse(event.body||"{}"), type=clean(b.type), id=clean(b.id);
 
     if(type==="student") {
-      if(!clean(b.full_name)||!clean(b.admission_number)||!clean(b.class_id)) return json(400,{error:"Full name, admission number and class are required."});
+      if(!clean(b.full_name)||!clean(b.admission_number)||!clean(b.class_id)||(!id&&!clean(b.password))) return json(400,{error:"Full name, admission number, assigned class and password are required for a new student."});
       
-      const surname=(clean(b.full_name).split(/\s+/).filter(Boolean).pop()||"Student");const password=clean(b.password)||(surname.charAt(0).toUpperCase()+surname.slice(1).toLowerCase());
+      const surname=(clean(b.full_name).split(/\s+/).filter(Boolean).pop()||"Student");const password=clean(b.password);
       let profileId=clean(b.profile_id)||null;
       if(!id) {
         const auth=await createOrUpdateAuth(db,{profileId:null,role:"student",password,identifier:b.admission_number,email:null});
@@ -112,11 +113,23 @@ exports.handler = async event => {
         const auth=await createOrUpdateAuth(db,{profileId:null,role:"teacher",password:clean(b.password),identifier:b.staff_id,email:clean(b.email)||null});
         await upsertProfile(db,auth.profileId,clean(b.full_name),"teacher");
         const {data,error}=await db.from("teachers").insert({full_name:clean(b.full_name),staff_id:clean(b.staff_id),email:clean(b.email)||null,phone:clean(b.phone)||null,subject:clean(b.subject)||null,role:clean(b.role)||"Teaching Staff",assigned_class:clean(b.assigned_class)||null,status:clean(b.status)||"active",profile_id:auth.profileId}).select().single();
-        if(error){await db.auth.admin.deleteUser(auth.profileId);throw error} await audit(db,user,"create","teacher",data.id,{staff_id:data.staff_id});return json(201,{data});
+        if(error){await db.auth.admin.deleteUser(auth.profileId);throw error}
+        if(clean(b.class_id)){const {error:ae}=await db.from("teacher_assignments").insert({teacher_id:data.id,class_id:clean(b.class_id),subject_id:clean(b.subject_id)||null});if(ae)throw ae;}
+        await audit(db,user,"create","teacher",data.id,{staff_id:data.staff_id,class_id:clean(b.class_id)||null,subject_id:clean(b.subject_id)||null});return json(201,{data});
       }
       const {data:old}=await db.from("teachers").select("profile_id").eq("id",id).maybeSingle();if(!old)return json(404,{error:"Teacher not found."});
       if(b.password&&old.profile_id)await createOrUpdateAuth(db,{profileId:old.profile_id,role:"teacher",password:clean(b.password),identifier:b.staff_id});
-      const {data,error}=await db.from("teachers").update({full_name:clean(b.full_name),staff_id:clean(b.staff_id),email:clean(b.email)||null,phone:clean(b.phone)||null,subject:clean(b.subject)||null,role:clean(b.role)||"Teaching Staff",assigned_class:clean(b.assigned_class)||null,status:clean(b.status)||"active"}).eq("id",id).select().single();if(error)throw error;if(old.profile_id)await upsertProfile(db,old.profile_id,data.full_name,"teacher");await audit(db,user,"update","teacher",id,{});return json(200,{data});
+      const {data,error}=await db.from("teachers").update({full_name:clean(b.full_name),staff_id:clean(b.staff_id),email:clean(b.email)||null,phone:clean(b.phone)||null,subject:clean(b.subject)||null,role:clean(b.role)||"Teaching Staff",assigned_class:clean(b.assigned_class)||null,status:clean(b.status)||"active"}).eq("id",id).select().single();if(error)throw error;if(old.profile_id)await upsertProfile(db,old.profile_id,data.full_name,"teacher");
+      if(b.class_id!==undefined||b.subject_id!==undefined){await db.from("teacher_assignments").delete().eq("teacher_id",id);if(clean(b.class_id)){const {error:ae}=await db.from("teacher_assignments").insert({teacher_id:id,class_id:clean(b.class_id),subject_id:clean(b.subject_id)||null});if(ae)throw ae;}}
+      await audit(db,user,"update","teacher",id,{class_id:clean(b.class_id)||null,subject_id:clean(b.subject_id)||null});return json(200,{data});
+    }
+
+    if(type==="class") {
+      if(b.action==="delete"){const {error}=await db.from("classes").delete().eq("id",id);if(error)throw error;await audit(db,user,"delete","class",id,{});return json(200,{ok:true});}
+      if(!clean(b.name))return json(400,{error:"Class name is required."});
+      const payload={name:clean(b.name),is_active:b.is_active!==false};
+      const q=id?db.from("classes").update(payload).eq("id",id):db.from("classes").insert(payload);
+      const {data,error}=await q.select().single();if(error)throw error;await audit(db,user,id?"update":"create","class",data.id,payload);return json(id?200:201,{data});
     }
 
     if(type==="delete") {
