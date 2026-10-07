@@ -27,10 +27,15 @@ Deno.serve(async (request) => {
       return json({ error: "This payment does not belong to the signed-in student" }, 403);
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     const response = await fetch(`https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`, {
       headers: { Authorization: `Bearer ${Deno.env.get("PAYSTACK_SECRET_KEY")}` }
+      signal: controller.signal,
     });
     const payload = await response.json().catch(() => ({}));
+    clearTimeout(timeout);
+    clearTimeout(timeout);
     const transaction = payload.data;
     const success = response.ok && payload.status && transaction?.status === "success" &&
       Number(transaction.amount) === AMOUNT_KOBO && transaction.currency === "NGN";
