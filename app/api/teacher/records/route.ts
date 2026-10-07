@@ -133,6 +133,7 @@ export async function POST(request: Request) {
     if (!subjects.length) return NextResponse.json({ error: "Keep at least one subject in the report before saving." }, { status: 400 });
     const scores = (body.subject_scores ?? {}) as Record<string, ScoreInput>;
     const failures: string[] = [];
+    const payloads: Row[] = [];
     for (const subject of subjects) {
       const score = scores[String(subject.id)];
       const ca = Number(score?.ca);
@@ -141,10 +142,11 @@ export async function POST(request: Request) {
       if (ca < 0 || ca > 30 || exam < 0 || exam > 70) { failures.push(`${subject.name}: CA must be 0-30 and Exam must be 0-70`); continue; }
       const total = Math.min(100, ca + exam);
       const grade = total >= 70 ? "A" : total >= 60 ? "B" : total >= 50 ? "C" : total >= 40 ? "D" : "F";
-      const { data: existing } = await context.supabase.from("results").select("id").eq("student_id", target.student.id).eq("subject_id", subject.id).eq("term_id", target.term.id).maybeSingle();
-      const payload = { student_id: target.student.id, subject_id: subject.id, term_id: target.term.id, ca_score: ca, exam_score: exam, total_score: total, grade, recorded_by: context.user.id };
-      const result = existing?.id ? await context.supabase.from("results").update(payload).eq("id", existing.id) : await context.supabase.from("results").insert(payload);
-      if (result.error) failures.push(`${subject.name}: ${result.error.message}`);
+      payloads.push({ student_id: target.student.id, subject_id: subject.id, term_id: target.term.id, ca_score: ca, exam_score: exam, total_score: total, grade, recorded_by: context.user.id });
+    }
+    if (!failures.length) {
+      const { error: saveError } = await context.supabase.from("results").upsert(payloads, { onConflict: "student_id,subject_id,term_id" });
+      if (saveError) failures.push("The result could not be saved. Please retry.");
     }
     if (failures.length) return NextResponse.json({ error: `Some subject results could not be saved: ${failures.join("; ")}` }, { status: 400 });
     return NextResponse.json({ data: { message: `Complete report saved for ${target.student.full_name || target.student.admission_number}.` } });
