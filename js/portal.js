@@ -1,4 +1,4 @@
-import{getSupabase,getSession,signOut,esc}from"./supabase.js";import{renderAdvanced}from"./admin-advanced.js";
+import{getSupabase,getSession,signOut,esc}from"./supabase.js";import{renderAdvanced}from"./admin-advanced.js";import{renderParentDashboard}from"./parent-dashboard.js";
 
 const role=document.body.dataset.role||"student";
 const loginView=document.querySelector("#login-view"),dashboardView=document.querySelector("#dashboard-view"),loginForm=document.querySelector("#login-form"),notice=document.querySelector("#login-notice");
@@ -30,7 +30,7 @@ async function login(){
   }catch(e){notice.className="notice danger";notice.textContent=e.message;toast(e.message,"error")}finally{setBusy(b,false,"")}
  });
 }
-async function render(){const s=await getSession();if(!s){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");try{const qs=new URLSearchParams(location.search);if(role==="student"&&qs.get("payment")==="verify"&&qs.get("reference")){const vr=await api("/.netlify/functions/paystack-verify?reference="+encodeURIComponent(qs.get("reference")));history.replaceState({},document.title,location.pathname);toast(vr.data?.verified?"Payment verified. Results unlocked.":"Payment is still being verified.","success")}if(role==="admin")await adminDashboard();else if(role==="student")await studentDashboard();else if(role==="parent")await parentDashboard();else await teacherDashboard()}catch(e){dashboardView.innerHTML='<div class="dashboard-shell"><div class="notice danger">'+esc(e.message)+'</div></div>'}}
+async function render(){const s=await getSession();if(!s){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");try{const qs=new URLSearchParams(location.search);if(role==="student"&&qs.get("payment")==="verify"&&qs.get("reference")){const vr=await api("/.netlify/functions/paystack-verify?reference="+encodeURIComponent(qs.get("reference")));history.replaceState({},document.title,location.pathname);toast(vr.data?.verified?"Payment verified. Results unlocked.":"Payment is still being verified.","success")}if(role==="admin")await adminDashboard();else if(role==="student")await studentDashboard();else if(role==="parent")await renderParentDashboard({api,getSession,esc,toast,setBusy,select,input,table,pill});else await teacherDashboard()}catch(e){dashboardView.innerHTML='<div class="dashboard-shell"><div class="notice danger">'+esc(e.message)+'</div></div>'}}
 function shell(title,sub,body){return '<header class="portal-dashboard-header"><div class="container"><div class="portal-head-row"><div><h1>'+esc(title)+'</h1><p>'+esc(sub||"")+'</p></div><button id="logout" class="btn btn-outline-light">Logout</button></div></div></header>'+body}
 document.addEventListener("click",e=>{if(e.target.id==="logout")signOut()});
 
