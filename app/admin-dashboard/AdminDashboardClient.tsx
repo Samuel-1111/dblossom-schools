@@ -378,7 +378,7 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
     if (active === "results") return rows.filter((row) => (resultClassFilter === "all" || String(row.class_id ?? "") === resultClassFilter) && (resultTermFilter === "all" || String(row.term ?? row.term_name ?? row.term_id ?? "").toLowerCase().includes(resultTermFilter)));
     return rows;
   }, [active, resultClassFilter, resultTermFilter, rows, studentClassFilter]);
-  const counts = useMemo(() => ({ current: filteredRows.length, classes: classes.length }), [classes, filteredRows]);
+  const counts = useMemo(() => ({ current: tableTotal || filteredRows.length, classes: classes.length }), [classes.length, filteredRows.length, tableTotal]);
 
   return (
     <main className="min-h-screen bg-slate-50">
