@@ -21,6 +21,7 @@ export function StudentDashboardClient({ fullName, studentNumber, className, gua
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [accessReady, setAccessReady] = useState(hasResultAccess);
   const reportCardRef = useRef<HTMLDivElement>(null);
+  const paymentRequestKey = useRef<string | null>(null);
   const sessions = useMemo(() => Array.from(new Set(grades.map((item) => item.session).filter(Boolean))) as string[], [grades]);
   const filteredGrades = useMemo(() => grades.filter((item) => (term === "All Terms" || item.term === term) && (session === "All Sessions" || item.session === session)), [grades, session, term]);
   useEffect(() => {
@@ -35,12 +36,15 @@ export function StudentDashboardClient({ fullName, studentNumber, className, gua
   }, []);
 
   async function startResultPayment() {
+    if (paymentLoading) return;
     setPaymentLoading(true); setPaymentNotice("");
+    paymentRequestKey.current ??= crypto.randomUUID();
     try {
-      const response = await fetch("/api/paystack/initialize", { method: "POST", credentials: "same-origin" });
+      const response = await fetch("/api/paystack/initialize", { method: "POST", credentials: "same-origin", headers: { "X-Idempotency-Key": paymentRequestKey.current } });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || !payload.data?.authorization_url) throw new Error(payload.error ?? "Payment could not be started.");
       window.location.href = payload.data.authorization_url;
+      paymentRequestKey.current = null;
     } catch (error) {
       setPaymentNotice(error instanceof Error ? error.message : "Payment could not be started.");
       setPaymentLoading(false);
