@@ -56,8 +56,8 @@ async function workspace(context: TeacherContext, classId: string, requestedStud
     context.supabase.from("students").select("id, admission_number, full_name, profile_id, guardian_name, class_id").eq("class_id", selectedClass.id).order("admission_number"),
     context.supabase.from("subjects").select("id, name, class_id").eq("class_id", selectedClass.id).order("name"),
   ]);
-  if (studentError) throw new Error(studentError.message);
-  if (subjectError) throw new Error(subjectError.message);
+  if (studentError) throw new Error("Students could not be loaded.");
+  if (subjectError) throw new Error("Subjects could not be loaded.");
   const typedStudents = (students ?? []) as Row[];
   const typedSubjects = (subjects ?? []) as Row[];
   const studentIds = typedStudents.map((row: Row) => row.id);
@@ -160,7 +160,7 @@ export async function POST(request: Request) {
     const { data: subject } = await context.supabase.from("subjects").select("id, name").eq("id", subjectId).eq("class_id", target.selectedClass.id).maybeSingle();
     if (!subject) return NextResponse.json({ error: "That subject is not part of the assigned class." }, { status: 400 });
     const { data: deletedRows, error: deleteError } = await context.supabase.from("results").delete().eq("student_id", target.student.id).eq("subject_id", subject.id).eq("term_id", target.term.id).select("id");
-    if (deleteError) return NextResponse.json({ error: deleteError.message }, { status: 400 });
+    if (deleteError) return NextResponse.json({ error: "The result could not be removed." }, { status: 400 });
     if (!deletedRows?.length) return NextResponse.json({ error: "No saved result exists for that subject in this report." }, { status: 404 });
     return NextResponse.json({ data: { message: `${subject.name} was removed from this report.` } });
   }
@@ -170,7 +170,7 @@ export async function POST(request: Request) {
     const comment = String(body.teacher_comment ?? "").trim();
     if (!comment) return NextResponse.json({ error: "Enter a teacher remark before saving." }, { status: 400 });
     const { data: resultRows, error: resultError } = await context.supabase.from("results").select("id").eq("student_id", target.student.id).eq("term_id", target.term.id);
-    if (resultError) return NextResponse.json({ error: resultError.message }, { status: 400 });
+    if (resultError) return NextResponse.json({ error: "The saved result could not be loaded." }, { status: 503 });
     if (!resultRows?.length) return NextResponse.json({ error: "No subject results exist for this student and term yet. Save the complete result first." }, { status: 400 });
     const { error } = await context.supabase.from("results").update({ teacher_comment: comment, recorded_by: context.user.id }).eq("student_id", target.student.id).eq("term_id", target.term.id);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
