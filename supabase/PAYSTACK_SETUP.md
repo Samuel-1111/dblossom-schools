@@ -15,6 +15,7 @@ Use the Paystack **secret** key only. Never expose it to the browser or commit i
 
 - `paystack-result-access` — creates a server-side ₦1,000 transaction reference and asks Paystack for a checkout URL.
 - `paystack-result-verify` — verifies the reference directly with Paystack and creates the student's result-access grant only after Paystack reports a successful ₦1,000 NGN transaction.
+- `paystack-webhook` — receives signed `charge.success` events from Paystack so a successful payment can still grant access if the student loses network connectivity during the callback.
 
 Both functions require a valid Supabase Auth JWT.
 
@@ -39,3 +40,14 @@ Before the school goes live, test one successful ₦1,000 payment and one failed
 - amount below/above ₦1,000 is rejected;
 - result rows are unavailable before payment;
 - result rows become available after successful verification.
+
+
+## Paystack webhook
+
+Configure this URL in the Paystack Dashboard under Developers → Webhooks:
+
+```
+https://<SUPABASE_PROJECT_REF>.supabase.co/functions/v1/paystack-webhook
+```
+
+The webhook verifies the `x-paystack-signature` HMAC-SHA512 header before changing any payment state. Paystack recommends webhooks over relying only on customer callbacks because callbacks can fail when the customer's connection drops. 
