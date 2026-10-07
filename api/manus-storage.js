@@ -1,0 +1,1 @@
+const {handler}=require("../netlify/functions/manus-storage"); const wrap=require("./_adapter"); module.exports=wrap(handler,{path:(req,event)=>{const key=event.queryStringParameters.key||req.url.split("/api/manus-storage/")[1]?.split("?")[0]||"";return "/.netlify/functions/manus-storage/"+key;}});
