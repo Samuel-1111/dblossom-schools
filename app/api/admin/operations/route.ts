@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       target_student_id: clean(body.target_student_id) || null,
       pinned: Boolean(body.pinned), status: "Published", publish_at: body.publish_at || null
     }).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "The request could not be completed. Please check the submitted information and try again." }, { status: 400 });
     return NextResponse.json({ data }, { status: 201 });
   }
 
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     const { data: parent } = await db.from("parent_profiles").select("id,profile_id").eq("id", parentId).maybeSingle();
     if (!parent) return NextResponse.json({ error: "Parent not found." }, { status: 404 });
     const { data, error } = await db.from("parent_messages").insert({ parent_id: parent.id, sender_profile_id: auth.user?.id ?? null, recipient_profile_id: parent.profile_id, subject: clean(body.subject) || "School message", body: bodyText }).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "The request could not be completed. Please check the submitted information and try again." }, { status: 400 });
     return NextResponse.json({ data }, { status: 201 });
   }
 
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     const title = clean(body.title);
     if (!title || !body.event_date) return NextResponse.json({ error: "Calendar title and date are required." }, { status: 400 });
     const { data, error } = await db.from("parent_calendar_events").insert({ title, description: clean(body.description) || null, event_date: body.event_date, start_time: body.start_time || null, end_time: body.end_time || null, audience: clean(body.audience) || "all", class_id: clean(body.class_id) || null }).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "The request could not be completed. Please check the submitted information and try again." }, { status: 400 });
     return NextResponse.json({ data }, { status: 201 });
   }
 
@@ -125,7 +125,7 @@ export async function PATCH(request: Request) {
         guardian_contact: application.parent_phone ?? null,
         status: "active"
       }).select("id, admission_number").single();
-      if (studentError) return NextResponse.json({ error: studentError.message }, { status: 400 });
+      if (studentError) return NextResponse.json({ error: "The student record could not be created from this application." }, { status: 400 });
       studentId = student.id;
     }
 
@@ -133,12 +133,12 @@ export async function PATCH(request: Request) {
       status: clean(body.status), notes: clean(body.notes) || null, interview_date: body.interview_date || null,
       interview_notes: clean(body.interview_notes) || null, student_id: studentId, updated_at: new Date().toISOString()
     }).eq("id", id).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "The request could not be completed. Please check the submitted information and try again." }, { status: 400 });
     return NextResponse.json({ data, student_id: studentId });
   }
   if (type === "announcement") {
     const { data, error } = await db.from("announcements").update({ pinned: Boolean(body.pinned), status: clean(body.status) || "Published" }).eq("id", id).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error) return NextResponse.json({ error: "The request could not be completed. Please check the submitted information and try again." }, { status: 400 });
     return NextResponse.json({ data });
   }
   return NextResponse.json({ error: "Unsupported update." }, { status: 400 });
