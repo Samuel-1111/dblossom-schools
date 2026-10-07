@@ -57,3 +57,36 @@ Empty school content is intentionally calm. If the school has no announcements, 
 ### Important schema note
 
 The connected Supabase project was already using a UUID-based schema before this expansion, while the oldest Manus migration files describe a different legacy bigint schema. Do **not** reset the production database with the old migration chain. Before adopting a new local migration workflow, capture the connected remote schema with `supabase db pull` and make that remote baseline the starting point. Supabase recommends pulling an existing remote schema before introducing local migration history.
+
+
+## Production readiness status
+
+This repository is being hardened for real school usage, not demo usage.
+
+Before production launch, the following external platform configuration is mandatory:
+
+1. **Supabase plan:** the connected project is currently on the Free plan. Move production to at least Pro before relying on it for school operations. Supabase documents that Free projects can pause after inactivity and do not provide downloadable database backups; paid plans provide daily backups.
+2. **Backups/PITR:** enable an appropriate backup policy and PITR if the school's recovery requirements need point-in-time recovery.
+3. **Auth:** enable leaked-password protection, custom SMTP, suitable sign-in rate limits, and a real administrator Auth account with a `profiles.role` of `admin` or `super_admin`.
+4. **Paystack:** set `PAYSTACK_SECRET_KEY` and configure the signed Paystack webhook URL described in `supabase/PAYSTACK_SETUP.md`.
+5. **Database:** treat the connected remote Supabase schema as production truth. Establish a clean version-controlled migration baseline with `supabase db pull` before using automated migration deployment.
+6. **Load test:** run k6 against a staging/preview environment with realistic student credentials before a result-release event. Test at least 1,000 concurrent result checks and measure p95/p99 latency, error rate, Auth 429s, Edge Function latency, database CPU/IO, pooler connections and cache hit rate.
+7. **Storage:** production school media uses the Supabase `school-media` bucket; sensitive student documents must use the private `student-documents` bucket and signed URLs.
+
+### Current database verification
+
+- 42/42 public tables have RLS enabled.
+- Duplicate result rows were found and removed; a unique constraint now enforces one result per student + subject + term.
+- Teacher/student profile links were reconciled for the existing Auth users.
+- Teacher class assignments were reconciled from the existing class-teacher records.
+- Fee payment writes are transactionally locked to prevent concurrent overpayment.
+- Result payment initialization is idempotent.
+- Paystack verification has a signed webhook fallback.
+- Admin/teacher authorization no longer depends on editable Auth user metadata.
+- Admin large-list APIs and result review use bounded pagination.
+- Supabase Performance Advisor reports only unused-index INFO findings; no missing-index warning remains.
+- Supabase Security Advisor currently reports one remaining warning: leaked-password protection is disabled.
+
+### Verification limitation
+
+A production build and a 1,000-user load test have **not** been executed from this ChatGPT environment. The GitHub connector can inspect and modify the repository, while the production Supabase project can be inspected directly, but this environment does not have the repository's full local dependency installation or a safe staging credential set for a genuine concurrent-user test. Therefore this system must **not** be labelled production-certified until CI/build verification and staging load testing are completed.
