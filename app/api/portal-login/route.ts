@@ -37,15 +37,18 @@ function localLoginEmail(role: PortalRole, identifier: string) {
   return `${role}-${safe}@local.dblossom.school`;
 }
 
-async function getOrCreateAuthUser(supabase: ReturnType<typeof createServiceClient>, email: string, password: string, fullName: string, role: PortalRole, identifier: string) {
+async function getOrCreateAuthUser(supabase: ReturnType<typeof createServiceClient>, email: string, password: string, fullName: string, role: PortalRole, identifier: string, rotateExistingPassword: boolean) {
   const listed = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (listed.error) throw listed.error;
   const existing = listed.data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase());
   const metadata = { full_name: fullName, portal_identifier: identifier };
   if (existing) {
-    const updated = await supabase.auth.admin.updateUserById(existing.id, { password, user_metadata: metadata });
-    if (updated.error) throw updated.error;
-    return updated.data.user;
+    if (rotateExistingPassword) {
+      const updated = await supabase.auth.admin.updateUserById(existing.id, { password, user_metadata: metadata });
+      if (updated.error) throw updated.error;
+      return updated.data.user;
+    }
+    return existing;
   }
   const created = await supabase.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: metadata });
   if (created.error) throw created.error;
@@ -106,7 +109,7 @@ export async function POST(request: Request) {
 
     if (role === "parent") {
       if (!record.email || !record.profile_id) return NextResponse.json({ error: "Parent portal access has not been activated yet. Ask the school administrator to send the portal invitation." }, { status: 401 });
-      return NextResponse.json({ login_email: record.email, login_password: password });
+      return NextResponse.json({ login_email: record.email });
     }
 
     const storedPassword = record.password?.trim() || "";
@@ -115,14 +118,15 @@ export async function POST(request: Request) {
 
     const email = record.email?.trim() || localLoginEmail(role as PortalRole, identifier);
     const fullName = record.full_name?.trim() || (role === "student" ? `Student ${record.admission_number ?? record.student_number ?? identifier}` : "Teacher");
-    const user = await getOrCreateAuthUser(supabase, email, authCompatiblePassword(password), fullName, role as PortalRole, identifier);
+    const legacyPassword = storedPassword || fallbackPasswords(record.full_name, role as PortalRole)[0] || "";
+    const user = await getOrCreateAuthUser(supabase, email, authCompatiblePassword(password), fullName, role as PortalRole, identifier, Boolean(legacyPassword));
     if (!user) return NextResponse.json({ error: "Unable to create portal identity" }, { status: 503 });
 
     await supabase.from("profiles").upsert({ id: user.id, full_name: fullName, role }, { onConflict: "id" });
-    if (role === "teacher") await supabase.from("teachers").update({ profile_id: user.id }).eq("id", record.id);
-    if (role === "student") await supabase.from("students").update({ profile_id: user.id }).eq("id", record.id);
+    if (role === "teacher") await supabase.from("teachers").update({ profile_id: user.id, password: null }).eq("id", record.id);
+    if (role === "student") await supabase.from("students").update({ profile_id: user.id, password: null }).eq("id", record.id);
 
-    return NextResponse.json({ login_email: email, login_password: authCompatiblePassword(password) });
+    return NextResponse.json({ login_email: email });
   } catch {
     return NextResponse.json({ error: "Unable to sign in right now" }, { status: 503 });
   }
