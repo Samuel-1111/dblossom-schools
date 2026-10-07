@@ -349,12 +349,12 @@ export function AdminDashboardClient({ fullName }: { fullName: string }) {
   }
 
   function exportStudents() {
-    downloadCsv("students.csv", studentCsvHeaders, rows.map((row) => [row.full_name, row.admission_number, classes.find((item) => String(item.id) === String(row.class_id))?.name ?? row.class_name ?? row.class_id, row.gender, row.date_of_birth, row.parent_name ?? row.guardian_name, row.parent_phone ?? row.guardian_contact, row.parent_email, row.boarding_status, row.password, row.status]));
+    downloadCsv("students.csv", studentCsvHeaders, rows.map((row) => [row.full_name, row.admission_number, classes.find((item) => String(item.id) === String(row.class_id))?.name ?? row.class_name ?? row.class_id, row.gender, row.date_of_birth, row.parent_name ?? row.guardian_name, row.parent_phone ?? row.guardian_contact, row.parent_email, row.boarding_status, row.status]));
     setNotice("Students CSV downloaded.");
   }
 
   function exportTeachers() {
-    downloadCsv("teachers.csv", teacherCsvHeaders, rows.map((row) => [row.full_name, row.staff_id, row.email, row.phone, row.subject, row.role, row.assigned_class, row.password, row.status]));
+    downloadCsv("teachers.csv", teacherCsvHeaders, rows.map((row) => [row.full_name, row.staff_id, row.email, row.phone, row.subject, row.role, row.assigned_class, row.status]));
     setNotice("Teachers CSV downloaded.");
   }
 
