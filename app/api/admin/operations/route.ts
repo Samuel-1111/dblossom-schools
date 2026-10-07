@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const invoiceNumber = clean(body.invoice_number) || `INV-${new Date().getFullYear()}-${Date.now()}`;
     const { data: invoice, error } = await db.from("fee_invoices").insert({
       student_id: studentId, invoice_number: invoiceNumber, due_date: clean(body.due_date) || null,
-      status: "Unpaid", total_amount: total, amount_paid: 0, balance: total, notes: clean(body.notes) || null
+      status: "Unpaid", total_amount: total, amount_paid: 0, balance: total, notes: clean(body.notes) || null, created_by: auth.user?.id ?? null
     }).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     const rows = items.map((item: any) => ({ invoice_id: invoice.id, category_id: clean(item.category_id) || null, description: clean(item.description) || "School fee", amount: Math.max(0, Number(item.amount || 0)) }));
@@ -32,19 +32,24 @@ export async function POST(request: Request) {
     const invoiceId = clean(body.invoice_id);
     const amount = Number(body.amount);
     if (!invoiceId || !Number.isFinite(amount) || amount <= 0) return NextResponse.json({ error: "Invoice and a valid payment amount are required." }, { status: 400 });
-    const { data: invoice } = await db.from("fee_invoices").select("id,student_id,total_amount,amount_paid,balance").eq("id", invoiceId).maybeSingle();
-    if (!invoice) return NextResponse.json({ error: "Invoice not found." }, { status: 404 });
-    if (amount > Number(invoice.balance)) return NextResponse.json({ error: "Payment cannot exceed the outstanding balance." }, { status: 400 });
-    const nextPaid = Number(invoice.amount_paid) + amount;
-    const nextBalance = Number(invoice.total_amount) - nextPaid;
-    const status = nextBalance <= 0 ? "Paid" : "Partially Paid";
-    const reference = clean(body.reference) || `MANUAL-${Date.now()}`;
-    const { data: payment, error } = await db.from("fee_payments").insert({ invoice_id: invoice.id, student_id: invoice.student_id, amount, method: clean(body.method) || "Manual", reference, status: "Confirmed", paid_at: new Date().toISOString() }).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    await db.from("fee_invoices").update({ amount_paid: nextPaid, balance: Math.max(0, nextBalance), status }).eq("id", invoice.id);
-    const receiptNumber = `RCP-${new Date().getFullYear()}-${Date.now()}`;
-    await db.from("fee_receipts").insert({ payment_id: payment.id, receipt_number: receiptNumber });
-    return NextResponse.json({ data: { payment, receipt_number: receiptNumber } }, { status: 201 });
+
+    const reference = clean(body.reference) || `MANUAL-${crypto.randomUUID()}`;
+    const { data, error } = await db.rpc("record_fee_payment", {
+      p_invoice_id: invoiceId,
+      p_amount: amount,
+      p_method: clean(body.method) || "Manual",
+      p_reference: reference,
+      p_parent_id: clean(body.parent_id) || null,
+    });
+
+    if (error) {
+      const message = /exceed|outstanding|invoice not found|amount/i.test(error.message)
+        ? error.message
+        : "Payment could not be recorded.";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+    if (data?.duplicate) return NextResponse.json({ data, duplicate: true }, { status: 200 });
+    return NextResponse.json({ data }, { status: 201 });
   }
 
   if (type === "announcement") {
