@@ -42,7 +42,7 @@ async function provisionPortalUser(db: ReturnType<typeof createServiceClient>, r
 
   if (record.profile_id) {
     const attributes: Record<string, any> = { password, user_metadata: { full_name: record.full_name, portal_identifier: identifier } };
-    if (role === "teacher" && String(record.email ?? "").trim()) attributes.email = String(record.email).trim();
+    if (role === "teacher" && String(record.email ?? "").trim()) { attributes.email = String(record.email).trim(); attributes.email_confirm = true; }
     const { error } = await db.auth.admin.updateUserById(record.profile_id, attributes);
     if (error) throw new Error("Portal account could not be updated.");
     await db.from("profiles").upsert({ id: record.profile_id, full_name: record.full_name, role }, { onConflict: "id" });
