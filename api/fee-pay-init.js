@@ -1,1 +1,1 @@
-const {handler}=require("../netlify/functions/fee-pay-init"); const wrap=require("./_adapter"); module.exports=wrap(handler);
+const {handler}=require("../netlify/functions/fee-pay-init"); const wrap=require("../lib/vercel-adapter"); module.exports=wrap(handler);
