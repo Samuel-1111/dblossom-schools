@@ -210,7 +210,7 @@ body{background:#fbfcfd;color:var(--ink);line-height:1.6}
 .contact-actions .whatsapp-btn{background:#218c5a;color:#fff!important}
 .whatsapp-btn:hover{background:#176b44!important}
 .floating-whatsapp{background:#218c5a!important}
-.proprietor-card{align-items:center}
+.about-proprietor-photo{width:220px;min-height:260px;margin:0 auto 34px}.about-proprietor-photo img{min-height:260px}.about-proprietor-photo span{display:none}.proprietor-card{align-items:center}
 .proprietor-photo{background:#eef2f5}
 .proprietor-photo span{font-size:11px;color:#7a8793}
 .site-footer{box-shadow:0 -10px 35px rgba(12,32,51,.06)}
