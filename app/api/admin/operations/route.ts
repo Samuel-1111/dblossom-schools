@@ -4,6 +4,8 @@ import { requireAdmin } from "../../../../utils/supabase/admin-auth";
 
 export const dynamic = "force-dynamic";
 
+function clean(value: unknown) { return typeof value === "string" ? value.trim() : ""; }
+
 export async function POST(request: Request) {
   const auth = await requireAdmin();
   if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
