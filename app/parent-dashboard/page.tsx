@@ -13,7 +13,7 @@ export default async function ParentDashboardPage() {
   if (profile?.role !== "parent") redirect("/");
 
   const { data: parent } = await service.from("parent_profiles").select("id, full_name, email, phone").eq("profile_id", user.id).maybeSingle();
-  if (!parent) return <ParentDashboardClient fullName={profile.full_name ?? "Parent"} students={[]} announcements={[]} invoices={[]} payments={[]} notifications={[]} assignments={[]} calendar={[]} messages={[]} />;
+  if (!parent) return <ParentDashboardClient fullName={profile.full_name ?? "Parent"} students={[]} announcements={[]} invoices={[]} payments={[]} notifications={[]} assignments={[]} calendar={[]} messages={[]} results={[]} attendance={[]} />;
 
   const { data: links } = await service.from("parent_student_links")
     .select("student_id, relationship, students(id, full_name, admission_number, class_id, classes(name))")
