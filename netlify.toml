@@ -1,9 +1,88 @@
 [build]
-  command = "pnpm exec next build"
-  publish = ".next"
+  publish = "."
 
 [build.environment]
   NODE_VERSION = "20"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
+[functions]
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/student-portal"
+  to = "/pages/student-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/teacher-portal"
+  to = "/pages/teacher-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/parent-portal"
+  to = "/pages/parent-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin-login"
+  to = "/pages/admin-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/student-dashboard"
+  to = "/student-dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/teacher-dashboard"
+  to = "/teacher-dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/parent-dashboard"
+  to = "/parent-dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin-dashboard"
+  to = "/admin-dashboard.html"
+  status = 200
+
+[[redirects]]
+  from = "/admissions"
+  to = "/pages/admissions.html"
+  status = 200
+
+[[redirects]]
+  from = "/admission-status"
+  to = "/pages/admission-status.html"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/pages/about.html"
+  status = 200
+
+[[redirects]]
+  from = "/academics"
+  to = "/pages/academics.html"
+  status = 200
+
+[[redirects]]
+  from = "/gallery"
+  to = "/pages/gallery.html"
+  status = 200
+
+[[redirects]]
+  from = "/events"
+  to = "/pages/events.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/pages/contact.html"
+  status = 200
+
+[[redirects]]
+  from = "/manus-storage/*"
+  to = "/.netlify/functions/manus-storage/:splat"
+  status = 200
