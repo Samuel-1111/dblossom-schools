@@ -1,7 +1,6 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { isValidLocalAdminToken, LOCAL_ADMIN_COOKIE } from "../../../../utils/local-admin";
 import { createServiceClient } from "../../../../utils/supabase/service";
+import { requireAdmin } from "../../../../utils/supabase/admin-auth";
 import { storagePut } from "../../../../server/storage";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +8,8 @@ const MAX_BYTES = 5 * 1024 * 1024;
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 export async function POST(request: Request) {
-  const token = (await cookies()).get(LOCAL_ADMIN_COOKIE)?.value;
-  if (!isValidLocalAdminToken(token)) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const form = await request.formData();
   const table = form.get("table");
   const id = form.get("id");
