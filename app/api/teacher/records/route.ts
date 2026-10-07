@@ -49,7 +49,7 @@ function findClass(context: TeacherContext, classId: string) {
   return context.classes.find((row) => String(row.id) === classId) ?? null;
 }
 
-async function workspace(context: TeacherContext, classId: string) {
+async function workspace(context: TeacherContext, classId: string, requestedStudentId = "") {
   const selectedClass = findClass(context, classId) ?? context.classes[0] ?? null;
   if (!selectedClass) return { classes: context.classes, selectedClass: null, students: [], subjects: [], results: [] };
   const [{ data: students, error: studentError }, { data: subjects, error: subjectError }] = await Promise.all([
@@ -61,9 +61,13 @@ async function workspace(context: TeacherContext, classId: string) {
   const typedStudents = (students ?? []) as Row[];
   const typedSubjects = (subjects ?? []) as Row[];
   const studentIds = typedStudents.map((row: Row) => row.id);
-  const { data: resultRows } = studentIds.length
-    ? await context.supabase.from("results").select("id, student_id, term_id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, created_at").in("student_id", studentIds).order("created_at", { ascending: false }).limit(2000)
-    : { data: [] as Row[] };
+  const validRequestedStudent = requestedStudentId && studentIds.some((id: string) => String(id) === requestedStudentId) ? requestedStudentId : "";
+  const resultQuery = validRequestedStudent
+    ? context.supabase.from("results").select("id, student_id, subject_id, term_id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, created_at").eq("student_id", validRequestedStudent).order("created_at", { ascending: false }).limit(200)
+    : studentIds.length
+      ? context.supabase.from("results").select("id, student_id, subject_id, term_id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, created_at").in("student_id", studentIds).order("created_at", { ascending: false }).limit(20)
+      : null;
+  const { data: resultRows } = resultQuery ? await resultQuery : { data: [] as Row[] };
   const typedResultRows = (resultRows ?? []) as Row[];
   const termIds = Array.from(new Set(typedResultRows.map((row: Row) => row.term_id).filter(Boolean)));
   const { data: terms } = termIds.length ? await context.supabase.from("terms").select("id, name, session_id").in("id", termIds) : { data: [] as Row[] };
@@ -103,9 +107,11 @@ export async function GET(request: Request) {
   const resolved = await resolveTeacher();
   if ("response" in resolved) return resolved.response;
   const context = resolved.context;
-  const classId = new URL(request.url).searchParams.get("class_id") ?? String(context.classes[0]?.id ?? "");
+  const params = new URL(request.url).searchParams;
+  const classId = params.get("class_id") ?? String(context.classes[0]?.id ?? "");
+  const studentId = params.get("student_id") ?? "";
   try {
-    return NextResponse.json({ data: await workspace(context, classId) });
+    return NextResponse.json({ data: await workspace(context, classId, studentId) });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Unable to load the Teacher workspace" }, { status: 503 });
   }
