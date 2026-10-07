@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createClient } from "../../utils/supabase/client";
 import { toast } from "sonner";
 import { BookMarked, CalendarDays, CreditCard, Eye, FileText, GraduationCap, Image, Link2, MessageSquare, Settings as SettingsIcon, Trash2, Users, type LucideIcon } from "lucide-react";
-import { firstNameFromFullName, getSubjects, hasValidationErrors, resetSubjects, saveSubjects, validateStudentRegistration, validateTeacherRegistration } from "../../shared/school";
+import { getSubjects, hasValidationErrors, resetSubjects, saveSubjects, validateStudentRegistration, validateTeacherRegistration } from "../../shared/school";
 import { AdminLinking } from "./AdminLinking";
 import { AdminOperations } from "./AdminOperations";
 
