@@ -36,10 +36,15 @@ Deno.serve(async (request) => {
       Number(transaction.amount) === AMOUNT_KOBO && transaction.currency === "NGN";
 
     if (!success) {
-      await supabase.from("result_access_payments").update({
-        status: "failed", paystack_status: transaction?.status ?? "verification_failed"
-      }).eq("id", payment.id);
-      return json({ error: "Payment was not verified" }, 400);
+      const status = String(transaction?.status ?? "verification_failed");
+      if (["failed", "abandoned", "reversed"].includes(status)) {
+        await supabase.from("result_access_payments").update({
+          status: "failed", paystack_status: status
+        }).eq("id", payment.id);
+        return json({ error: "Payment was not successful." }, 400);
+      }
+      await supabase.from("result_access_payments").update({ paystack_status: status }).eq("id", payment.id);
+      return json({ data: { verified: false, pending: true } }, 202);
     }
 
     await supabase.from("result_access_payments").update({
