@@ -1,0 +1,1 @@
+const {handler}=require("../netlify/functions/config"); const wrap=require("./_adapter"); module.exports=wrap(handler);
