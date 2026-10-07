@@ -1,0 +1,1 @@
+const {handler}=require("../netlify/functions/teacher-records"); const wrap=require("./_adapter"); module.exports=wrap(handler);
