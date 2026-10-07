@@ -31,6 +31,42 @@ function cleanMediaPayload(table: AdminMediaTable, body: Record<string, unknown>
   };
 }
 
+
+async function provisionPortalUser(db: ReturnType<typeof createServiceClient>, role: "student" | "teacher", record: Record<string, any>, password: string) {
+  if (!password || password.length < 8) throw new Error("Portal password must be at least 8 characters.");
+  const identifier = role === "student" ? String(record.admission_number ?? record.id) : String(record.staff_id ?? record.id);
+  const safeIdentifier = identifier.toLowerCase().replace(/[^a-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || String(record.id);
+  const email = role === "teacher"
+    ? String(record.email ?? "").trim() || `teacher-${safeIdentifier}@auth.dblossom.school`
+    : `student-${safeIdentifier}@auth.dblossom.school`;
+
+  if (record.profile_id) {
+    const { error } = await db.auth.admin.updateUserById(record.profile_id, {
+      password,
+      user_metadata: { full_name: record.full_name, portal_identifier: identifier }
+    });
+    if (error) throw new Error("Portal account could not be updated.");
+    await db.from("profiles").upsert({ id: record.profile_id, full_name: record.full_name, role }, { onConflict: "id" });
+    return record.profile_id;
+  }
+
+  const created = await db.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: record.full_name, portal_identifier: identifier }
+  });
+  if (created.error || !created.data.user) throw new Error(created.error?.message ?? "Portal account could not be created.");
+
+  await db.from("profiles").upsert({ id: created.data.user.id, full_name: record.full_name, role }, { onConflict: "id" });
+  const { error: linkError } = await db.from(role === "student" ? "students" : "teachers").update({ profile_id: created.data.user.id }).eq("id", record.id);
+  if (linkError) {
+    await db.auth.admin.deleteUser(created.data.user.id, false);
+    throw new Error("Portal account could not be linked.");
+  }
+  return created.data.user.id;
+}
+
 function cleanAnnouncementPayload(body: Record<string, unknown>) {
   return {
     ...(typeof body.title === "string" ? { title: body.title.trim() } : {}),
@@ -59,7 +95,6 @@ function cleanPayload(table: AdminTable, body: Record<string, unknown>) {
       ...(typeof body.boarding_status === "string" ? { boarding_status: body.boarding_status.trim() } : {}),
       ...(typeof body.guardian_name === "string" || body.guardian_name === null ? { guardian_name: body.guardian_name } : {}),
       ...(typeof body.guardian_contact === "string" || body.guardian_contact === null ? { guardian_contact: body.guardian_contact } : {}),
-      ...(typeof body.password === "string" && body.password.length > 0 ? { password: body.password } : {}),
       ...(typeof body.status === "string" ? { status: body.status.toLowerCase() } : {}),
     };
   }
@@ -138,10 +173,19 @@ export async function POST(request: Request) {
   if (!table) return NextResponse.json({ error: "Unsupported Admin table" }, { status: 400 });
   if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects" && table !== "announcements") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
   const body = await request.json();
+  const db = createServiceClient();
   const payload = table === "events" || table === "gallery_images" ? cleanMediaPayload(table, body) : table === "subjects" ? cleanSubjectPayload(body) : table === "announcements" ? cleanAnnouncementPayload(body) : cleanPayload(table, body);
-  const { data, error } = await createServiceClient().from(table).insert(payload).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ data }, { status: 201 });
+  const password = typeof body.password === "string" ? body.password : "";
+  if ((table === "students" || table === "teachers") && password.length < 8) return NextResponse.json({ error: "Portal password must be at least 8 characters." }, { status: 400 });
+  const { data, error } = await db.from(table).insert(payload).select().single();
+  if (error) return NextResponse.json({ error: "Unable to save the record. Check required fields and duplicate identifiers." }, { status: 400 });
+  if (table === "students" || table === "teachers") {
+    try { await provisionPortalUser(db, table === "students" ? "student" : "teacher", data, password); }
+    catch (error) { await db.from(table).delete().eq("id", data.id); return NextResponse.json({ error: error instanceof Error ? error.message : "Portal account could not be created." }, { status: 400 }); }
+  }
+  const safeData = { ...data };
+  delete safeData.password;
+  return NextResponse.json({ data: safeData }, { status: 201 });
 }
 
 export async function PATCH(request: Request) {
@@ -160,10 +204,19 @@ export async function PATCH(request: Request) {
   }
   if (table !== "students" && table !== "teachers" && table !== "results" && table !== "events" && table !== "gallery_images") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
   const body = await request.json();
+  const db = createServiceClient();
   const payload = table === "events" || table === "gallery_images" ? cleanMediaPayload(table, body) : cleanPayload(table, body);
-  const { data, error } = await createServiceClient().from(table).update(payload).eq("id", id).select().single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ data });
+  const password = typeof body.password === "string" ? body.password : "";
+  const { data: existing } = await db.from(table).select("*").eq("id", id).maybeSingle();
+  if (!existing) return NextResponse.json({ error: "Record not found." }, { status: 404 });
+  const { data, error } = await db.from(table).update(payload).eq("id", id).select().single();
+  if (error) return NextResponse.json({ error: "Unable to update the record." }, { status: 400 });
+  if ((table === "students" || table === "teachers") && password) {
+    try { await provisionPortalUser(db, table === "students" ? "student" : "teacher", { ...existing, ...data }, password); }
+    catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Portal password could not be updated." }, { status: 400 }); }
+  }
+  const safeData = { ...data }; delete safeData.password;
+  return NextResponse.json({ data: safeData });
 }
 
 export async function DELETE(request: Request) {
