@@ -7,8 +7,5 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4"
-  },
-  "scripts": {
-    "build": "node -e \"console.log('D\\'Blossom Model Private Schools: static build complete')\""
   }
 }
