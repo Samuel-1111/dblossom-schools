@@ -54,7 +54,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors: { identifier?: string; password?: string } = {};
-    if (!identifier.trim()) nextErrors.identifier = role === "admin" ? "Username is required" : `${identifierLabel} is required`;
+    if (!identifier.trim()) nextErrors.identifier = role === "admin" ? "Admin email is required" : `${identifierLabel} is required`;
     if (!password) nextErrors.password = "Password is required";
     if (nextErrors.identifier || nextErrors.password) {
       setFieldErrors(nextErrors);
@@ -67,15 +67,21 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
 
     try {
       if (role === "admin") {
-        const response = await fetch("/api/admin-login", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ identifier: normalizedIdentifier, password }),
-        });
-        if (!response.ok) {
-          const error = normalizedIdentifier.toLowerCase() !== "divineblossom" ? errorCopy.admin.notFound : errorCopy.admin.wrongPassword;
-          setFieldErrors(normalizedIdentifier.toLowerCase() !== "divineblossom" ? { identifier: error } : { password: error });
-          toast.error(`${error}. Please try again.`);
+        const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedIdentifier, password });
+        if (error || !data.user) {
+          const message = error?.message?.toLowerCase().includes("invalid login credentials")
+            ? errorCopy.admin.wrongPassword
+            : "Unable to sign in right now. Please try again.";
+          setFieldErrors({ password: message });
+          toast.error(message);
+          return;
+        }
+        const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
+        if (!profile || !["admin", "super_admin"].includes(String(profile.role))) {
+          await supabase.auth.signOut();
+          const message = "This account is not authorised for the administrator portal.";
+          setFieldErrors({ identifier: message });
+          toast.error(message);
           return;
         }
         toast.success("Welcome, Admin!");
