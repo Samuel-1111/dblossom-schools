@@ -1,18 +1,12 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { isValidLocalAdminToken, LOCAL_ADMIN_COOKIE } from "../../../../utils/local-admin";
 import { createServiceClient } from "../../../../utils/supabase/service";
+import { requireAdmin } from "../../../../utils/supabase/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 type AdminTable = "students" | "teachers" | "results";
 type AdminMediaTable = "events" | "gallery_images";
 type AdminReadTable = AdminTable | "classes" | AdminMediaTable | "payments" | "complaints" | "subjects" | "announcements";
-
-async function authorize() {
-  const token = (await cookies()).get(LOCAL_ADMIN_COOKIE)?.value;
-  return isValidLocalAdminToken(token);
-}
 
 function requestedTable(request: Request): AdminReadTable | null {
   const table = new URL(request.url).searchParams.get("table") ?? "";
@@ -93,7 +87,8 @@ function cleanPayload(table: AdminTable, body: Record<string, unknown>) {
 }
 
 export async function GET(request: Request) {
-  if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const table = requestedTable(request);
   if (!table) return NextResponse.json({ error: "Unsupported Admin table" }, { status: 400 });
   if (table === "results") {
@@ -124,7 +119,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const table = requestedTable(request);
   if (!table) return NextResponse.json({ error: "Unsupported Admin table" }, { status: 400 });
   if (table !== "students" && table !== "teachers" && table !== "events" && table !== "gallery_images" && table !== "subjects" && table !== "announcements") return NextResponse.json({ error: "This Admin table is read-only here" }, { status: 400 });
@@ -136,7 +132,8 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const table = requestedTable(request);
   const id = new URL(request.url).searchParams.get("id");
   if (!table || !id) return NextResponse.json({ error: "Table and record id are required" }, { status: 400 });
@@ -157,7 +154,8 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const table = requestedTable(request);
   const id = new URL(request.url).searchParams.get("id");
   if (!table || !id) return NextResponse.json({ error: "Table and record id are required" }, { status: 400 });
