@@ -11,7 +11,7 @@ Deno.serve(async (request) => {
     const reference = new URL(request.url).searchParams.get("reference")?.trim();
     if (!token || !reference) return json({ error: "Student session and payment reference are required" }, 400);
 
-    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SECRET_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const { data: authData, error: authError } = await supabase.auth.getUser(token);
     if (authError || !authData.user) return json({ error: "Invalid student session" }, 401);
     const { data: profile } = await supabase.from("profiles").select("id, role").eq("id", authData.user.id).maybeSingle();
