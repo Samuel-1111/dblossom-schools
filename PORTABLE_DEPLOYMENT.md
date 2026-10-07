@@ -31,3 +31,17 @@ The public pages and portal entry routes have been checked at phone, tablet, lap
 ## What works after download
 
 With the dependencies installed and the required Supabase and storage settings supplied, the downloaded project can run outside Manus using the normal Next.js production command. Manus-only preview helpers, checkpoint metadata, and Forge storage are not required when `STORAGE_PROVIDER=supabase` is configured. Existing data remains in Supabase; downloading the source does not download or duplicate the database contents.
+
+## Parent/Teacher Linking and Result Access Payments
+
+Apply `supabase/migrations/0011_parent_links_payments.sql` (or the appended section in `supabase/SETUP_ALL.sql`) in the same Supabase project used by the deployment. It is idempotent and does not drop, truncate, or delete existing school data. It also adds the missing `students.profile_id` compatibility column required by the Teacher Portal selector.
+
+Deploy the Paystack Edge Functions from the Supabase project:
+
+```bash
+supabase functions deploy paystack-result-access
+supabase functions deploy paystack-result-verify
+supabase secrets set PAYSTACK_SECRET_KEY=your_paystack_secret PUBLIC_SITE_URL=https://your-school-domain.example
+```
+
+The Paystack secret is stored only in Supabase Edge Function Secrets. The application verifies `success`, `100000` kobo, and `NGN` before creating a result-access grant. The Admin Portal's **Linking** module searches students by name or admission number and links a parent or teacher without requiring the administrator to scroll through all students.

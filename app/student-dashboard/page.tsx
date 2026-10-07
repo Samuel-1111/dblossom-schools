@@ -21,12 +21,13 @@ export default async function StudentDashboardPage() {
   const directStudent = identifier ? await dataClient.from("students").select("id, admission_number, guardian_name, classes(name)").ilike("admission_number", identifier).maybeSingle() : { data: null };
   const student = directStudent.data ?? profileStudent.data;
   const displayName = localSession?.fullName ?? profile?.full_name ?? user?.user_metadata?.full_name ?? user?.email ?? "Student";
-  if (!student) return <StudentDashboardClient fullName={displayName} studentNumber={identifier || "Not assigned yet"} className="Class not assigned" guardianName={null} grades={[]} attendance={[]} announcements={[]} />;
+  if (!student) return <StudentDashboardClient fullName={displayName} studentNumber={identifier || "Not assigned yet"} className="Class not assigned" guardianName={null} grades={[]} attendance={[]} announcements={[]} hasResultAccess={false} />;
 
-  const [{ data: resultRows }, { data: attendance }, { data: announcements }] = await Promise.all([
+  const [{ data: resultRows }, { data: attendance }, { data: announcements }, { data: accessGrant }] = await Promise.all([
     dataClient.from("results").select("id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, subjects(name), terms(name, session_id, academic_sessions(name))").eq("student_id", student.id).order("created_at", { ascending: false }),
     dataClient.from("attendance").select("id, date, status").eq("student_id", student.id).order("date", { ascending: false }).limit(20),
     dataClient.from("announcements").select("id, title, body, created_at").order("created_at", { ascending: false }).limit(10),
+    dataClient.from("result_access_grants").select("id, expires_at").eq("student_id", student.id).or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`).order("granted_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
 
   const normalizedGrades = (resultRows ?? []).map((item: any) => ({
@@ -43,5 +44,5 @@ export default async function StudentDashboardPage() {
     principal_comment: item.principal_comment,
   }));
   const className = Array.isArray((student as any).classes) ? (student as any).classes[0]?.name : (student as any).classes?.name;
-  return <StudentDashboardClient fullName={displayName} studentNumber={student.admission_number} className={className ?? "Class not assigned"} guardianName={student.guardian_name} grades={normalizedGrades} attendance={attendance ?? []} announcements={announcements ?? []} />;
+  return <StudentDashboardClient fullName={displayName} studentNumber={student.admission_number} className={className ?? "Class not assigned"} guardianName={student.guardian_name} grades={normalizedGrades} attendance={attendance ?? []} announcements={announcements ?? []} hasResultAccess={Boolean(accessGrant)} />;
 }
