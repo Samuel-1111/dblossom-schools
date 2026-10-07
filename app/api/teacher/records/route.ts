@@ -29,25 +29,27 @@ async function resolveTeacher(): Promise<{ context: TeacherContext } | { respons
 
   const supabase = createServiceClient();
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle();
-  const role = profile?.role ?? user.user_metadata?.role;
-  if (role !== "teacher") return { response: NextResponse.json({ error: "Teacher access required" }, { status: 403 }) };
+  if (!profile || profile.role !== "teacher") return { response: NextResponse.json({ error: "Teacher access required" }, { status: 403 }) };
 
-  const { data: teacherRows } = await supabase.from("teachers").select("*");
-  const typedTeacherRows = (teacherRows ?? []) as Row[];
-  const identifier = String(user.user_metadata?.portal_identifier ?? "").trim().toLowerCase();
-  const teacher = typedTeacherRows.find((row: Row) => String(row.profile_id ?? "") === user.id)
-    ?? (identifier ? typedTeacherRows.find((row: Row) => String(row.staff_id ?? "").trim().toLowerCase() === identifier) : undefined)
-    ?? (user.email ? typedTeacherRows.find((row: Row) => String(row.email ?? "").trim().toLowerCase() === user.email!.toLowerCase()) : undefined)
-    ?? null;
+  const { data: teacher, error: teacherError } = await supabase
+    .from("teachers")
+    .select("id, full_name, role, assigned_class, profile_id")
+    .eq("profile_id", user.id)
+    .maybeSingle();
+  if (teacherError) return { response: NextResponse.json({ error: "Teacher account could not be loaded." }, { status: 503 }) };
+  if (!teacher) return { response: NextResponse.json({ error: "Teacher record is not linked to this account." }, { status: 403 }) };
 
-  const { data: classRows, error: classError } = await supabase.from("classes").select("*").order("name");
-  if (classError) return { response: NextResponse.json({ error: classError.message }, { status: 503 }) };
-  const configured = configuredClassNames(teacher?.assigned_class ?? user.user_metadata?.assigned_class);
-  const typedClassRows = (classRows ?? []) as Row[];
-  const linked = typedClassRows.filter((row: Row) => String(row.teacher_id ?? "") === user.id);
-  const matched = typedClassRows.filter((row: Row) => configured.includes(normalizeClassName(row.name)));
-  const classes = Array.from(new Map([...linked, ...matched].map((row: Row) => [String(row.id), row])).values()).sort((a: Row, b: Row) => String(a.name ?? "").localeCompare(String(b.name ?? "")));
-  if (!teacher && !classes.length) return { response: NextResponse.json({ error: "Teacher record or assigned class is not configured" }, { status: 403 }) };
+  const { data: assignmentRows, error: assignmentError } = await supabase
+    .from("teacher_assignments")
+    .select("class_id, classes(id, name, grade_level, academic_year)")
+    .eq("teacher_id", teacher.id);
+  if (assignmentError) return { response: NextResponse.json({ error: "Teacher assignments could not be loaded." }, { status: 503 }) };
+
+  const classes = Array.from(new Map((assignmentRows ?? []).map((row: any) => {
+    const cls = Array.isArray(row.classes) ? row.classes[0] : row.classes;
+    return [String(cls?.id ?? row.class_id), cls];
+  }).filter((entry: any) => entry[1]?.id)).values()).sort((a: any, b: any) => String(a.name ?? "").localeCompare(String(b.name ?? "")));
+
   return { context: { user, teacher, classes, supabase } };
 }
 
