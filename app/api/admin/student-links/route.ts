@@ -28,15 +28,15 @@ export async function POST(request: Request) {
   if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const body = await request.json().catch(() => ({}));
   const type = body.type === "teacher" ? "teacher" : body.type === "parent" ? "parent" : "";
-  const studentId = Number(body.student_id);
-  if (!type || !Number.isInteger(studentId)) return NextResponse.json({ error: "Choose a link type and student." }, { status: 400 });
+  const studentId = String(body.student_id ?? "").trim();
+  if (!type || !studentId) return NextResponse.json({ error: "Choose a link type and student." }, { status: 400 });
   const service = createServiceClient();
   const { data: student } = await service.from("students").select("id").eq("id", studentId).maybeSingle();
   if (!student) return NextResponse.json({ error: "Student was not found." }, { status: 404 });
 
   if (type === "teacher") {
-    const teacherId = Number(body.teacher_id);
-    if (!Number.isInteger(teacherId)) return NextResponse.json({ error: "Choose a teacher." }, { status: 400 });
+    const teacherId = String(body.teacher_id ?? "").trim();
+    if (!teacherId) return NextResponse.json({ error: "Choose a teacher." }, { status: 400 });
     const { error } = await service.from("teacher_student_links").upsert({ teacher_id: teacherId, student_id: studentId, relationship: "Teacher" }, { onConflict: "teacher_id,student_id" });
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ data: { message: "Teacher linked to student." } });
