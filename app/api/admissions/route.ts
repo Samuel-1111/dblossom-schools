@@ -29,3 +29,13 @@ export async function POST(request: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ data }, { status: 201 });
 }
+
+export async function GET(request: Request) {
+  const number = new URL(request.url).searchParams.get("application")?.trim();
+  if (!number) return NextResponse.json({ error: "Application number is required." }, { status: 400 });
+  const db = createServiceClient();
+  const { data, error } = await db.from("admission_applications").select("application_number, applicant_name, class_applied, status, interview_date, created_at").eq("application_number", number).maybeSingle();
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (!data) return NextResponse.json({ error: "Application not found." }, { status: 404 });
+  return NextResponse.json({ data });
+}
