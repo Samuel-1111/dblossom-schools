@@ -108,9 +108,35 @@ export async function PATCH(request: Request) {
   if (type === "admission") {
     const allowed = ["Pending","Under Review","Interview","Approved","Rejected","Converted"];
     if (!allowed.includes(clean(body.status))) return NextResponse.json({ error: "Invalid admission status." }, { status: 400 });
-    const { data, error } = await db.from("admission_applications").update({ status: clean(body.status), notes: clean(body.notes) || null, interview_date: body.interview_date || null, interview_notes: clean(body.interview_notes) || null, updated_at: new Date().toISOString() }).eq("id", id).select().single();
+    const { data: application } = await db.from("admission_applications").select("*").eq("id", id).maybeSingle();
+    if (!application) return NextResponse.json({ error: "Admission application not found." }, { status: 404 });
+
+    let studentId = application.student_id;
+    if (clean(body.status) === "Converted" && !studentId) {
+      const { data: classRow } = application.class_applied
+        ? await db.from("classes").select("id").ilike("name", application.class_applied).limit(1).maybeSingle()
+        : { data: null };
+      const admissionNumber = "DBMS-" + new Date().getFullYear() + "-" + Math.floor(100000 + Math.random() * 900000);
+      const { data: student, error: studentError } = await db.from("students").insert({
+        admission_number: admissionNumber,
+        full_name: application.applicant_name,
+        class_id: classRow?.id ?? null,
+        date_of_birth: application.date_of_birth ?? null,
+        gender: application.gender ?? null,
+        guardian_name: application.parent_name ?? null,
+        guardian_contact: application.parent_phone ?? null,
+        status: "active"
+      }).select("id, admission_number").single();
+      if (studentError) return NextResponse.json({ error: studentError.message }, { status: 400 });
+      studentId = student.id;
+    }
+
+    const { data, error } = await db.from("admission_applications").update({
+      status: clean(body.status), notes: clean(body.notes) || null, interview_date: body.interview_date || null,
+      interview_notes: clean(body.interview_notes) || null, student_id: studentId, updated_at: new Date().toISOString()
+    }).eq("id", id).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    return NextResponse.json({ data });
+    return NextResponse.json({ data, student_id: studentId });
   }
   if (type === "announcement") {
     const { data, error } = await db.from("announcements").update({ pinned: Boolean(body.pinned), status: clean(body.status) || "Published" }).eq("id", id).select().single();
