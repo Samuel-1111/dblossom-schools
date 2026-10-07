@@ -14,14 +14,6 @@ type TeacherContext = {
   supabase: ReturnType<typeof createServiceClient>;
 };
 
-function normalizeClassName(value: unknown) {
-  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
-function configuredClassNames(value: unknown) {
-  return String(value ?? "").split(/[,;|]/).map(normalizeClassName).filter(Boolean);
-}
-
 async function resolveTeacher(): Promise<{ context: TeacherContext } | { response: NextResponse }> {
   const authClient = await createClient();
   const { data: { user }, error: authError } = await authClient.auth.getUser();
