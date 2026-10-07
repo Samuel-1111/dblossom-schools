@@ -100,6 +100,8 @@ async function resultContext(context: TeacherContext, body: Row) {
   if (sessionError || !session) return { error: sessionError?.message ?? "Choose an academic session that exists in the school records." };
   const { data: term, error: termError } = await context.supabase.from("terms").select("id, name").eq("name", termName).eq("session_id", session.id).maybeSingle();
   if (termError || !term) return { error: termError?.message ?? "Choose a term that exists for the selected session." };
+  const { data: lock } = await context.supabase.from("result_locks").select("locked").eq("class_id", selectedClass.id).eq("term_id", term.id).maybeSingle();
+  if (lock?.locked) return { error: "Results for this class and term are locked by the school administrator." };
   return { selectedClass, student, session, term };
 }
 
