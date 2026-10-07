@@ -14,6 +14,12 @@
   force = true
 
 [[redirects]]
+  from = "/parent-portal"
+  to = "/pages/parent-login.html"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/teacher-portal"
   to = "/pages/teacher-login.html"
   status = 200
