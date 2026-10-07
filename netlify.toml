@@ -30,3 +30,9 @@
   to = "/pages/admissions.html"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/admission-status"
+  to = "/pages/admission-status.html"
+  status = 200
+  force = true
