@@ -23,11 +23,13 @@ export default async function StudentDashboardPage() {
   const displayName = localSession?.fullName ?? profile?.full_name ?? user?.user_metadata?.full_name ?? user?.email ?? "Student";
   if (!student) return <StudentDashboardClient fullName={displayName} studentNumber={identifier || "Not assigned yet"} className="Class not assigned" guardianName={null} grades={[]} attendance={[]} announcements={[]} hasResultAccess={false} />;
 
-  const [{ data: resultRows }, { data: attendance }, { data: announcements }, { data: accessGrant }] = await Promise.all([
-    dataClient.from("results").select("id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, subjects(name), terms(name, session_id, academic_sessions(name))").eq("student_id", student.id).order("created_at", { ascending: false }),
+  const { data: accessGrant } = await dataClient.from("result_access_grants").select("id, expires_at").eq("student_id", student.id).or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`).order("granted_at", { ascending: false }).limit(1).maybeSingle();
+  const [{ data: resultRows }, { data: attendance }, { data: announcements }] = await Promise.all([
+    accessGrant
+      ? dataClient.from("results").select("id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, subjects(name), terms(name, session_id, academic_sessions(name))").eq("student_id", student.id).order("created_at", { ascending: false })
+      : Promise.resolve({ data: [] as any[] }),
     dataClient.from("attendance").select("id, date, status").eq("student_id", student.id).order("date", { ascending: false }).limit(20),
     dataClient.from("announcements").select("id, title, body, created_at").order("created_at", { ascending: false }).limit(10),
-    dataClient.from("result_access_grants").select("id, expires_at").eq("student_id", student.id).or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`).order("granted_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
 
   const normalizedGrades = (resultRows ?? []).map((item: any) => ({
