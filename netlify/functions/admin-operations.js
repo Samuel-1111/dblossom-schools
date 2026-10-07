@@ -66,6 +66,12 @@ exports.handler = async event => {
           const {data:classes}=ids.length?await db.from("classes").select("id,name").in("id",ids):{data:[]};
           const cm=new Map((classes||[]).map(x=>[x.id,x.name])); result.data=result.data.map(x=>({...x,class_name:cm.get(x.class_id)||"—"}));
         }
+        if(table==="teachers"){
+          const ids=result.data.map(x=>x.id).filter(Boolean);
+          const {data:assignments}=ids.length?await db.from("teacher_assignments").select("teacher_id,class_id,subject_id,classes(id,name),subjects(id,name)").in("teacher_id",ids):{data:[]};
+          const am=new Map((assignments||[]).map(x=>[x.teacher_id,x]));
+          result.data=result.data.map(x=>{const a=am.get(x.id);return {...x,class_id:a?.class_id||null,class_name:a?.classes?.name||x.assigned_class||"—",subject_id:a?.subject_id||null,subject_name:a?.subjects?.name||x.subject||"—"}});
+        }
         return json(200,result);
       }
       if(table==="parent_messages"){const {data,error,count}=await db.from("parent_messages").select("id,parent_id,sender_profile_id,recipient_profile_id,student_id,subject,body,read_at,created_at,parent_profiles(full_name,email,phone),students(full_name,admission_number)",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);if(error)throw error;return json(200,{data:data||[],count:count||0,page:p,pageSize:size});}
