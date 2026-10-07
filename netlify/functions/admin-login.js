@@ -1,7 +1,7 @@
 const{admin}=require("./_supabase");
 const USERNAME=process.env.ADMIN_USERNAME||"DivineBlossom";
 const BOOTSTRAP_PASSWORD=process.env.ADMIN_PASSWORD;
-const EMAIL=process.env.ADMIN_AUTH_EMAIL||"admin.divineblossom@accounts.dblossom.local";
+const EMAIL="divineblossom@dblossom.local";
 const json=(statusCode,body)=>({statusCode,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify(body)});
 exports.handler=async event=>{
  if(event.httpMethod!=="POST")return json(405,{error:"Method Not Allowed"});
