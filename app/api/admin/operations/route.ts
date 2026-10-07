@@ -57,9 +57,8 @@ export async function POST(request: Request) {
   if (type === "announcement") {
     const title = clean(body.title), announcementBody = clean(body.body);
     if (!title || !announcementBody) return NextResponse.json({ error: "Announcement title and body are required." }, { status: 400 });
-    const { data: admin } = await db.from("profiles").select("id").eq("role", "admin").limit(1).maybeSingle();
     const { data, error } = await db.from("announcements").insert({
-      title, body: announcementBody, posted_by: admin?.id ?? null,
+      title, body: announcementBody, posted_by: auth.user?.id ?? null,
       audience: clean(body.audience) || "all", target_class_id: clean(body.target_class_id) || null,
       target_student_id: clean(body.target_student_id) || null,
       pinned: Boolean(body.pinned), status: "Published", publish_at: body.publish_at || null
@@ -74,8 +73,7 @@ export async function POST(request: Request) {
     if (!parentId || !bodyText) return NextResponse.json({ error: "Parent and message are required." }, { status: 400 });
     const { data: parent } = await db.from("parent_profiles").select("id,profile_id").eq("id", parentId).maybeSingle();
     if (!parent) return NextResponse.json({ error: "Parent not found." }, { status: 404 });
-    const { data: admin } = await db.from("profiles").select("id").eq("role", "admin").limit(1).maybeSingle();
-    const { data, error } = await db.from("parent_messages").insert({ parent_id: parent.id, sender_profile_id: admin?.id ?? null, recipient_profile_id: parent.profile_id, subject: clean(body.subject) || "School message", body: bodyText }).select().single();
+    const { data, error } = await db.from("parent_messages").insert({ parent_id: parent.id, sender_profile_id: auth.user?.id ?? null, recipient_profile_id: parent.profile_id, subject: clean(body.subject) || "School message", body: bodyText }).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ data }, { status: 201 });
   }
