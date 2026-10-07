@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "node scripts/start-dev.mjs",
-    "build": "NODE_ENV=production next build && node scripts/ensure-dist-public.mjs",
-    "start": "NODE_ENV=production node dist/index.js",
+    "build": "next build",
+    "start": "next start",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
