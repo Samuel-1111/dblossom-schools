@@ -20,11 +20,11 @@ const csvDownload=(name,rows)=>{const text=rows.map(r=>r.map(v=>'"'+String(v??""
 async function login(){
  if(!loginForm)return;loginForm.addEventListener("submit",async e=>{e.preventDefault();loginForm.querySelectorAll("[data-error]").forEach(x=>x.textContent="");notice.textContent="";
   const identifier=val(loginForm,"identifier"),password=val(loginForm,"password");let ok=true;
-  if(!identifier){loginForm.querySelector("[data-error=identifier]").textContent=role==="student"?"Admission number is required":role==="teacher"?"Staff ID is required":"Administrator email is required";ok=false}
+  if(!identifier){loginForm.querySelector("[data-error=identifier]").textContent=role==="student"?"Admission number is required":role==="teacher"?"Staff ID is required":"Username is required";ok=false}
   if(!password){loginForm.querySelector("[data-error=password]").textContent="Password is required";ok=false}if(!ok)return;
   const b=loginForm.querySelector("button");setBusy(b,true,"Logging in…");
   try{const sb=await getSupabase();
-   if(role==="admin"){const{error}=await sb.auth.signInWithPassword({email:identifier,password});if(error)throw Error("Incorrect administrator email or password.");const{data:u}=await sb.auth.getUser();const{data:p}=await sb.from("profiles").select("role").eq("id",u.user.id).maybeSingle();if(!p||!["admin","super_admin"].includes(p.role)){await sb.auth.signOut();throw Error("This account is not authorised for the administrator portal.")}}
+   if(role==="admin"){const r=await fetch("/.netlify/functions/admin-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username:identifier,password})}),d=await r.json().catch(()=>({}));if(!r.ok||!d.access_token||!d.refresh_token)throw Error(d.error||"Incorrect username or password.");const{error}=await sb.auth.setSession({access_token:d.access_token,refresh_token:d.refresh_token});if(error)throw error}
    else{const r=await fetch("/.netlify/functions/portal-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({role,identifier})}),d=await r.json().catch(()=>({}));if(!r.ok||!d.login_email)throw Error(d.error||"Account not found.");const{error}=await sb.auth.signInWithPassword({email:d.login_email,password});if(error)throw Error("Incorrect password. Please try again.")}
    toast("Welcome!","success");await render();
   }catch(e){notice.className="notice danger";notice.textContent=e.message;toast(e.message,"error")}finally{setBusy(b,false,"")}
