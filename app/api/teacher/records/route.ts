@@ -37,10 +37,15 @@ async function resolveTeacher(): Promise<{ context: TeacherContext } | { respons
     .eq("teacher_id", teacher.id);
   if (assignmentError) return { response: NextResponse.json({ error: "Teacher assignments could not be loaded." }, { status: 503 }) };
 
-  const classes = Array.from(new Map((assignmentRows ?? []).map((row: any) => {
+  const classMap = new Map<string, Row>();
+  for (const row of (assignmentRows ?? []) as Row[]) {
     const cls = Array.isArray(row.classes) ? row.classes[0] : row.classes;
-    return [String(cls?.id ?? row.class_id), cls];
-  }).filter((entry: any) => entry[1]?.id)).values()).sort((a: any, b: any) => String(a.name ?? "").localeCompare(String(b.name ?? "")));
+    if (cls?.id) classMap.set(String(cls.id), cls);
+    else if (row.class_id && cls) classMap.set(String(row.class_id), cls);
+  }
+  const classes = Array.from(classMap.values()).sort((a: Row, b: Row) =>
+    String(a.name ?? "").localeCompare(String(b.name ?? ""))
+  );
 
   return { context: { user, teacher, classes, supabase } };
 }
