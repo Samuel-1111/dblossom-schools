@@ -151,3 +151,5 @@ body{background:#fbfcfd;color:var(--ink);line-height:1.6}
 .admin-top{background:linear-gradient(135deg,#0b1f33,#173a58)}
 @media(max-width:900px){.aside{position:static}.page-hero{padding-block:68px 60px}}
 @media(max-width:600px){.brand{gap:9px}.brand img{width:36px;height:36px}.brand-name{font-size:13px}.menu-button{min-width:86px}.hero{min-height:auto}.hero-grid{min-height:calc(100vh - 80px);padding-block:76px}.section{padding-block:68px}.section h2{font-size:30px}.contact-panel,.contact-form-card{padding:24px}.page-body{padding-block:36px 68px}.exam-strip{padding:22px 18px}}
+
+.floating-whatsapp{position:fixed;right:20px;bottom:20px;z-index:70;display:inline-flex;align-items:center;gap:8px;padding:12px 16px;border-radius:999px;background:#1f7a50;color:#fff;font-size:13px;font-weight:800;letter-spacing:.01em;box-shadow:0 12px 30px rgba(15,35,30,.2);transition:transform .2s ease,box-shadow .2s ease}.floating-whatsapp:hover{color:#fff;transform:translateY(-2px);box-shadow:0 16px 34px rgba(15,35,30,.25)}.floating-whatsapp span{font-size:15px}@media(max-width:600px){.floating-whatsapp{right:14px;bottom:14px;padding:11px 14px}}
