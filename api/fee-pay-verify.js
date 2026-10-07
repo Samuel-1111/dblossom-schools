@@ -1,0 +1,1 @@
+const {handler}=require("../netlify/functions/fee-pay-verify"); const wrap=require("./_adapter"); module.exports=wrap(handler);
