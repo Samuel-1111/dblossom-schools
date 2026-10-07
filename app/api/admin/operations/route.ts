@@ -28,9 +28,9 @@ export async function POST(request: Request) {
   const db = createServiceClient();
 
   if (type === "invoice") {
-    const studentId = Number(body.student_id);
+    const studentId = clean(body.student_id);
     const items = Array.isArray(body.items) ? body.items : [];
-    if (!Number.isInteger(studentId) || !items.length) return NextResponse.json({ error: "Student and at least one fee item are required." }, { status: 400 });
+    if (!studentId || !items.length) return NextResponse.json({ error: "Student and at least one fee item are required." }, { status: 400 });
     const total = items.reduce((sum: number, item: any) => sum + Math.max(0, Number(item.amount || 0)), 0);
     const invoiceNumber = clean(body.invoice_number) || `INV-${new Date().getFullYear()}-${Date.now()}`;
     const { data: invoice, error } = await db.from("fee_invoices").insert({
@@ -69,8 +69,8 @@ export async function POST(request: Request) {
     const { data: admin } = await db.from("profiles").select("id").eq("role", "admin").limit(1).maybeSingle();
     const { data, error } = await db.from("announcements").insert({
       title, body: announcementBody, posted_by: admin?.id ?? null,
-      audience: clean(body.audience) || "all", target_class_id: body.target_class_id ? Number(body.target_class_id) : null,
-      target_student_id: body.target_student_id ? Number(body.target_student_id) : null,
+      audience: clean(body.audience) || "all", target_class_id: clean(body.target_class_id) || null,
+      target_student_id: clean(body.target_student_id) || null,
       pinned: Boolean(body.pinned), status: "Published", publish_at: body.publish_at || null
     }).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
   if (type === "calendar") {
     const title = clean(body.title);
     if (!title || !body.event_date) return NextResponse.json({ error: "Calendar title and date are required." }, { status: 400 });
-    const { data, error } = await db.from("parent_calendar_events").insert({ title, description: clean(body.description) || null, event_date: body.event_date, start_time: body.start_time || null, end_time: body.end_time || null, audience: clean(body.audience) || "all", class_id: body.class_id ? Number(body.class_id) : null }).select().single();
+    const { data, error } = await db.from("parent_calendar_events").insert({ title, description: clean(body.description) || null, event_date: body.event_date, start_time: body.start_time || null, end_time: body.end_time || null, audience: clean(body.audience) || "all", class_id: clean(body.class_id) || null }).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     return NextResponse.json({ data }, { status: 201 });
   }
