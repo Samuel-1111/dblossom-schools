@@ -94,6 +94,8 @@ exports.handler = async event => {
 
     if(type==="student") {
       if(!clean(b.full_name)||!clean(b.admission_number)||!clean(b.class_id)||(!id&&!clean(b.password))) return json(400,{error:"Full name, admission number, assigned class and password are required for a new student."});
+      if(!id&&clean(b.password).length<6)return json(400,{error:"Student portal password must be at least 6 characters."});
+      if(id&&clean(b.password)&&clean(b.password).length<6)return json(400,{error:"Student portal password must be at least 6 characters."});
       
       const surname=(clean(b.full_name).split(/\s+/).filter(Boolean).pop()||"Student");const password=clean(b.password);
       let profileId=clean(b.profile_id)||null;
@@ -115,6 +117,7 @@ exports.handler = async event => {
     if(type==="teacher") {
       if(!clean(b.full_name)||!clean(b.staff_id)) return json(400,{error:"Full name and Staff ID are required."});
       if(!id&&!clean(b.password)) return json(400,{error:"Password is required for a new teacher."});
+      if(clean(b.password)&&clean(b.password).length<6)return json(400,{error:"Teacher portal password must be at least 6 characters."});
       if(!id) {
         const auth=await createOrUpdateAuth(db,{profileId:null,role:"teacher",password:clean(b.password),identifier:b.staff_id,email:clean(b.email)||null});
         await upsertProfile(db,auth.profileId,clean(b.full_name),"teacher");
