@@ -95,7 +95,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ role, identifier: normalizedIdentifier, password }),
       });
-      const resolved = await response.json().catch(() => ({})) as { login_email?: string; login_password?: string; local_session?: boolean; error?: string };
+      const resolved = await response.json().catch(() => ({})) as { login_email?: string; local_session?: boolean; error?: string };
       const loginEmail = response.ok ? resolved.login_email : null;
       if (!loginEmail) {
         const missingIdentifier = response.status === 404;
@@ -112,7 +112,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
         return;
       }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email: loginEmail, password: resolved.login_password ?? password });
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
       if (signInError) {
         setFieldErrors({ password: errorCopy[role].wrongPassword });
         toast.error(`${errorCopy[role].wrongPassword}. Please try again.`);
