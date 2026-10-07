@@ -5,9 +5,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "node scripts/start-dev.mjs",
-    "build": "next build",
-    "start": "next start",
-    "check": "tsc --noEmit",
+    "build": "node scripts/vanilla-build-check.mjs",
+    "start": "node scripts/vanilla-build-check.mjs",
+    "check": "node scripts/vanilla-build-check.mjs",
     "format": "prettier --write .",
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate"
