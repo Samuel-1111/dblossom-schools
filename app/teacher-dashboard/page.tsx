@@ -3,10 +3,6 @@ import { createClient } from "../../utils/supabase/server";
 import { createServiceClient } from "../../utils/supabase/service";
 import { TeacherDashboardClient } from "./TeacherDashboardClient";
 
-function normalizeClassName(value: unknown) {
-  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
 export default async function TeacherDashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -14,17 +10,22 @@ export default async function TeacherDashboardPage() {
 
   const dataClient = createServiceClient();
   const { data: profile } = await dataClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle();
-  const role = profile?.role ?? user.user_metadata?.role;
-  if (role !== "teacher") redirect("/");
+  if (!profile || profile.role !== "teacher") redirect("/");
 
-  const identifier = String(user.user_metadata?.portal_identifier ?? "");
-  const { data: teacher } = await dataClient.from("teachers").select("assigned_class").eq("staff_id", identifier).maybeSingle();
-  const configuredClassName = String(teacher?.assigned_class ?? user.user_metadata?.assigned_class ?? "");
-  const configuredNames = configuredClassName.split(/[,;|]/).map(normalizeClassName).filter(Boolean);
-  const { data: classRows } = await dataClient.from("classes").select("id, name, grade_level, academic_year").order("name");
-  const assignedClasses = (classRows ?? []).filter((item) => configuredNames.includes(normalizeClassName(item.name)));
-  const assignedClassName = assignedClasses[0]?.name ?? configuredClassName ?? "No class assigned";
-  const portalRole = String(user.user_metadata?.portal_role ?? "Teaching Staff");
-  const canUpload = /class teacher/i.test(portalRole) && assignedClassName !== "No class assigned";
-  return <TeacherDashboardClient fullName={profile?.full_name ?? user.user_metadata?.full_name ?? user.email ?? "Teacher"} role={portalRole} assignedClass={assignedClassName} classes={assignedClasses} canUpload={canUpload} />;
+  const { data: teacher } = await dataClient.from("teachers").select("id, role, assigned_class").eq("profile_id", user.id).maybeSingle();
+  if (!teacher) return <TeacherDashboardClient fullName={profile.full_name ?? user.email ?? "Teacher"} role="Teaching Staff" assignedClass="No class assigned" classes={[]} canUpload={false} />;
+
+  const { data: assignedRows } = await dataClient.from("teacher_assignments").select("class_id, classes(id, name, grade_level, academic_year)").eq("teacher_id", teacher.id);
+  const classMap = new Map<string, any>();
+  for (const row of assignedRows ?? []) {
+    const cls = Array.isArray((row as any).classes) ? (row as any).classes[0] : (row as any).classes;
+    if (cls?.id) classMap.set(String(cls.id), cls);
+  }
+
+  const assignedClasses = [...classMap.values()];
+  const assignedClassName = assignedClasses[0]?.name ?? teacher.assigned_class ?? "No class assigned";
+  const portalRole = String(teacher.role ?? "Teaching Staff");
+  const canUpload = /class teacher/i.test(portalRole) && assignedClasses.length > 0;
+
+  return <TeacherDashboardClient fullName={profile.full_name ?? user.email ?? "Teacher"} role={portalRole} assignedClass={assignedClassName} classes={assignedClasses} canUpload={canUpload} />;
 }
