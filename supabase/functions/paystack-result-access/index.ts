@@ -45,9 +45,12 @@ Deno.serve(async (request) => {
       return json({ error: "Payment could not be initialized." }, 409);
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
     const response = await fetch("https://api.paystack.co/transaction/initialize", {
       method: "POST",
       headers: { Authorization: `Bearer ${Deno.env.get("PAYSTACK_SECRET_KEY")}`, "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         email: authData.user.email ?? student.parent_email ?? `${student.admission_number}@students.dblossom.local`,
         amount: String(AMOUNT_KOBO),
@@ -56,8 +59,11 @@ Deno.serve(async (request) => {
         callback_url: `${Deno.env.get("PUBLIC_SITE_URL") ?? "http://localhost:3000"}/student-dashboard?payment=verify&reference=${encodeURIComponent(reference)}`,
         metadata: { purpose: "result_access" }
       })
+      signal: controller.signal,
     });
     const payload = await response.json().catch(() => ({}));
+    clearTimeout(timeout);
+    clearTimeout(timeout);
     if (!response.ok || !payload.status || !payload.data?.authorization_url) {
       await supabase.from("result_access_payments").update({ status: "failed" }).eq("id", createdPayment.id);
       return json({ error: payload.message ?? "Paystack could not initialize the payment." }, 502);
