@@ -1,0 +1,1 @@
+export async function initializeResultPayment(){const r=await fetch("/.netlify/functions/paystack-init",{method:"POST",headers:{"content-type":"application/json","x-idempotency-key":crypto.randomUUID()}});const p=await r.json();if(!r.ok)throw Error(p.error||"Payment could not be started.");location.href=p.data.authorization_url}
