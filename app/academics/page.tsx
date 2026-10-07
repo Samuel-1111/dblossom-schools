@@ -1,5 +1,0 @@
-import { PublicSectionPage } from "../public-section/PublicSectionPage";
-
-export default function AcademicsPage() {
-  return <PublicSectionPage eyebrow="Academics" title="Learning with purpose" intro="Our academic programme combines strong foundations, guided practice, creativity, and the confidence to apply learning in meaningful ways."><div className="grid gap-4"><article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><h2 className="font-serif text-2xl font-bold text-blue-950">Foundational learning</h2><p className="mt-3 leading-7 text-slate-600">Learners build secure knowledge and practical understanding through structured classroom instruction and regular feedback.</p></article><article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><h2 className="font-serif text-2xl font-bold text-blue-950">Whole-child development</h2><p className="mt-3 leading-7 text-slate-600">Beyond results, we encourage character, communication, collaboration, responsibility, and curiosity.</p></article></div></PublicSectionPage>;
-}

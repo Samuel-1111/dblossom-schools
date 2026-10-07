@@ -1,7 +1,0 @@
--- DEPRECATED LEGACY MIGRATION
--- The connected D'Blossom Supabase project uses UUID primary keys and this
--- historical Manus migration was written against an older bigint schema.
--- Do not apply this file to the connected project.
--- Before using Supabase CLI migrations, run supabase db pull against the
--- connected project and make the resulting remote schema the new baseline.
--- The feature tables/RLS have already been provisioned in the connected project.
