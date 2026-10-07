@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-type Student = { id: number; full_name?: string | null; admission_number?: string | null; class_name?: string | null };
-type Teacher = { id: number; full_name?: string | null; staff_id?: string | null; assigned_class?: string | null };
+type Student = { id: string; full_name?: string | null; admission_number?: string | null; class_name?: string | null };
+type Teacher = { id: string; full_name?: string | null; staff_id?: string | null; assigned_class?: string | null };
 
 export function AdminLinking() {
   const [type, setType] = useState<"parent" | "teacher">("parent");
@@ -33,7 +33,7 @@ export function AdminLinking() {
   async function save() {
     if (!selected) return setNotice("Search for and select a student first.");
     setSaving(true); setNotice("");
-    const body = type === "teacher" ? { type, student_id: selected.id, teacher_id: Number(teacherId) } : { type, student_id: selected.id, parent_name: parent.name, parent_email: parent.email, parent_phone: parent.phone, relationship: parent.relationship };
+    const body = type === "teacher" ? { type, student_id: selected.id, teacher_id: teacherId } : { type, student_id: selected.id, parent_name: parent.name, parent_email: parent.email, parent_phone: parent.phone, relationship: parent.relationship };
     const response = await fetch("/api/admin/student-links", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const payload = await response.json().catch(() => ({}));
     setNotice(payload.error ?? payload.data?.message ?? (response.ok ? "Link saved." : "Unable to save link."));
