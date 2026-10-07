@@ -112,10 +112,37 @@ export async function GET(request: Request) {
     }
     return NextResponse.json({ data: [...grouped.values()] });
   }
-  const query = createServiceClient().from(table).select("*");
-  const { data, error } = table === "classes" ? await query.order("name", { ascending: true }) : table === "events" ? await query.order("event_date", { ascending: true }) : await query.order("created_at", { ascending: false });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-  return NextResponse.json({ data });
+  const db = createServiceClient();
+  const page = Math.max(1, Number(new URL(request.url).searchParams.get("page") ?? "1"));
+  const pageSize = Math.min(100, Math.max(10, Number(new URL(request.url).searchParams.get("pageSize") ?? "50")));
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const search = (new URL(request.url).searchParams.get("q") ?? "").trim();
+
+  let query = db.from(table).select(
+    table === "students"
+      ? "id,admission_number,full_name,class_id,date_of_birth,gender,parent_name,parent_phone,parent_email,boarding_status,guardian_name,guardian_contact,status,profile_id,created_at"
+      : table === "teachers"
+        ? "id,full_name,email,phone,staff_id,subject,role,assigned_class,status,profile_id,created_at"
+        : "*",
+    { count: "exact" }
+  );
+
+  if (search && (table === "students" || table === "teachers")) {
+    const safe = search.replace(/[%_]/g, "\\  const query = createServiceClient().from(table).select("*");
+  const { data, error } = table === "classes" ? await query.order("name", { ascending: true }) : table === "events" ? await query.order("event_date", { ascending: true }) : await query.order("created_at", { ascending: false });");
+    query = table === "students"
+      ? query.or(`full_name.ilike.%${safe}%,admission_number.ilike.%${safe}%`)
+      : query.or(`full_name.ilike.%${safe}%,staff_id.ilike.%${safe}%,email.ilike.%${safe}%`);
+  }
+
+  const ordered = table === "classes" ? query.order("name", { ascending: true })
+    : table === "events" ? query.order("event_date", { ascending: true })
+    : query.order("created_at", { ascending: false });
+  const { data, error, count } = await ordered.range(from, to);
+
+  if (error) return NextResponse.json({ error: "Unable to load Admin records." }, { status: 500 });
+  return NextResponse.json({ data, page, pageSize, total: count ?? 0 });
 }
 
 export async function POST(request: Request) {
