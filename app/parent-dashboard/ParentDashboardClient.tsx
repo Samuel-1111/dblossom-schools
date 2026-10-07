@@ -2,26 +2,26 @@
 
 import { useMemo, useState } from "react";
 
-type Student = { id: number; full_name?: string; admission_number?: string; class_name?: string; class_id?: number; relationship?: string };
-type Invoice = { id: string; student_id: number; invoice_number: string; due_date?: string; status: string; total_amount: number; amount_paid: number; balance: number; fee_invoice_items?: Array<{ description: string; amount: number }> };
-type Payment = { id: string; student_id: number; amount: number; method: string; reference?: string; status: string; paid_at?: string; created_at: string };
+type Student = { id: string; full_name?: string; admission_number?: string; class_name?: string; class_id?: number; relationship?: string };
+type Invoice = { id: string; student_id: string; invoice_number: string; due_date?: string; status: string; total_amount: number; amount_paid: number; balance: number; fee_invoice_items?: Array<{ description: string; amount: number }> };
+type Payment = { id: string; student_id: string; amount: number; method: string; reference?: string; status: string; paid_at?: string; created_at: string };
 type Notice = { id: number; title: string; body: string; pinned?: boolean; created_at: string };
 type Notification = { id: string; title: string; body: string; type: string; read_at?: string | null; created_at: string };
 type Assignment = { id: string; title: string; description?: string; due_date?: string; max_score?: number; status: string; subjects?: { name?: string } | Array<{ name?: string }> };
 type CalendarEvent = { id: string; title: string; description?: string; event_date: string; start_time?: string; end_time?: string };
 type Message = { id: string; subject?: string; body: string; read_at?: string | null; created_at: string };
-type Result = { id: number; student_id: number; ca_score?: number; exam_score?: number; total_score?: number; grade?: string; subjects?: { name?: string } | Array<{ name?: string }>; terms?: { name?: string; academic_sessions?: { name?: string } | Array<{ name?: string }> } | Array<{ name?: string; academic_sessions?: { name?: string } | Array<{ name?: string }> }> };
-type Attendance = { id: number; student_id: number; date: string; status: string };
+type Result = { id: string; student_id: string; ca_score?: number; exam_score?: number; total_score?: number; grade?: string; subjects?: { name?: string } | Array<{ name?: string }>; terms?: { name?: string; academic_sessions?: { name?: string } | Array<{ name?: string }> } | Array<{ name?: string; academic_sessions?: { name?: string } | Array<{ name?: string }> }> };
+type Attendance = { id: string; student_id: string; date: string; status: string };
 
 export function ParentDashboardClient({ fullName, students, announcements, invoices, payments, notifications, assignments, calendar, messages, results, attendance }: {
   fullName: string; students: Student[]; announcements: Notice[]; invoices: Invoice[]; payments: Payment[]; notifications: Notification[]; assignments: Assignment[]; calendar: CalendarEvent[]; messages: Message[]; results: Result[]; attendance: Attendance[];
 }) {
-  const [selectedStudent, setSelectedStudent] = useState<number | "all">("all");
+  const [selectedStudent, setSelectedStudent] = useState<string | "all">("all");
   const visibleInvoices = useMemo(() => selectedStudent === "all" ? invoices : invoices.filter((item) => item.student_id === selectedStudent), [invoices, selectedStudent]);
   const visiblePayments = useMemo(() => selectedStudent === "all" ? payments : payments.filter((item) => item.student_id === selectedStudent), [payments, selectedStudent]);
   const totalBalance = visibleInvoices.reduce((sum, item) => sum + Number(item.balance || 0), 0);
   const totalPaid = visiblePayments.filter((item) => item.status === "Confirmed").reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const childName = (id: number) => students.find((item) => item.id === id)?.full_name ?? "Student";
+  const childName = (id: string) => students.find((item) => item.id === id)?.full_name ?? "Student";
 
   return <main className="min-h-screen bg-slate-50">
     <header className="bg-blue-950 px-4 py-7 text-white md:px-8"><div className="mx-auto flex max-w-7xl items-center justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300">D'Blossom Model Private Schools</p><h1 className="mt-1 text-2xl font-bold">Parent Portal</h1><p className="mt-1 text-sm text-white/70">Welcome, {fullName}</p></div><a href="/auth/signout" className="rounded border border-white/20 px-4 py-2 text-sm font-semibold">Sign out</a></div></header>
