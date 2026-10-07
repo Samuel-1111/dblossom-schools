@@ -99,11 +99,17 @@ export function TeacherDashboardClient({ fullName, role, assignedClass, classes,
     }
   }
 
-  function loadSavedReport() {
+  async function loadSavedReport() {
     const student = students.find((item) => String(item.id) === grade.student_id);
     const sessionName = grade.session.trim();
     if (!student || !grade.term || !sessionName) { setNotice("Select a student, term, and academic session before loading the report."); return; }
-    const saved = results.filter((item) => String(item.student_id) === String(student.id) && item.term === grade.term && item.session === sessionName);
+    setNotice("Loading saved report…");
+    const response = await fetch(`/api/teacher/records?class_id=${encodeURIComponent(selectedClass)}&student_id=${encodeURIComponent(String(student.id))}`, { credentials: "same-origin" });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) { setNotice(payload.error ?? "The saved report could not be loaded."); return; }
+    const savedRows = Array.isArray(payload.data?.results) ? payload.data.results : [];
+    setResults(savedRows);
+    const saved = savedRows.filter((item: Row) => String(item.student_id) === String(student.id) && item.term === grade.term && item.session === sessionName);
     const subjectById = new Map(classSubjects.map((subject) => [String(subject.id), subject]));
     const existingSubjects = Array.from(new Map(saved.filter((item) => item.subject_id).map((item) => { const subject = subjectById.get(String(item.subject_id)) ?? { id: item.subject_id, name: item.subject_name ?? "Subject" }; return [String(subject.id), subject]; })).values());
     if (!saved.length) {
