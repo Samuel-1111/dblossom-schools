@@ -1,17 +1,13 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { isValidLocalAdminToken, LOCAL_ADMIN_COOKIE } from "../../../../utils/local-admin";
 import { createServiceClient } from "../../../../utils/supabase/service";
+import { requireAdmin } from "../../../../utils/supabase/admin-auth";
 
 export const dynamic = "force-dynamic";
 type Row = Record<string, any>;
 
-async function authorize() {
-  return isValidLocalAdminToken((await cookies()).get(LOCAL_ADMIN_COOKIE)?.value);
-}
-
 export async function GET(request: Request) {
-  if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const query = (new URL(request.url).searchParams.get("q") ?? "").trim();
   if (query.length < 2) return NextResponse.json({ data: [] });
   const pattern = `%${query.replace(/[%_]/g, "\\$&")}%`;
@@ -25,7 +21,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!(await authorize())) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
+  const auth = await requireAdmin();
+  if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
   const body = await request.json().catch(() => ({}));
   const type = body.type === "teacher" ? "teacher" : body.type === "parent" ? "parent" : "";
   const studentId = String(body.student_id ?? "").trim();
