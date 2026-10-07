@@ -1,27 +1,21 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { createClient } from "../../utils/supabase/server";
 import { createServiceClient } from "../../utils/supabase/service";
-import { getLocalStudentSession, LOCAL_STUDENT_COOKIE } from "../../utils/local-student";
 import { StudentDashboardClient } from "./StudentDashboardClient";
 
 export default async function StudentDashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const localSession = await getLocalStudentSession((await cookies()).get(LOCAL_STUDENT_COOKIE)?.value);
-  if (!user && !localSession) redirect("/student-portal");
+  if (!user) redirect("/student-portal");
 
   const dataClient = createServiceClient();
   const { data: profile } = user ? await dataClient.from("profiles").select("full_name, role").eq("id", user.id).maybeSingle() : { data: null };
-  const role = localSession ? "student" : profile?.role ?? user?.user_metadata?.role;
-  if (role !== "student") redirect("/");
+  if (!profile || profile.role !== "student") redirect("/");
 
-  const identifier = localSession?.admissionNumber ?? String(user?.user_metadata?.portal_identifier ?? "");
-  const profileStudent = user ? await dataClient.from("students").select("id, admission_number, guardian_name, classes(name)").eq("profile_id", user.id).maybeSingle() : { data: null };
-  const directStudent = !user && identifier ? await dataClient.from("students").select("id, admission_number, guardian_name, classes(name)").ilike("admission_number", identifier).maybeSingle() : { data: null };
-  const student = profileStudent.data ?? directStudent.data;
-  const displayName = localSession?.fullName ?? profile?.full_name ?? user?.user_metadata?.full_name ?? user?.email ?? "Student";
-  if (!student) return <StudentDashboardClient fullName={displayName} studentNumber={identifier || "Not assigned yet"} className="Class not assigned" guardianName={null} grades={[]} attendance={[]} announcements={[]} hasResultAccess={false} />;
+  const profileStudent = await dataClient.from("students").select("id, admission_number, guardian_name, classes(name)").eq("profile_id", user.id).maybeSingle();
+  const student = profileStudent.data;
+  const displayName = profile?.full_name ?? user.email ?? "Student";
+  if (!student) return <StudentDashboardClient fullName={displayName} studentNumber="Not assigned yet" className="Class not assigned" guardianName={null} grades={[]} attendance={[]} announcements={[]} hasResultAccess={false} />;
 
   const { data: accessGrant } = await dataClient.from("result_access_grants").select("id, expires_at").eq("student_id", student.id).or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`).order("granted_at", { ascending: false }).limit(1).maybeSingle();
   const [{ data: resultRows }, { data: attendance }, { data: announcements }] = await Promise.all([
