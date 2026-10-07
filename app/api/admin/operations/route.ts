@@ -17,17 +17,25 @@ export async function POST(request: Request) {
     const studentId = clean(body.student_id);
     const items = Array.isArray(body.items) ? body.items : [];
     if (!studentId || !items.length) return NextResponse.json({ error: "Student and at least one fee item are required." }, { status: 400 });
-    const total = items.reduce((sum: number, item: any) => sum + Math.max(0, Number(item.amount || 0)), 0);
     const invoiceNumber = clean(body.invoice_number) || `INV-${new Date().getFullYear()}-${Date.now()}`;
-    const { data: invoice, error } = await db.from("fee_invoices").insert({
-      student_id: studentId, invoice_number: invoiceNumber, due_date: clean(body.due_date) || null,
-      status: "Unpaid", total_amount: total, amount_paid: 0, balance: total, notes: clean(body.notes) || null, created_by: auth.user?.id ?? null
-    }).select().single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
-    const rows = items.map((item: any) => ({ invoice_id: invoice.id, category_id: clean(item.category_id) || null, description: clean(item.description) || "School fee", amount: Math.max(0, Number(item.amount || 0)) }));
-    const { error: itemError } = await db.from("fee_invoice_items").insert(rows);
-    if (itemError) return NextResponse.json({ error: itemError.message }, { status: 400 });
-    return NextResponse.json({ data: invoice }, { status: 201 });
+    const normalizedItems = items.map((item: any) => ({
+      category_id: clean(item.category_id),
+      description: clean(item.description) || "School fee",
+      amount: Math.max(0, Number(item.amount || 0))
+    }));
+    if (normalizedItems.some((item: any) => !Number.isFinite(item.amount) || item.amount <= 0)) {
+      return NextResponse.json({ error: "Every fee item must have a positive amount." }, { status: 400 });
+    }
+    const { data, error } = await db.rpc("create_fee_invoice", {
+      p_student_id: studentId,
+      p_invoice_number: invoiceNumber,
+      p_due_date: clean(body.due_date) || null,
+      p_notes: clean(body.notes) || null,
+      p_items: normalizedItems,
+      p_created_by: auth.user?.id ?? null,
+    });
+    if (error) return NextResponse.json({ error: "Invoice could not be created. Check the student and invoice number." }, { status: 400 });
+    return NextResponse.json({ data }, { status: 201 });
   }
 
   if (type === "payment") {
