@@ -86,8 +86,8 @@ exports.handler = async event => {
 
     if(type==="student") {
       if(!clean(b.full_name)||!clean(b.admission_number)||!clean(b.class_id)) return json(400,{error:"Full name, admission number and class are required."});
-      if(!id && !clean(b.password)) return json(400,{error:"Password is required for a new student."});
-      const password=clean(b.password)||null;
+      
+      const surname=(clean(b.full_name).split(/\s+/).filter(Boolean).pop()||"Student");const password=clean(b.password)||(surname.charAt(0).toUpperCase()+surname.slice(1).toLowerCase());
       let profileId=clean(b.profile_id)||null;
       if(!id) {
         const auth=await createOrUpdateAuth(db,{profileId:null,role:"student",password,identifier:b.admission_number,email:null});
