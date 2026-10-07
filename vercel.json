@@ -42,5 +42,7 @@
     }
   ],
   "outputDirectory": ".",
-  "buildCommand": ""
+  "buildCommand": null,
+  "framework": null,
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
