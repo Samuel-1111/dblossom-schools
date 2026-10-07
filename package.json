@@ -7,5 +7,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4"
-  }
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "description": "D’Blossom Model Private Schools web portal"
 }
