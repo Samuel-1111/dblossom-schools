@@ -56,7 +56,7 @@ exports.handler = async event => {
     if(!await isAdmin(user)) return json(401,{error:"Administrator session required."});
     const db=admin();
     if(event.httpMethod==="GET") {
-      const p=safePage(event), size=safeSize(event), q=clean(event.queryStringParameters?.q), table=clean(event.queryStringParameters?.table);
+      const p=safePage(event), size=safeSize(event), q=clean(event.queryStringParameters?.q), classId=clean(event.queryStringParameters?.class_id), table=clean(event.queryStringParameters?.table);
       if(table==="students"||table==="teachers"||table==="complaints"||table==="events"||table==="gallery_images"||table==="subjects"||table==="fee_payments"||table==="fee_invoices"||table==="announcements"||table==="admission_applications") {
         const result=await listData(db,table,p,size,q);
         if(table==="fee_payments"){const {data,error,count}=await db.from("fee_payments").select("id,invoice_id,student_id,parent_id,amount,method,reference,status,paid_at,created_at,students(full_name,admission_number,class_id,classes(name))",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);if(error)throw error;return json(200,{data:data||[],count:count||0,page:p,pageSize:size});}
