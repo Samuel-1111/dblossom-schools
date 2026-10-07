@@ -6,7 +6,7 @@ import { Home, GraduationCap, Shield, Users } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "../../utils/supabase/client";
 
-type PortalRole = "student" | "teacher" | "admin";
+type PortalRole = "student" | "teacher" | "parent" | "admin";
 
 const schoolLogoUrl = "/manus-storage/school-logo_57ffb7b0.jpg";
 
@@ -22,16 +22,19 @@ const errorCopy: Record<PortalRole, { notFound: string; wrongPassword: string }>
   student: { notFound: "Admission number not found", wrongPassword: "Incorrect password" },
   teacher: { notFound: "Staff ID not found", wrongPassword: "Incorrect password" },
   admin: { notFound: "Username not recognised", wrongPassword: "Incorrect password" },
+  parent: { notFound: "Parent account not found", wrongPassword: "Incorrect password" },
 };
 
 const portalSubtitle: Record<PortalRole, string> = {
   student: "Access your results and academic records",
   teacher: "Access your class management tools",
   admin: "School Management System",
+  parent: "Stay connected with your child's school",
 };
 
 function PortalIcon({ role }: { role: PortalRole }) {
   if (role === "student") return <GraduationCap className="h-12 w-12 text-[var(--gold)]" aria-hidden="true" />;
+  if (role === "parent") return <Users className="h-12 w-12 text-[var(--gold)]" aria-hidden="true" />;
   if (role === "teacher") return <Users className="h-12 w-12 text-[var(--gold)]" aria-hidden="true" />;
   return <Shield className="h-8 w-8 text-[var(--navy)]" aria-hidden="true" />;
 }
@@ -133,7 +136,7 @@ export function PortalLogin({ role, title, hint, identifierLabel, identifierPlac
       <section className="mx-auto -mt-8 w-full max-w-md px-4 pb-12">
         <div className="rounded-2xl border border-border bg-card p-8 shadow-lg">
           <img src={schoolLogoUrl} alt="D'Blossom Model Private Schools" className="mx-auto mb-4 h-16 w-16 rounded-full object-cover" />
-          <h2 className="font-heading text-2xl font-bold text-[var(--navy)]">{role === "admin" ? "Admin Login" : `${role === "student" ? "Student" : "Teacher"} Login`}</h2>
+          <h2 className="font-heading text-2xl font-bold text-[var(--navy)]">{role === "admin" ? "Admin Login" : `${role === "student" ? "Student" : role === "parent" ? "Parent" : "Teacher"} Login`}</h2>
           <p className="mt-1 text-sm text-slate-500">{hint}</p>
           <form onSubmit={submit} className="mt-7 grid gap-5" noValidate>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">{identifierLabel}<input value={identifier} onChange={(event) => { setIdentifier(event.target.value); clearField("identifier"); }} className={inputClass(Boolean(fieldErrors.identifier))} placeholder={identifierPlaceholder} autoComplete="username" aria-invalid={Boolean(fieldErrors.identifier)} />{fieldErrors.identifier && <span className="text-xs text-red-500">{fieldErrors.identifier}</span>}</label>
