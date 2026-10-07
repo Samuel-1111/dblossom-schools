@@ -89,60 +89,46 @@ function cleanPayload(table: AdminTable, body: Record<string, unknown>) {
 export async function GET(request: Request) {
   const auth = await requireAdmin();
   if (!auth.authorized) return NextResponse.json({ error: "Administrator session required" }, { status: 401 });
+
   const table = requestedTable(request);
   if (!table) return NextResponse.json({ error: "Unsupported Admin table" }, { status: 400 });
-  if (table === "results") {
-    const { data: resultRows, error: resultError } = await createServiceClient().from("results").select("id, student_id, subject_id, term_id, ca_score, exam_score, total_score, grade, teacher_comment, principal_comment, approved, recorded_by, created_at, students(full_name, admission_number, class_id, classes(name)), subjects(name), terms(name, session_id, academic_sessions(name))").order("created_at", { ascending: false });
-    if (resultError) return NextResponse.json({ error: resultError.message }, { status: 400 });
-    const grouped = new Map<string, Record<string, any>>();
-    for (const item of resultRows ?? []) {
-      const student = Array.isArray((item as any).students) ? (item as any).students[0] : (item as any).students;
-      const subject = Array.isArray((item as any).subjects) ? (item as any).subjects[0] : (item as any).subjects;
-      const term = Array.isArray((item as any).terms) ? (item as any).terms[0] : (item as any).terms;
-      const academicSession = Array.isArray(term?.academic_sessions) ? term.academic_sessions[0] : term?.academic_sessions;
-      const key = `${item.student_id}:${item.term_id}`;
-      const current = grouped.get(key) ?? { id: item.id, result_ids: [], student_id: item.student_id, student_name: student?.full_name ?? student?.admission_number ?? "Student", admission_number: student?.admission_number ?? null, class_id: student?.class_id ?? null, class_name: student?.classes?.name ?? "Class not recorded", term_id: item.term_id, term: term?.name ?? "Term not recorded", session: academicSession?.name ?? "Session not recorded", subjects: [], teacher_comment: item.teacher_comment ?? null, principal_comment: item.principal_comment ?? null, approved: item.approved ?? false, created_at: item.created_at, total_score: 0, average: 0 };
-      current.result_ids.push(item.id);
-      current.subjects.push({ name: subject?.name ?? "Subject", subject_id: item.subject_id, ca_score: item.ca_score, exam_score: item.exam_score, total: item.total_score, grade: item.grade });
-      current.total_score += Number(item.total_score ?? 0);
-      current.average = current.subjects.length ? Math.round(current.total_score / current.subjects.length) : 0;
-      if (!current.teacher_comment && item.teacher_comment) current.teacher_comment = item.teacher_comment;
-      if (!current.principal_comment && item.principal_comment) current.principal_comment = item.principal_comment;
-      grouped.set(key, current);
-    }
-    return NextResponse.json({ data: [...grouped.values()] });
-  }
+
+  const params = new URL(request.url).searchParams;
+  const page = Math.max(1, Number(params.get("page") ?? "1"));
+  const pageSize = Math.min(100, Math.max(10, Number(params.get("pageSize") ?? "50")));
+  const search = (params.get("q") ?? "").trim();
+
   const db = createServiceClient();
-  const page = Math.max(1, Number(new URL(request.url).searchParams.get("page") ?? "1"));
-  const pageSize = Math.min(100, Math.max(10, Number(new URL(request.url).searchParams.get("pageSize") ?? "50")));
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  const search = (new URL(request.url).searchParams.get("q") ?? "").trim();
 
-  let query = db.from(table).select(
-    table === "students"
-      ? "id,admission_number,full_name,class_id,date_of_birth,gender,parent_name,parent_phone,parent_email,boarding_status,guardian_name,guardian_contact,status,profile_id,created_at"
-      : table === "teachers"
-        ? "id,full_name,email,phone,staff_id,subject,role,assigned_class,status,profile_id,created_at"
-        : "*",
-    { count: "exact" }
-  );
+  if (table === "results") {
+    const { data, error } = await db.rpc("admin_result_groups", { p_page: page, p_page_size: pageSize });
+    if (error) return NextResponse.json({ error: "Unable to load result records." }, { status: 500 });
+    return NextResponse.json({ data: data ?? [], page, pageSize });
+  }
 
+  const select = table === "students"
+    ? "id,admission_number,full_name,class_id,date_of_birth,gender,parent_name,parent_phone,parent_email,boarding_status,guardian_name,guardian_contact,status,profile_id,created_at"
+    : table === "teachers"
+      ? "id,full_name,email,phone,staff_id,subject,role,assigned_class,status,profile_id,created_at"
+      : "*";
+
+  let query = db.from(table).select(select, { count: "exact" });
   if (search && (table === "students" || table === "teachers")) {
-    const safe = search.replace(/[%_]/g, "\\  const query = createServiceClient().from(table).select("*");
-  const { data, error } = table === "classes" ? await query.order("name", { ascending: true }) : table === "events" ? await query.order("event_date", { ascending: true }) : await query.order("created_at", { ascending: false });");
+    const safe = search.replace(/[%_]/g, "\\$&");
     query = table === "students"
       ? query.or(`full_name.ilike.%${safe}%,admission_number.ilike.%${safe}%`)
       : query.or(`full_name.ilike.%${safe}%,staff_id.ilike.%${safe}%,email.ilike.%${safe}%`);
   }
 
-  const ordered = table === "classes" ? query.order("name", { ascending: true })
-    : table === "events" ? query.order("event_date", { ascending: true })
-    : query.order("created_at", { ascending: false });
-  const { data, error, count } = await ordered.range(from, to);
+  const ordered = table === "classes"
+    ? query.order("name", { ascending: true })
+    : table === "events"
+      ? query.order("event_date", { ascending: true })
+      : query.order("created_at", { ascending: false });
 
+  const { data, error, count } = await ordered.range((page - 1) * pageSize, page * pageSize - 1);
   if (error) return NextResponse.json({ error: "Unable to load Admin records." }, { status: 500 });
-  return NextResponse.json({ data, page, pageSize, total: count ?? 0 });
+  return NextResponse.json({ data: data ?? [], page, pageSize, total: count ?? 0 });
 }
 
 export async function POST(request: Request) {
