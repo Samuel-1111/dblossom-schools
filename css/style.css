@@ -12,3 +12,37 @@
 
 /* Advanced school management */
 .advanced-wrap{display:grid;gap:18px}.advanced-tabs{display:flex;gap:8px;overflow:auto;padding:4px;background:var(--secondary);border-radius:12px}.advanced-tab{border:0;background:transparent;color:#475569;padding:11px 14px;border-radius:9px;white-space:nowrap;font-weight:750;cursor:pointer}.advanced-tab.active{background:var(--navy);color:#fff}.advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.advanced-grid>.dashboard-card{min-width:0}.advanced-wrap hr{border:0;border-top:1px solid var(--border);margin:18px 0}.advanced-wrap .cards.three{margin-top:14px}.advanced-wrap .stat strong{font-size:20px}.advanced-wrap .data-table{font-size:13px}.advanced-wrap .notice{margin:8px 0}.advanced-wrap .field textarea{box-sizing:border-box}@media(max-width:800px){.advanced-grid{grid-template-columns:1fr}.advanced-tabs{scrollbar-width:thin}}
+
+/* Professional public-site refinement */
+:root{--navy:#102a56;--navy-deep:#071a38;--gold:#d9a62e;--gold-soft:#f7f1df;--ink:#172033;--muted:#64748b;--border:#e4e8ef;--secondary:#f5f7fa}
+body{font-family:Inter,Arial,sans-serif;background:#fff;color:var(--ink)}
+.site-header{background:rgba(255,255,255,.97);box-shadow:0 4px 18px rgba(15,23,42,.06)}
+.brand{min-width:0;gap:10px}.brand-name{display:block;max-width:470px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px;letter-spacing:-.01em;color:var(--navy)}
+.section{padding-block:100px}.public-section{position:relative}
+.section-heading{max-width:760px;margin-bottom:34px;padding-left:20px;border-left:4px solid var(--gold)}
+.section-heading .section-label{margin:0 0 9px;color:var(--gold);letter-spacing:.16em}
+.section-heading h2{margin:0 0 10px;font-size:clamp(30px,4vw,46px);color:var(--navy);line-height:1.12}
+.section-heading p:last-child{margin:0;color:var(--muted);font-size:16px;line-height:1.75}
+.section-muted{background:#f5f7fa;border-block:1px solid #e8edf3}
+.academic-home-cards{margin-top:0}.academic-home-cards .card{border-top:3px solid var(--gold)}
+.card{box-shadow:0 8px 25px rgba(15,23,42,.05);border-radius:14px}.card:hover{box-shadow:0 12px 32px rgba(15,23,42,.08)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:stretch}
+.contact-panel,.contact-form-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:30px;box-shadow:0 10px 30px rgba(15,23,42,.05)}
+.contact-panel{background:#f8fafc}.contact-item{padding:17px 0;border-bottom:1px solid var(--border)}.contact-item:last-of-type{border-bottom:0}
+.contact-item span{display:block;text-transform:uppercase;letter-spacing:.1em;font-size:11px;font-weight:800;color:var(--gold);margin-bottom:7px}.contact-item strong{display:block;line-height:1.65;color:var(--navy)}
+.contact-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.whatsapp-btn{background:#1f7a4d;color:#fff!important}
+.contact-form-card h3{margin:0;color:var(--navy);font-size:26px}.contact-form-card form{display:grid;gap:12px;margin-top:20px}
+.contact-form-card input,.contact-form-card textarea,.contact-form-card select{width:100%;padding:13px 14px;border:1px solid #d5dce6;border-radius:8px;background:#fff;color:var(--ink);outline:none}
+.contact-form-card input:focus,.contact-form-card textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(16,42,86,.08)}
+.form-card{box-shadow:0 10px 30px rgba(15,23,42,.05)}
+.page-hero{padding:120px 20px 72px;background:linear-gradient(135deg,var(--navy-deep),var(--navy));border-bottom:4px solid var(--gold)}
+.page-hero h1{max-width:900px}.page-body{width:min(1120px,calc(100% - 2rem));padding-block:72px}
+.aside{border:1px solid var(--border);background:#f8fafc;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+.exam-card{transition:transform .2s ease,box-shadow .2s ease}.exam-card:hover{transform:translateY(-2px);box-shadow:0 10px 25px rgba(15,23,42,.07)}
+.exam-logo{background:#fff}
+.site-footer{margin-top:0;border-top:4px solid var(--gold);background:var(--navy-deep)}
+.site-footer a:hover{color:var(--gold)}
+.mobile-nav{box-shadow:0 22px 50px rgba(15,23,42,.16)}
+.whatsapp-float{position:fixed;right:20px;bottom:20px;z-index:70;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#1f7a4d;color:#fff;font-weight:900;box-shadow:0 12px 28px rgba(15,23,42,.2)}
+@media(max-width:760px){.brand-name{max-width:235px;font-size:13px}.section{padding-block:72px}.contact-grid{grid-template-columns:1fr}.contact-panel,.contact-form-card{padding:22px}.page-hero{padding-top:105px}.section-heading{padding-left:15px}}
+@media(max-width:480px){.brand img{width:36px;height:36px}.brand-name{max-width:190px}.contact-actions .btn{width:100%}}
