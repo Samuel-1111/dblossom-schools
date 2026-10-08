@@ -21,8 +21,8 @@
     // Administrator authentication is already complete. Never send the administrator
     // back to the login form because a dashboard module failed to load.
     const attempts=[
-      "/js/portal.js?v=admin-portal-16f8b20e",
-      "/js/portal.js?v=admin-portal-16f8b20e-retry"
+      "/js/portal.js?v=admin-portal-a5e41d9e",
+      "/js/portal.js?v=admin-portal-a5e41d9e-retry"
     ];
     let lastError=null;
 
