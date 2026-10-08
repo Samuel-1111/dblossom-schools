@@ -55,8 +55,13 @@ async function render(){
  const qs=new URLSearchParams(location.search);
  if(role==="admin"){
   const token=await adminSession();
-  if(!token){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}
+  const uiOnly=localStorage.getItem("dblossom_admin_ui_only")==="1";
+  if(!token&&!uiOnly){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}
   loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");
+  if(uiOnly){
+   await adminDashboard({stats:{students:0,teachers:0,parents:0,results:0},uiOnly:true});
+   return;
+  }
   try{await adminDashboard(await api("/api/dashboard-data"))}catch(e){adminDashboard({stats:{students:0,teachers:0,parents:0,results:0},uiOnly:true})}
   return;
  }
