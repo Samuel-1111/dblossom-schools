@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "engines": {
-    "node": ">=20 <25"
+    "node": ">=18"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4"
@@ -11,5 +11,5 @@
   "scripts": {
     "start": "node server.js"
   },
-  "description": "D’Blossom Model Private Schools web portal — local-first Node server"
+  "description": "D’Blossom Model Private Schools website with a Node backend"
 }
