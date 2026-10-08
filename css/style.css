@@ -219,4 +219,4 @@ body{background:#fbfcfd;color:var(--ink);line-height:1.6}
   .section-heading::before{height:36px}
   .academic-home-cards .card{min-height:0}
   .hero::after{height:100px}
-}
+}\n/* Public admissions and founder presentation */\n.admission-card{width:min(820px,calc(100% - 2rem));max-width:820px;margin:48px auto}.admission-heading{text-align:center}.admission-logo{display:block;width:88px;height:88px;border-radius:50%;object-fit:cover;margin:0 auto 16px}.admission-heading h1{color:var(--navy);font-size:clamp(2rem,5vw,3rem);margin:12px 0 8px}.admission-heading p{line-height:1.7}.admission-form{margin-top:28px}.admission-actions{display:flex;gap:12px;flex-wrap:wrap}.admission-actions .btn{flex:1;min-width:210px}.admission-links{text-align:center;margin-top:20px}.founder-description{text-align:justify;line-height:1.85;color:#475569}.proprietor-card{text-align:left}.proprietor-card h2{margin-bottom:8px}\n
