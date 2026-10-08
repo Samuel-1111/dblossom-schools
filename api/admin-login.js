@@ -1,3 +1,25 @@
+const crypto = require("crypto");
+
+const signSession = (username) => {
+  const secret = process.env.ADMIN_PASSWORD;
+  if (!secret) throw new Error("ADMIN_PASSWORD is not configured on Vercel.");
+
+  const payload = Buffer.from(
+    JSON.stringify({
+      role: "admin",
+      username,
+      iat: Date.now(),
+    })
+  ).toString("base64url");
+
+  const signature = crypto
+    .createHmac("sha256", secret)
+    .update(payload)
+    .digest("hex");
+
+  return payload + "." + signature;
+};
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -39,6 +61,7 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       ok: true,
       verified: true,
+      session: signSession(username),
     });
   } catch (error) {
     console.error("admin-login", error);
