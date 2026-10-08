@@ -31,12 +31,16 @@ function createSession(username) {
 }
 
 module.exports = async (req, res) => {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return json(res, 405, { error: "Method Not Allowed" });
-  }
-
   try {
+    if (req.method === "GET") {
+      const configured = Boolean(String(process.env.ADMIN_USERNAME || "").trim() && String(process.env.ADMIN_PASSWORD || ""));
+      return json(res, 200, { ok: true, endpoint: "admin-login", configured });
+    }
+
+    if (req.method !== "POST") {
+      res.setHeader("Allow", "GET, POST");
+      return json(res, 405, { error: "Method Not Allowed" });
+    }
     const configuredUsername = String(process.env.ADMIN_USERNAME || "").trim();
     const configuredPassword = String(process.env.ADMIN_PASSWORD || "");
 
