@@ -16,7 +16,7 @@ exports.handler=async event=>{try{
  if(event.httpMethod==="GET"){
   const[{data:terms},{data:results},{data:attendance},{data:assignments},{data:materials},{data:lessons},{data:announcements},{data:messages}]=await Promise.all([
    db.from("terms").select("id,name,session_id,academic_sessions(name)").order("session_id"),
-   studentIds.length?db.from("results").select("id,student_id,subject_id,term_id,ca_score,exam_score,total_score,grade,teacher_comment,principal_comment,approved,recorded_by,subjects(name),terms(name,academic_sessions(name))").in("student_id",studentIds).order("created_at",{ascending:false}).limit(2000):Promise.resolve({data:[]}),
+   studentIds.length?db.from("results").select("id,student_id,subject_id,term_id,ca_score,exam_score,total_score,grade,teacher_comment,principal_comment,approved,recorded_by,students(full_name,admission_number),subjects(name),terms(name,academic_sessions(name))").in("student_id",studentIds).order("created_at",{ascending:false}).limit(2000):Promise.resolve({data:[]}),
    studentIds.length?db.from("attendance").select("id,student_id,date,status,recorded_by").in("student_id",studentIds).order("date",{ascending:false}).limit(1000):Promise.resolve({data:[]}),
    db.from("assignments").select("id,title,description,due_date,max_score,status,class_id,subject_id,subjects(name)").eq("teacher_id",teacher.id).order("created_at",{ascending:false}).limit(200),
    db.from("learning_materials").select("id,title,description,file_url,material_type,class_id,subject_id,subjects(name)").eq("teacher_id",teacher.id).order("created_at",{ascending:false}).limit(200),
@@ -30,7 +30,7 @@ exports.handler=async event=>{try{
  const b=JSON.parse(event.body||"{}"),action=clean(b.action);
  if(action==="save-result"){
   const{data:student}=await db.from("students").select("id,class_id,classes(name)").eq("id",b.student_id).maybeSingle();if(!student||!studentIds.includes(student.id))return json(403,{error:"You can only manage results for students in your assigned class."});
-  const{data:subject}=await db.from("subjects").select("id,class_id").eq("id",b.subject_id).maybeSingle();if(!subject)return json(400,{error:"Subject not found."});
+  const{data:subject}=await db.from("subjects").select("id,class_id").eq("id",b.subject_id).maybeSingle();if(!subject)return json(400,{error:"Subject not found."});if(subject.class_id&&subject.class_id!==student.class_id)return json(403,{error:"That subject does not belong to the student's assigned class."});
   const{data:term}=await db.from("terms").select("id").eq("id",b.term_id).maybeSingle();if(!term)return json(400,{error:"Term not found."});
   const{data:lock}=await db.from("result_locks").select("locked").eq("class_id",student.class_id).eq("term_id",b.term_id).maybeSingle();if(lock?.locked)return json(423,{error:"Results for this class and term are locked by the administrator."});
   const ca=Number(b.ca_score),exam=Number(b.exam_score);if(!Number.isFinite(ca)||!Number.isFinite(exam)||ca<0||ca>30||exam<0||exam>70)return json(400,{error:"CA must be 0-30 and Exam must be 0-70."});
