@@ -46,7 +46,7 @@ async function render(){
   const token=await adminSession();
   if(!token){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}
   loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");
-  try{await adminDashboard(await api("/api/dashboard-data"))}catch(e){localStorage.removeItem("dblossom_admin_session");loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");notice.className="notice danger";notice.textContent=e.message;return}
+  try{await adminDashboard(await api("/api/dashboard-data"))}catch(e){adminDashboard({stats:{students:0,teachers:0,parents:0,results:0},uiOnly:true})}
   return;
  }
  const s=await getSession();
@@ -99,7 +99,13 @@ async function adminDashboard(overview={}){
  const stats=overview.stats||{};
  const statCards=["students","teachers","parents","results"].map(k=>'<article class="stat"><small>'+esc(k.charAt(0).toUpperCase()+k.slice(1))+'</small><strong>'+Number(stats[k]||0).toLocaleString()+'</strong></article>').join("");
  dashboardView.innerHTML=shell("D’Blossom Administrator","School Management System",'<div class="dashboard-shell"><div class="stats">'+statCards+'</div><div class="admin-layout"><aside class="admin-sidebar">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</aside><div class="admin-content" id="admin-panel"></div></div><nav class="admin-bottom-nav">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</nav></div>');
- const panel=document.querySelector("#admin-panel");const open=async tab=>{document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));await renderAdminTab(tab,panel)};document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>open(b.dataset.tab));await open("students");
+ const panel=document.querySelector("#admin-panel");
+ if(overview.uiOnly){
+   panel.innerHTML='<section class="dashboard-card"><p class="section-label">Administrator Portal</p><h2>School Management Dashboard</h2><p class="muted">UI preview mode is active. The dashboard layout is available even though live dashboard data is not connected yet.</p><div class="cards three"><article class="card"><h3>Students</h3><p>Manage student records, admission numbers and profiles.</p></article><article class="card"><h3>Teachers</h3><p>Manage teachers, subjects and assignments.</p></article><article class="card"><h3>Results</h3><p>Manage academic results and result access.</p></article><article class="card"><h3>Parents</h3><p>Manage parent accounts and linked students.</p></article><article class="card"><h3>Payments</h3><p>Review school fee payments and balances.</p></article><article class="card"><h3>Admissions</h3><p>Review and manage admission applications.</p></article></div><div class="notice"><strong>UI only</strong><p>No school data has been changed. Connect the dashboard data service later to populate the cards and management tabs.</p></div></section>';
+ }else{
+   const open=async tab=>{document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));await renderAdminTab(tab,panel)};document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>open(b.dataset.tab));await open("students");return;
+ }
+ const open=async tab=>{document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));await renderAdminTab(tab,panel)};document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>open(b.dataset.tab));
 }
 
 async function adminGet(table,params={}){const u=new URL("/api/admin-operations",location.origin);u.searchParams.set("table",table);Object.entries(params).forEach(([k,v])=>v!=null&&u.searchParams.set(k,v));return api(u.pathname+u.search)}
