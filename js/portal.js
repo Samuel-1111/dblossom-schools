@@ -31,7 +31,8 @@ async function login(){
      const d=await r.json().catch(()=>({}));
      if(r.ok&&d.verified&&d.session){
       localStorage.setItem("dblossom_admin_session",d.session);
-      window.location.replace("/admin/?dashboard=1");return;
+      await render();
+      return;
      }
      throw Error(d.error||"Administrator login service is unavailable.");
     }catch(loginError){
