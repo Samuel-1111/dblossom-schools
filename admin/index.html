@@ -1,77 +1,21 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Administrator Portal — D'Blossom Model Private Schools</title>
-<link rel="icon" type="image/jpeg" href="/logo.jpg">
-<link rel="stylesheet" href="/css/style.css">
-<link rel="stylesheet" href="/css/responsive.css">
-<style>
-.portal-login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#f5f7fb}
-.portal-login-wrap{width:100%;max-width:460px}
-.portal-login-head{text-align:center;margin-bottom:18px}
-.portal-login-head img{width:78px;height:78px;object-fit:contain;background:#fff;border-radius:16px;padding:7px}
-.portal-login-head h1{margin:12px 0 5px}
-.portal-login-head p{margin:0;color:#64748b}
-.portal-login-card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:26px;box-shadow:0 12px 35px rgba(15,23,42,.08)}
-.portal-login-card h2{text-align:center;margin:0 0 6px}
-.portal-login-card .muted{text-align:center}
-.portal-login-card .field{display:block;margin:16px 0}
-.portal-login-card .field input{width:100%;box-sizing:border-box}
-.password-row{position:relative}
-.password-row input{padding-right:88px!important}
-.show-password{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#1e3a5f;font-weight:700;cursor:pointer}
-.portal-submit{width:100%;margin-top:8px}
-.portal-back{display:block;text-align:center;margin-top:18px}
-.portal-hint{font-size:13px;color:#64748b;text-align:center;margin:14px 0 0}
-</style>
-</head>
-<body data-role="admin">
-<main id="login-view" class="portal-login-page">
-<div class="portal-login-wrap">
-<section class="portal-login-head">
-<a href="/" aria-label="Back to home"><img src="/logo.jpg" alt="D'Blossom Model Private Schools"></a>
-<h1>Administrator Portal</h1>
-<p>School Management System</p>
-</section>
-<section class="portal-login-card" aria-labelledby="admin-login-title">
-<h2 id="admin-login-title">Admin Login</h2>
-<p class="muted">Enter your administrator username and password.</p>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Administrator Portal — D'Blossom Model Private Schools</title><link rel="icon" href="/logo.jpg"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/responsive.css"><link rel="stylesheet" href="/css/portal.css"></head>
+<body class="portal-page" data-role="admin">
+<main id="login-view" class="portal-login">
+<section class="portal-login-card" aria-labelledby="admin-title">
+<div class="portal-login-brand"><a href="/" aria-label="Back to home"><img src="/logo.jpg" alt="D'Blossom Model Private Schools"></a><h1 id="admin-title">Administrator Portal</h1><p>Complete School Management System</p></div>
+<h2>Administrator Sign in</h2><p>Enter the administrator username and password.</p>
 <form id="login-form" novalidate>
-<label class="field">
-<span>Username</span>
-<input id="admin-username" name="identifier" autocomplete="username" required autofocus placeholder="Administrator username">
-<small class="field-error" data-error="identifier"></small>
-</label>
-<label class="field">
-<span>Password</span>
-<div class="password-row">
-<input id="admin-password" name="password" type="password" autocomplete="current-password" required placeholder="Password">
-<button type="button" class="show-password" data-toggle-password="admin-password">Show</button>
-</div>
-<small class="field-error" data-error="password"></small>
-</label>
-<button class="btn navy-btn portal-submit" type="submit">Login to Dashboard</button>
-<div id="login-notice" aria-live="polite"></div>
-</form>
-<p class="portal-hint">Only authorised school administrators can access this portal.</p>
-<a href="/" class="muted portal-back">⌂ Back to Home</a>
-</section>
-</div>
-</main>
-<main id="dashboard-view" class="hidden"></main>
-<script>
-document.querySelectorAll("[data-toggle-password]").forEach(function(button){
- button.addEventListener("click",function(){
-  var input=document.getElementById(button.getAttribute("data-toggle-password"));
-  if(!input)return;
-  var visible=input.type==="text";
-  input.type=visible?"password":"text";
-  button.textContent=visible?"Show":"Hide";
- });
-});
-</script>
-<script src="/js/admin-login.js?v=portal-rebuild-1"></script>
-</body>
-</html>
+<label class="portal-field"><span>Username</span><input id="admin-username" name="identifier" autocomplete="username" required autofocus placeholder="Administrator username"><small class="field-error" data-error="identifier"></small></label>
+<label class="portal-field"><span>Password</span><div class="portal-password"><input id="admin-password" name="password" type="password" autocomplete="current-password" required placeholder="Administrator password"><button type="button" class="portal-show" data-show-password="admin-password">Show</button></div><small class="field-error" data-error="password"></small></label>
+<button class="btn navy-btn portal-login-btn" type="submit">Login to Dashboard</button><div id="login-notice" class="portal-status" aria-live="polite"></div>
+</form><p class="portal-help">Administrator credentials are verified on the server. They are not stored in the public website.</p><a class="portal-back muted" href="/">⌂ Back to Home</a>
+</section></main>
+<main id="dashboard-view" class="hidden portal-dashboard">
+<header class="portal-static-header"><div class="inner"><div class="portal-brand"><img src="/logo.jpg" alt="D'Blossom"><div><h1>D'Blossom Administrator</h1><p>School Management System</p></div></div><button id="logout" class="btn btn-outline-light">Logout</button></div></header>
+<div class="portal-dashboard-body"><div class="portal-mobile-nav" id="admin-mobile-nav"></div><div class="portal-static-grid">
+<aside class="portal-static-sidebar" id="admin-sidebar">
+<button class="active" data-tab="students">🎓 Students</button><button data-tab="teachers">👥 Teachers</button><button data-tab="results">📄 Results</button><button data-tab="parents">👨‍👩‍👧 Parents</button><button data-tab="payments">💳 Payments</button><button data-tab="events">📅 Events</button><button data-tab="gallery">🖼️ Gallery</button><button data-tab="contact">📩 Contact Enquiries</button><button data-tab="admissions">📝 Admissions</button><button data-tab="messages">✉️ Parent Messages</button><button data-tab="subjects">📚 Subjects</button><button data-tab="advanced">🛠️ School Management / Advanced</button><button data-tab="settings">⚙️ Settings</button>
+</aside><section class="portal-static-main" id="admin-panel"><div class="portal-empty-card"><h2>Administrator Dashboard</h2><p>Loading school management data…</p></div></section>
+</div></div></main>
+<script>document.querySelectorAll("[data-show-password]").forEach(b=>b.onclick=()=>{const i=document.getElementById(b.dataset.showPassword);i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"Show":"Hide"});</script><script src="/js/admin-login.js?v=html-first-2"></script></body></html>
