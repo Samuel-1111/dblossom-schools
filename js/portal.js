@@ -27,22 +27,9 @@ async function login(){
   const b=loginForm.querySelector("button");setBusy(b,true,"Logging in…");
   try{
    if(role==="admin"){
-    try{
-     const r=await fetch("/api/admin-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username:identifier,password})});
-     const d=await r.json().catch(()=>({}));
-     if(r.ok&&d.verified&&d.session){
-      localStorage.setItem("dblossom_admin_session",d.session);
-      await render();
-      return;
-     }
-     throw Error(d.error||"Administrator login service is unavailable.");
-    }catch(loginError){
-     localStorage.removeItem("dblossom_admin_session");
-     notice.className="notice danger";
-     notice.textContent=loginError?.message||"Administrator login could not be completed.";
-     toast(notice.textContent,"error");
-     return;
-    }
+    // The dedicated /js/admin-login.js owns administrator login.
+    // This module must never create a competing admin session or localStorage token.
+    return;
    }
    const sb=await getSupabase();
    const r=await fetch("/api/portal-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({role,identifier})}),d=await r.json().catch(()=>({}));
@@ -56,8 +43,9 @@ async function login(){
 async function render(){
  const qs=new URLSearchParams(location.search);
  if(role==="admin"){
-  const token=await adminSession();
-  if(!token){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}
+  // admin-login.js has already verified the administrator credentials and established
+  // the HttpOnly cookie. Do not perform a second browser-side auth check here.
+  // Every protected API call independently validates that cookie on the server.
   loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");
   // Administrator UI is local and must render even when Supabase/backend dashboard data is unavailable.
   // Backend data is loaded by individual admin sections after the real dashboard shell is visible.
