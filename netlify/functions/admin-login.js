@@ -15,9 +15,9 @@ exports.handler=async event=>{
   if(!username||!password)return json(401,{error:DENY});
   const key="admin:"+username.toLowerCase()+":"+clientIp(event);
   if(limiter.blocked(key))return json(429,{error:"Too many attempts. Please wait 15 minutes and try again."});
-  const byEmail=username.includes("@"),isDefault=!byEmail&&username.toLowerCase()===DEFAULT_USERNAME.toLowerCase();
-  if(!byEmail&&!isDefault){limiter.fail(key);return json(401,{error:DENY})}
-  const email=byEmail?username.toLowerCase():DEFAULT_EMAIL;
+  const isDefault=username.toLowerCase()===DEFAULT_USERNAME.toLowerCase();
+  if(!isDefault){limiter.fail(key);return json(401,{error:DENY})}
+  const email=DEFAULT_EMAIL;
   let signed=await admin().auth.signInWithPassword({email,password});
   if((signed.error||!signed.data?.session)&&isDefault&&same(sha(password),FIRST_RUN_SHA256)){
    const created=await admin().auth.admin.createUser({email,password,email_confirm:true,user_metadata:{full_name:"D'Blossom Administrator"}});
