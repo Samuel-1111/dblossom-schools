@@ -1,1 +1,0 @@
-const {handler}=require("../netlify/functions/admin-operations"); const wrap=require("../lib/vercel-adapter"); module.exports=wrap(handler);
