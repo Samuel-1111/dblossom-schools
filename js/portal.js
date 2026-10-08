@@ -234,11 +234,11 @@ async function adminAdmissions(panel){
   }
   try{
    const response=await adminPost({type:"admission-status",id:s.dataset.id,status:s.value,admission_key:admissionKey});
+   await adminAdmissions(panel);
    if(s.value==="Approved"&&response.admission_key){
     document.querySelector("#admission-key-result").innerHTML='<div class="notice success"><strong>Admission approved.</strong> Give this admission key to the applicant: <code>'+esc(response.admission_key)+'</code> <button class="btn btn-sm btn-outline" id="copy-admission-key">Copy Key</button></div>';
     document.querySelector("#copy-admission-key")?.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(response.admission_key);toast("Admission key copied.","success")}catch{toast("Copy failed. Please copy the key manually.","error")}});
    }else{toast("Admission status updated.","success");}
-   await adminAdmissions(panel);
   }catch(e){toast(e.message,"error");adminAdmissions(panel)}
  });
  adminSectionTools(panel,"Search admissions...",["Pending","Under Review","Interview","Approved","Rejected"]);
