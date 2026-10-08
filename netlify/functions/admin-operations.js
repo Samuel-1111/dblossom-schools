@@ -42,7 +42,6 @@ async function listData(db, table, page, pageSize, search, order="created_at", e
     if(table==="students") q=q.or("full_name.ilike.%"+s+"%,admission_number.ilike.%"+s+"%,guardian_name.ilike.%"+s+"%,guardian_contact.ilike.%"+s+"%");
     if(table==="contact_messages") q=q.or("name.ilike.%"+s+"%,subject.ilike.%"+s+"%,email.ilike.%"+s+"%,message.ilike.%"+s+"%");
     if(table==="teachers") q=q.or("full_name.ilike.%"+s+"%,staff_id.ilike.%"+s+"%");
-    if(table==="complaints") q=q.or("name.ilike.%"+s+"%,subject.ilike.%"+s+"%,email.ilike.%"+s+"%");
   }
   if(table==="students" && eventClassId) q=q.eq("class_id",eventClassId);
   const from=(page-1)*pageSize,to=from+pageSize-1;
