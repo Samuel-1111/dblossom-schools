@@ -1,30 +1,60 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Administrator Portal — D'Blossom Model Private Schools</title>
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/responsive.css">
 </head>
-<body>
+<body data-role="admin">
+
+<main id="login-view" class="login-main">
+<section class="portal-top admin-top">
+<a href="/" class="back-home">⌂ Back to Home</a>
+<img class="logo" src="/logo.jpg" alt="D'Blossom">
+<div class="portal-icon">♜</div>
+<h1>Admin Portal</h1>
+<p>School Management System</p>
+</section>
+
+<section class="login-card">
+<img class="portal-logo" src="/logo.jpg" alt="D'Blossom">
+<div class="portal-icon-box">♜</div>
 <h2>Admin Login</h2>
+<p class="muted">Secure administrator access</p>
 
-<input id="username" type="text" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
-<button type="button" onclick="login()">Login</button>
+<div class="field">
+<label>Username</label>
+<input id="admin-username" autocomplete="username" placeholder="DivineBlossom">
+</div>
+<div class="field">
+<label>Password</label>
+<input id="admin-password" type="password" autocomplete="current-password" placeholder="Password">
+</div>
 
-<p id="error" style="color:red;"></p>
+<button class="btn navy-btn" type="button" id="admin-login-button">Login to Dashboard</button>
+<div id="login-notice"></div>
+<a href="/" class="muted back-link">⌂ Back to Home</a>
+</section>
+</main>
+
+<main id="dashboard-view" class="hidden"></main>
 
 <script>
-function login() {
-  var username = document.getElementById("username").value;
-  var password = document.getElementById("password").value;
+document.getElementById("admin-login-button").addEventListener("click", function () {
+  var username = document.getElementById("admin-username").value.trim();
+  var password = document.getElementById("admin-password").value;
+  var notice = document.getElementById("login-notice");
 
   if (username === "DivineBlossom" && password === "DBMS") {
-    window.location.href = "dashboard.html";
+    localStorage.setItem("dblossom_admin_authenticated", "1");
+    import("/js/portal.js");
   } else {
-    document.getElementById("error").textContent = "Incorrect username or password.";
+    notice.className = "notice danger";
+    notice.textContent = "Incorrect username or password.";
   }
-}
+});
 </script>
 </body>
 </html>
