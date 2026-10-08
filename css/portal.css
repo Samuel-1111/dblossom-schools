@@ -1,0 +1,53 @@
+/* DBMS PORTALS — HTML/CSS FIRST
+   Public website styles are untouched. This stylesheet is portal-only. */
+:root{--portal-navy:#17375e;--portal-blue:#2563eb;--portal-gold:#d7a93b;--portal-bg:#f5f7fb;--portal-card:#fff;--portal-border:#e2e8f0;--portal-text:#172033;--portal-muted:#64748b}
+.portal-page{min-height:100vh;background:var(--portal-bg);color:var(--portal-text)}
+.portal-login{min-height:100vh;display:grid;place-items:center;padding:24px}
+.portal-login-card{width:min(100%,460px);background:#fff;border:1px solid var(--portal-border);border-radius:22px;padding:28px;box-shadow:0 18px 50px rgba(15,23,42,.09)}
+.portal-login-brand{text-align:center;margin-bottom:22px}
+.portal-login-brand img{width:78px;height:78px;object-fit:contain;border-radius:18px;background:#fff;padding:7px}
+.portal-login-brand h1{margin:12px 0 5px;font-size:clamp(24px,6vw,32px)}
+.portal-login-brand p{margin:0;color:var(--portal-muted)}
+.portal-login-card h2{text-align:center;margin:0 0 7px}
+.portal-login-card>p{text-align:center;color:var(--portal-muted)}
+.portal-field{display:block;margin:17px 0}
+.portal-field>span{display:block;font-weight:700;margin-bottom:7px}
+.portal-field input,.portal-field select,.portal-field textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:12px;padding:13px 14px;font:inherit;background:#fff}
+.portal-field input:focus,.portal-field select:focus,.portal-field textarea:focus{outline:3px solid rgba(37,99,235,.12);border-color:var(--portal-blue)}
+.portal-password{position:relative}
+.portal-password input{padding-right:76px}
+.portal-show{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--portal-navy);font-weight:800;padding:8px;cursor:pointer}
+.portal-login-btn{width:100%;margin-top:6px}
+.portal-help{margin:15px 0 0;text-align:center;color:var(--portal-muted);font-size:13px}
+.portal-back{display:block;text-align:center;margin-top:17px}
+.portal-dashboard{min-height:100vh;background:var(--portal-bg)}
+.portal-static-header{background:var(--portal-navy);color:#fff;padding:16px 20px}
+.portal-static-header .inner{max-width:1400px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.portal-brand{display:flex;align-items:center;gap:12px}
+.portal-brand img{width:46px;height:46px;object-fit:contain;background:#fff;border-radius:10px;padding:4px}
+.portal-brand h1{font-size:18px;margin:0}
+.portal-brand p{margin:3px 0 0;opacity:.82;font-size:13px}
+.portal-dashboard-body{max-width:1400px;margin:auto;padding:22px}
+.portal-static-grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px}
+.portal-static-sidebar{background:#fff;border:1px solid var(--portal-border);border-radius:18px;padding:10px;height:max-content;position:sticky;top:16px}
+.portal-static-sidebar button{width:100%;text-align:left;border:0;background:transparent;border-radius:11px;padding:12px 13px;font:inherit;cursor:pointer;color:#334155}
+.portal-static-sidebar button:hover,.portal-static-sidebar button.active{background:#eff6ff;color:var(--portal-navy);font-weight:800}
+.portal-static-main{min-width:0}
+.portal-empty-card{background:#fff;border:1px solid var(--portal-border);border-radius:18px;padding:25px}
+.portal-mobile-nav{display:none}
+.portal-status{margin-top:12px}
+.portal-error{color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px}
+@media(max-width:850px){
+ .portal-static-grid{grid-template-columns:1fr}
+ .portal-static-sidebar{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .portal-static-sidebar button{font-size:13px}
+}
+@media(max-width:560px){
+ .portal-login{padding:14px}
+ .portal-login-card{padding:21px;border-radius:18px}
+ .portal-dashboard-body{padding:12px}
+ .portal-static-sidebar{display:none}
+ .portal-mobile-nav{display:flex;overflow:auto;gap:7px;padding:10px 0}
+ .portal-mobile-nav button{white-space:nowrap;border:1px solid var(--portal-border);background:#fff;border-radius:999px;padding:9px 12px}
+ .portal-static-header .inner{align-items:flex-start}
+}
