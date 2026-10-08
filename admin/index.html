@@ -1,59 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>D'Blossom Admin Login</title>
-<style>
-body{font-family:Arial,sans-serif;background:#f2f5f9;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.box{background:white;width:90%;max-width:400px;padding:30px;border-radius:12px;box-shadow:0 5px 20px #0002}
-h1{text-align:center;color:#123b6d}
-input{display:block;width:100%;padding:13px;margin:10px 0;box-sizing:border-box;border:1px solid #ccc;border-radius:6px}
-button{width:100%;padding:13px;background:#123b6d;color:white;border:0;border-radius:6px;font-size:16px;font-weight:bold}
-#error{color:red;text-align:center;margin-top:12px}
-#dashboard{display:none;width:100%;min-height:100vh;background:#f2f5f9}
-header{background:#123b6d;color:white;padding:20px;display:flex;justify-content:space-between}
-main{padding:30px}
-</style>
+<title>Admin Login</title>
 </head>
 <body>
+<h2>Admin Login</h2>
 
-<div id="login" class="box">
-<h1>Admin Login</h1>
 <input id="username" type="text" placeholder="Username">
 <input id="password" type="password" placeholder="Password">
-<button type="button" onclick="loginAdmin()">Login to Dashboard</button>
-<div id="error"></div>
-</div>
+<button type="button" onclick="login()">Login</button>
 
-<div id="dashboard">
-<header>
-<strong>D'Blossom Administrator Dashboard</strong>
-<button type="button" onclick="logoutAdmin()">Logout</button>
-</header>
-<main>
-<h1>Welcome, Administrator</h1>
-<p>Login successful.</p>
-</main>
-</div>
+<p id="error" style="color:red;"></p>
 
 <script>
-function loginAdmin(){
-  var username=document.getElementById("username").value.trim();
-  var password=document.getElementById("password").value;
-  if(username==="DivineBlossom" && password==="DBMS"){
-    document.getElementById("login").style.display="none";
-    document.getElementById("dashboard").style.display="block";
-  }else{
-    document.getElementById("error").textContent="Incorrect username or password.";
+function login() {
+  var username = document.getElementById("username").value;
+  var password = document.getElementById("password").value;
+
+  if (username === "DivineBlossom" && password === "DBMS") {
+    window.location.href = "dashboard.html";
+  } else {
+    document.getElementById("error").textContent = "Incorrect username or password.";
   }
-}
-function logoutAdmin(){
-  document.getElementById("dashboard").style.display="none";
-  document.getElementById("login").style.display="block";
-  document.getElementById("username").value="";
-  document.getElementById("password").value="";
-  document.getElementById("error").textContent="";
 }
 </script>
 </body>
