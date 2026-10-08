@@ -5,7 +5,7 @@
   const loginView=document.getElementById("login-view");
   const dashboardView=document.getElementById("dashboard-view");
   const notice=document.getElementById("login-notice");
-  const PORTAL="/js/portal.js?v=admin-cookie-auth-20261008";
+  const PORTAL="/js/portal.js?v=admin-portal-3f0302be";
 
   function showDashboard(){
     loginView?.classList.add("hidden");
