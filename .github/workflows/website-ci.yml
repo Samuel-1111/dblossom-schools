@@ -49,7 +49,7 @@ jobs:
             const html=fs.readFileSync(file,'utf8');
             for(const m of html.matchAll(/(?:href|src)=(["'])(.*?)\1/gi)){
               const value=m[2];
-              if(!value || /^(https?:|mailto:|tel:|javascript:|data:|#)/i.test(value) || /(?:\\+esc\\(|\\+x\\.|\\$\\{)/.test(value)) continue;
+              if(!value || /^(https?:|mailto:|tel:|javascript:|data:|#)/i.test(value) || /(?:\+esc\(|\+x\.|\$\{)/.test(value)) continue;
               const clean=value.split('?')[0].split('#')[0];
               if(!clean) continue;
               let target;
