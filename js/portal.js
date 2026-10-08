@@ -48,7 +48,7 @@ async function render(){
  if(!s){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}
  loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");try{const qs=new URLSearchParams(location.search);if(role==="student"&&qs.get("payment")==="verify"&&qs.get("reference")){const vr=await api("/api/paystack-verify?reference="+encodeURIComponent(qs.get("reference")));history.replaceState({},document.title,location.pathname);toast(vr.data?.verified?"Payment verified. Results unlocked.":"Payment is still being verified.","success")}if(role==="admin")await adminDashboard();else if(role==="student")await studentDashboard();else if(role==="parent")await renderParentDashboard({api,getSession,esc,toast,setBusy,select,input,table,pill});else await teacherDashboard()}catch(e){dashboardView.innerHTML='<div class="dashboard-shell"><div class="notice danger">'+esc(e.message)+'</div></div>'}}
 function shell(title,sub,body){return '<header class="portal-dashboard-header"><div class="container"><div class="portal-head-row"><div><h1>'+esc(title)+'</h1><p>'+esc(sub||"")+'</p></div><button id="logout" class="btn btn-outline-light">Logout</button></div></div></header>'+body}
-document.addEventListener("click",e=>{if(e.target.id==="logout")signOut()});
+document.addEventListener("click",e=>{if(e.target.id==="logout"){if(role==="admin")localStorage.removeItem(ADMIN_BYPASS_KEY);signOut()}});
 
 async function parentDashboard(){
  const p=await api("/api/parent-data");
@@ -94,7 +94,7 @@ function renderEditor(rows,sid,term,session,terms){const ed=document.querySelect
 
 async function adminDashboard(){
  dashboardView.innerHTML=shell("D’Blossom Administrator","School Management System",'<div class="admin-layout"><aside class="admin-sidebar">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</aside><div class="admin-content" id="admin-panel"></div></div><nav class="admin-bottom-nav">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</nav>');
- const panel=document.querySelector("#admin-panel");const open=tab=>{document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));renderAdminTab(tab,panel)};document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>open(b.dataset.tab));open("students");
+ const panel=document.querySelector("#admin-panel");const open=tab=>{document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));renderAdminTab(tab,panel)};document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>open(b.dataset.tab));if(localStorage.getItem(ADMIN_BYPASS_KEY)==="1")panel.innerHTML='<div class="dashboard-card"><h2>Welcome, Administrator</h2><p class="muted">You are logged in to the D’Blossom School Management Dashboard.</p></div>';else open("students");
 }
 async function adminGet(table,params={}){const u=new URL("/api/admin-operations",location.origin);u.searchParams.set("table",table);Object.entries(params).forEach(([k,v])=>v!=null&&u.searchParams.set(k,v));return api(u.pathname+u.search)}
 async function adminPost(body){return api("/api/admin-operations",{method:"POST",body:JSON.stringify(body)})}
