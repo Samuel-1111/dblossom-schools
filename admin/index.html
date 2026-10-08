@@ -1,84 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admin Login — D'Blossom Model Private Schools</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D'Blossom Admin Login</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#12233f}
-.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.card{width:100%;max-width:420px;background:#fff;padding:32px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.1)}
-.logo{width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 15px}
-h1{text-align:center;margin:0 0 8px}.muted{text-align:center;color:#667085;margin:0 0 25px}
-label{display:block;font-weight:600;margin:14px 0 7px}input{width:100%;padding:13px;border:1px solid #ccd3dd;border-radius:8px;font-size:16px}
-button{width:100%;padding:14px;border:0;border-radius:8px;background:#123b6d;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:20px}
-#error{color:#c62828;text-align:center;margin-top:12px;min-height:20px}.hidden{display:none!important}
-.dashboard{min-height:100vh}.top{background:#123b6d;color:#fff;padding:20px 25px;display:flex;justify-content:space-between;align-items:center}.top h2{margin:0}
-.logout{width:auto;margin:0;background:#fff;color:#123b6d;padding:9px 16px}
-.content{padding:30px;max-width:1100px;margin:auto}
+body{font-family:Arial,sans-serif;background:#f2f5f9;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.box{background:white;width:90%;max-width:400px;padding:30px;border-radius:12px;box-shadow:0 5px 20px #0002}
+h1{text-align:center;color:#123b6d}
+input{display:block;width:100%;padding:13px;margin:10px 0;box-sizing:border-box;border:1px solid #ccc;border-radius:6px}
+button{width:100%;padding:13px;background:#123b6d;color:white;border:0;border-radius:6px;font-size:16px;font-weight:bold}
+#error{color:red;text-align:center;margin-top:12px}
+#dashboard{display:none;width:100%;min-height:100vh;background:#f2f5f9}
+header{background:#123b6d;color:white;padding:20px;display:flex;justify-content:space-between}
+main{padding:30px}
 </style>
 </head>
 <body>
-<section id="login" class="login">
-<div class="card">
-<img class="logo" src="../logo.jpg" alt="D'Blossom Model Private Schools">
-<h1>Admin Portal</h1>
-<p class="muted">D'Blossom Model Private Schools</p>
-<form id="form">
-<label for="username">Username</label>
-<input id="username" type="text" autocomplete="username" required>
-<label for="password">Password</label>
-<input id="password" type="password" autocomplete="current-password" required>
-<button type="submit">Login to Dashboard</button>
-<p id="error"></p>
-</form>
-</div>
-</section>
 
-<section id="dashboard" class="dashboard hidden">
-<header class="top">
-<h2>Administrator Dashboard</h2>
-<button id="logout" class="logout">Logout</button>
-</header>
-<div class="content">
-<h1>Welcome, Administrator</h1>
-<p>You are successfully logged in to the D'Blossom School Management Dashboard.</p>
+<div id="login" class="box">
+<h1>Admin Login</h1>
+<input id="username" type="text" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<button type="button" onclick="loginAdmin()">Login to Dashboard</button>
+<div id="error"></div>
 </div>
-</section>
+
+<div id="dashboard">
+<header>
+<strong>D'Blossom Administrator Dashboard</strong>
+<button type="button" onclick="logoutAdmin()">Logout</button>
+</header>
+<main>
+<h1>Welcome, Administrator</h1>
+<p>Login successful.</p>
+</main>
+</div>
 
 <script>
-const USERNAME="DivineBlossom";
-const PASSWORD="DBMS";
-const login=document.getElementById("login");
-const dashboard=document.getElementById("dashboard");
-const form=document.getElementById("form");
-const error=document.getElementById("error");
-
-function showDashboard(){
-  login.classList.add("hidden");
-  dashboard.classList.remove("hidden");
-}
-
-form.addEventListener("submit",function(event){
-  event.preventDefault();
-  if(document.getElementById("username").value.trim()===USERNAME &&
-     document.getElementById("password").value===PASSWORD){
-    sessionStorage.setItem("dblossom_admin","1");
-    error.textContent="";
-    showDashboard();
+function loginAdmin(){
+  var username=document.getElementById("username").value.trim();
+  var password=document.getElementById("password").value;
+  if(username==="DivineBlossom" && password==="DBMS"){
+    document.getElementById("login").style.display="none";
+    document.getElementById("dashboard").style.display="block";
   }else{
-    error.textContent="Incorrect username or password.";
+    document.getElementById("error").textContent="Incorrect username or password.";
   }
-});
-
-document.getElementById("logout").addEventListener("click",function(){
-  sessionStorage.removeItem("dblossom_admin");
-  dashboard.classList.add("hidden");
-  login.classList.remove("hidden");
-  form.reset();
-});
-
-if(sessionStorage.getItem("dblossom_admin")==="1") showDashboard();
+}
+function logoutAdmin(){
+  document.getElementById("dashboard").style.display="none";
+  document.getElementById("login").style.display="block";
+  document.getElementById("username").value="";
+  document.getElementById("password").value="";
+  document.getElementById("error").textContent="";
+}
 </script>
 </body>
 </html>
