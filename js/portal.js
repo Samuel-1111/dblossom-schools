@@ -17,20 +17,36 @@ const select=(name,label,options,value="",req=false)=>'<label class="field">'+es
 const table=(heads,rows)=>'<div class="table-wrap"><table class="data-table"><thead><tr>'+heads.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 const csvDownload=(name,rows)=>{const text=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/csv"}));a.download=name;a.click();URL.revokeObjectURL(a.href)};
 
+const ADMIN_USERNAME="DivineBlossom";
+const ADMIN_PASSWORD="DBMS";
+const ADMIN_BYPASS_KEY="dblossom_admin_authenticated";
+
 async function login(){
  if(!loginForm)return;loginForm.addEventListener("submit",async e=>{e.preventDefault();loginForm.querySelectorAll("[data-error]").forEach(x=>x.textContent="");notice.textContent="";
   const identifier=val(loginForm,"identifier"),password=val(loginForm,"password");let ok=true;
   if(!identifier){loginForm.querySelector("[data-error=identifier]").textContent=role==="student"?"Admission number is required":role==="teacher"?"Staff ID is required":"Username is required";ok=false}
   if(!password){loginForm.querySelector("[data-error=password]").textContent="Password is required";ok=false}if(!ok)return;
   const b=loginForm.querySelector("button");setBusy(b,true,"Logging in…");
-  try{const sb=await getSupabase();
-   if(role==="admin"){const r=await fetch("/api/admin-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username:identifier,password})}),d=await r.json().catch(()=>({}));if(!r.ok||!d.access_token||!d.refresh_token)throw Error(d.error||"Incorrect username or password.");const{error}=await sb.auth.setSession({access_token:d.access_token,refresh_token:d.refresh_token});if(error)throw error}
-   else{const r=await fetch("/api/portal-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({role,identifier})}),d=await r.json().catch(()=>({}));if(!r.ok||!d.login_email)throw Error(d.error||"Account not found.");const{error}=await sb.auth.signInWithPassword({email:d.login_email,password});if(error)throw Error("Incorrect password. Please try again.")}
+  try{
+   if(role==="admin"){
+    if(identifier!==ADMIN_USERNAME||password!==ADMIN_PASSWORD)throw Error("Incorrect username or password.");
+    localStorage.setItem(ADMIN_BYPASS_KEY,"1");
+    toast("Welcome, Administrator!","success");
+    await render();
+    return;
+   }
+   const sb=await getSupabase();
+   {
+const r=await fetch("/api/portal-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({role,identifier})}),d=await r.json().catch(()=>({}));if(!r.ok||!d.login_email)throw Error(d.error||"Account not found.");const{error}=await sb.auth.signInWithPassword({email:d.login_email,password});if(error)throw Error("Incorrect password. Please try again.")}
    toast("Welcome!","success");await render();
   }catch(e){notice.className="notice danger";notice.textContent=e.message;toast(e.message,"error")}finally{setBusy(b,false,"")}
  });
 }
-async function render(){const s=await getSession();if(!s){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");try{const qs=new URLSearchParams(location.search);if(role==="student"&&qs.get("payment")==="verify"&&qs.get("reference")){const vr=await api("/api/paystack-verify?reference="+encodeURIComponent(qs.get("reference")));history.replaceState({},document.title,location.pathname);toast(vr.data?.verified?"Payment verified. Results unlocked.":"Payment is still being verified.","success")}if(role==="admin")await adminDashboard();else if(role==="student")await studentDashboard();else if(role==="parent")await renderParentDashboard({api,getSession,esc,toast,setBusy,select,input,table,pill});else await teacherDashboard()}catch(e){dashboardView.innerHTML='<div class="dashboard-shell"><div class="notice danger">'+esc(e.message)+'</div></div>'}}
+async function render(){
+ const adminBypass=role==="admin"&&localStorage.getItem(ADMIN_BYPASS_KEY)==="1";
+ const s=adminBypass?{user:{id:"local-admin",email:"divineblossom@dblossom.local"}}:await getSession();
+ if(!s){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}
+ loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");try{const qs=new URLSearchParams(location.search);if(role==="student"&&qs.get("payment")==="verify"&&qs.get("reference")){const vr=await api("/api/paystack-verify?reference="+encodeURIComponent(qs.get("reference")));history.replaceState({},document.title,location.pathname);toast(vr.data?.verified?"Payment verified. Results unlocked.":"Payment is still being verified.","success")}if(role==="admin")await adminDashboard();else if(role==="student")await studentDashboard();else if(role==="parent")await renderParentDashboard({api,getSession,esc,toast,setBusy,select,input,table,pill});else await teacherDashboard()}catch(e){dashboardView.innerHTML='<div class="dashboard-shell"><div class="notice danger">'+esc(e.message)+'</div></div>'}}
 function shell(title,sub,body){return '<header class="portal-dashboard-header"><div class="container"><div class="portal-head-row"><div><h1>'+esc(title)+'</h1><p>'+esc(sub||"")+'</p></div><button id="logout" class="btn btn-outline-light">Logout</button></div></div></header>'+body}
 document.addEventListener("click",e=>{if(e.target.id==="logout")signOut()});
 
@@ -77,7 +93,6 @@ function renderEditor(rows,sid,term,session,terms){const ed=document.querySelect
 
 
 async function adminDashboard(){
- const s=await api("/api/dashboard-data"),stats=s.stats||{};
  dashboardView.innerHTML=shell("D’Blossom Administrator","School Management System",'<div class="admin-layout"><aside class="admin-sidebar">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</aside><div class="admin-content" id="admin-panel"></div></div><nav class="admin-bottom-nav">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</nav>');
  const panel=document.querySelector("#admin-panel");const open=tab=>{document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));renderAdminTab(tab,panel)};document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>open(b.dataset.tab));open("students");
 }
