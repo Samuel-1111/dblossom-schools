@@ -1,1 +1,0 @@
-const {handler}=require("../netlify/functions/paystack-verify"); const wrap=require("../lib/vercel-adapter"); module.exports=wrap(handler);
