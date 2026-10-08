@@ -37,9 +37,9 @@ async function login(){
      throw Error(d.error||"Administrator login service is unavailable.");
     }catch(loginError){
      // Presentation-only fallback: no live school data is exposed when verification is unavailable.
-     localStorage.setItem("dblossom_admin_ui_only","1");
+     localStorage.removeItem("dblossom_admin_ui_only");
      localStorage.removeItem("dblossom_admin_session");
-     window.location.replace("/admin/?dashboard=1&ui=1");return;
+     window.location.replace("/admin");return;
     }
    }
    const sb=await getSupabase();
