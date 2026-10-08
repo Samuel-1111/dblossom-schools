@@ -27,7 +27,7 @@ async function login(){
   try{
    if(role==="admin"){
     const r=await fetch("/api/admin-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username:identifier,password})});
-    const d=await r.json().catch(()=>({}));if(!r.ok||!d.session)throw Error(d.error||"Login failed. Please check your details and try again.");
+    const d=await r.json().catch(()=>({}));if(!r.ok||!d.verified||!d.session)throw Error(d.error||"Login failed. Please check your details and try again.");
     localStorage.setItem("dblossom_admin_session",d.session);
     window.location.replace("/admin/?dashboard=1");return;
    }
