@@ -12,20 +12,31 @@
 <img class="admission-logo" src="/logo.jpg" alt="D'Blossom Model Private Schools logo">
 <p class="eyebrow">D'Blossom Model Private Schools</p>
 <h1>Online Admission Application</h1>
-<p class="muted">Complete the form carefully. The school will review your application and contact you using the details provided.</p>
+<p class="muted">Complete all applicable fields carefully. Your application will be submitted securely to the school for review.</p>
 </div>
 <form id="admission-form" class="dashboard-form admission-form">
-<input name="applicant_name" required placeholder="Applicant full name">
-<input name="date_of_birth" type="date">
-<select name="gender"><option value="">Gender</option><option>Male</option><option>Female</option></select>
-<input name="class_applied" placeholder="Class applying for">
-<input name="parent_name" required placeholder="Parent/Guardian full name">
-<input name="parent_email" type="email" placeholder="Parent email">
-<input name="parent_phone" required type="tel" placeholder="Parent phone">
-<textarea name="address" rows="3" placeholder="Address"></textarea>
+<div class="admission-form-section">
+<h2>Applicant Information</h2>
+<div class="admission-field-grid">
+<label class="field"><span>Applicant Full Name *</span><input name="applicant_name" required placeholder="Enter applicant's full name"></label>
+<label class="field"><span>Date of Birth</span><input name="date_of_birth" type="date"></label>
+<label class="field"><span>Gender</span><select name="gender"><option value="">Select gender</option><option>Male</option><option>Female</option></select></label>
+<label class="field"><span>Class Applying For</span><input name="class_applied" placeholder="e.g. JSS 1"></label>
+</div>
+</div>
+<div class="admission-form-section">
+<h2>Parent / Guardian Information</h2>
+<div class="admission-field-grid">
+<label class="field"><span>Parent / Guardian Full Name *</span><input name="parent_name" required placeholder="Enter parent or guardian full name"></label>
+<label class="field"><span>Parent Email</span><input name="parent_email" type="email" placeholder="Enter parent email"></label>
+<label class="field"><span>Parent / Guardian Phone</span><input name="parent_phone" type="tel" placeholder="Enter phone number"></label>
+</div>
+<label class="field"><span>Residential Address</span><textarea name="address" rows="4" placeholder="Enter residential address"></textarea></label>
+</div>
 <div class="admission-actions">
 <button class="btn btn-gold" type="submit">Submit Application</button>
-<button class="btn navy-btn" type="button" id="download-admission-pdf">Download Form as PDF</button>
+<button class="btn navy-btn" type="button" id="download-admission-pdf">Download PDF</button>
+<button class="btn btn-outline-print" type="button" id="print-admission-form">Print Form</button>
 </div>
 <p id="admission-notice" class="notice"></p>
 </form>
