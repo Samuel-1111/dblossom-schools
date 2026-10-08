@@ -17,6 +17,7 @@ const select=(name,label,options,value="",req=false)=>'<label class="field">'+es
 const table=(heads,rows)=>'<div class="table-wrap"><table class="data-table"><thead><tr>'+heads.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 const csvDownload=(name,rows)=>{const text=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/csv"}));a.download=name;a.click();URL.revokeObjectURL(a.href)};
 
+async function adminSession(){return localStorage.getItem("dblossom_admin_session")||""}
 async function login(){
  if(!loginForm)return;loginForm.addEventListener("submit",async e=>{e.preventDefault();loginForm.querySelectorAll("[data-error]").forEach(x=>x.textContent="");notice.textContent="";
   const identifier=val(loginForm,"identifier"),password=val(loginForm,"password");let ok=true;
@@ -24,23 +25,17 @@ async function login(){
   if(!password){loginForm.querySelector("[data-error=password]").textContent="Password is required";ok=false}if(!ok)return;
   const b=loginForm.querySelector("button");setBusy(b,true,"Logging in…");
   try{
-   const sb=await getSupabase();
-   const endpoint=role==="admin"?"/api/admin-login":"/api/portal-login";
-   const payload=role==="admin"?{username:identifier,password}:{role,identifier};
-   const r=await fetch(endpoint,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)}),d=await r.json().catch(()=>({}));
-   if(!r.ok)throw Error(d.error||"Login failed. Please check your details and try again.");
    if(role==="admin"){
-    if(!d.access_token||!d.refresh_token)throw Error("Administrator session could not be started.");
-    const{data:session,error:se}=await sb.auth.setSession({access_token:d.access_token,refresh_token:d.refresh_token});
-    if(se||!session?.session)throw Error("Could not start your administrator session. Please try again.");
-    const{data:userCheck,error:userError}=await sb.auth.getUser(session.session.access_token);
-    if(userError||!userCheck?.user)throw Error("Administrator session could not be verified. Please try again.");
-    window.location.replace("/admin/?dashboard=1");
-    return;
-   }else{
-    if(!d.login_email)throw Error(d.error||"Account not found.");
-    const{error}=await sb.auth.signInWithPassword({email:d.login_email,password});if(error)throw Error("Incorrect password. Please try again.");
+    const r=await fetch("/api/admin-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username:identifier,password})});
+    const d=await r.json().catch(()=>({}));if(!r.ok||!d.session)throw Error(d.error||"Login failed. Please check your details and try again.");
+    localStorage.setItem("dblossom_admin_session",d.session);
+    window.location.replace("/admin/?dashboard=1");return;
    }
+   const sb=await getSupabase();
+   const r=await fetch("/api/portal-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({role,identifier})}),d=await r.json().catch(()=>({}));
+   if(!r.ok)throw Error(d.error||"Login failed. Please check your details and try again.");
+   if(!d.login_email)throw Error(d.error||"Account not found.");
+   const{error}=await sb.auth.signInWithPassword({email:d.login_email,password});if(error)throw Error("Incorrect password. Please try again.");
    toast("Welcome!","success");await render();
   }catch(e){notice.className="notice danger";notice.textContent=e.message;toast(e.message,"error")}finally{setBusy(b,false,"")}
  });
