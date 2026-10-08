@@ -1,7 +1,17 @@
 const{admin,userFrom,isAdmin}=require("./_supabase");
+const crypto=require("crypto");
+function localAdmin(event){
+ const raw=String(event.headers?.cookie||event.headers?.Cookie||""); const cookies={};
+ raw.split(";").forEach(p=>{const i=p.indexOf("=");if(i>0)cookies[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim())});
+ const token=cookies.dblossom_admin_session;if(!token||!process.env.ADMIN_PASSWORD)return null;
+ const [payload,sig]=String(token).split(".");if(!payload||!sig)return null;
+ const expected=crypto.createHmac("sha256",String(process.env.ADMIN_PASSWORD)).update(payload).digest("hex");
+ if(sig.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(expected)))return null;
+ try{const d=JSON.parse(Buffer.from(payload,"base64url").toString());if(d.role!=="admin"||!d.username||!d.iat||Date.now()-Number(d.iat)>12*60*60*1000)return null;return{id:null,role:"admin",username:d.username,local:true}}catch{return null}
+}
 const json=(statusCode,body)=>({statusCode,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify(body)});
 const parse=(e)=>{try{return JSON.parse(e.body||"{}")}catch{return{}}};
-async function guard(e){const u=await userFrom(e);if(!u||!(await isAdmin(u)))return{error:json(403,{error:"Administrator access required."})};return{user:u,db:admin()}};
+async function guard(e){const u=localAdmin(e)||await userFrom(e);if(!u||(!u.local&&!(await isAdmin(u))))return{error:json(403,{error:"Administrator access required."})};return{user:u,db:admin()}};
 async function log(db,user,action,type,id,details={}){try{await db.from("audit_logs").insert({actor_profile_id:user.id,action,entity_type:type,entity_id:id?String(id):null,details})}catch{}}
 const page=async(q,n=100)=>{const{data,error,count}=await q.range(0,n-1);if(error)throw error;return{data:data||[],count:count||0}};
 exports.handler=async e=>{
