@@ -1,4 +1,9 @@
-import{getSupabase,getSession,signOut,esc}from"./supabase.js";
+const esc=value=>String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+let supabaseModulePromise;
+const supabaseModule=()=>supabaseModulePromise||(supabaseModulePromise=import("./supabase.js"));
+const getSupabase=async()=> (await supabaseModule()).getSupabase();
+const getSession=async()=> (await supabaseModule()).getSession();
+const signOut=async()=> (await supabaseModule()).signOut();
 
 const role=document.body.dataset.role||"student";
 const loginView=document.querySelector("#login-view"),dashboardView=document.querySelector("#dashboard-view"),loginForm=document.querySelector("#login-form"),notice=document.querySelector("#login-notice");
