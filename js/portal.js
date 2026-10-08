@@ -124,22 +124,20 @@ const load=(src,key)=>new Promise((ok,no)=>{if(window[key])return ok();const s=d
 async function teacherDashboard(){const{renderTeacherPortal}=await import("./teacher-portal.js");await renderTeacherPortal(dashboardView,shell)}
 
 async function adminDashboard(){
- dashboardView.innerHTML='<header class="portal-dashboard-header"><div class="container"><div class="portal-head-row"><div class="admin-brand"><img src="/logo.jpg" alt="D\\'Blossom Model Private Schools" style="width:48px;height:48px;object-fit:contain;border-radius:10px;background:#fff;padding:4px"><div><h1>D’Blossom Administrator</h1><p>School Management System</p></div></div><button id="logout" class="btn btn-outline-light">Logout</button></div></div></header><div class="dashboard-shell"><div class="admin-layout"><aside class="admin-sidebar">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</aside><div class="admin-content" id="admin-panel"></div></div><nav class="admin-bottom-nav">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</nav></div>';
+ const existingPanel=document.querySelector("#admin-panel");
+ if(!existingPanel){
+  dashboardView.innerHTML='<header class="portal-dashboard-header"><div class="container"><div class="portal-head-row"><div class="admin-brand"><img src="/logo.jpg" alt="D\\'Blossom Model Private Schools" style="width:48px;height:48px;object-fit:contain;border-radius:10px;background:#fff;padding:4px"><div><h1>D’Blossom Administrator</h1><p>School Management System</p></div></div><button id="logout" class="btn btn-outline-light">Logout</button></div></div></header><div class="dashboard-shell"><div class="admin-layout"><aside class="admin-sidebar">'+ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("")+'</aside><div class="admin-content" id="admin-panel"></div></div></div>';
+ }
  const panel=document.querySelector("#admin-panel");
+ const buttons=document.querySelectorAll("[data-tab]");
  const open=async tab=>{
-  document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+  buttons.forEach(btn=>btn.classList.toggle("active",btn.dataset.tab===tab));
   panel.innerHTML='<section class="dashboard-card"><div class="section-head"><div><p class="section-label">Administrator Portal</p><h2>'+esc(ADMIN_TABS.find(x=>x[0]===tab)?.[1]||"Dashboard")+'</h2><p class="muted">Loading live school data…</p></div></div></section>';
-  try{
-   await renderAdminTab(tab,panel);
-  }catch(e){
-   console.error("Admin section load failed:",e);
-   panel.innerHTML='<section class="dashboard-card"><div class="section-head"><div><p class="section-label">Administrator Portal</p><h2>'+esc(ADMIN_TABS.find(x=>x[0]===tab)?.[1]||"Dashboard")+'</h2></div></div><div class="notice danger">Live data is temporarily unavailable. The administrator interface is still active. Check the backend connection and use the section again when the service is available.</div></section>';
-  }
+  try{await renderAdminTab(tab,panel)}catch(e){console.error("Admin section load failed:",e);panel.innerHTML='<section class="dashboard-card"><div class="section-head"><div><p class="section-label">Administrator Portal</p><h2>'+esc(ADMIN_TABS.find(x=>x[0]===tab)?.[1]||"Dashboard")+'</h2></div></div><div class="notice danger">Live data is temporarily unavailable. Please try this section again.</div></section>';}
  };
- document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>open(b.dataset.tab));
+ buttons.forEach(btn=>btn.onclick=()=>open(btn.dataset.tab));
  open("students");
 }
-
 async function adminGet(table,params={}){const u=new URL("/api/admin-operations",location.origin);u.searchParams.set("table",table);Object.entries(params).forEach(([k,v])=>v!=null&&u.searchParams.set(k,v));return api(u.pathname+u.search)}
 async function adminPost(body){return api("/api/admin-operations",{method:"POST",body:JSON.stringify(body)})}
 async function renderAdminTab(tab,panel){try{panel.innerHTML='<div class="dashboard-card"><p class="muted">Loading '+esc(tab)+'…</p></div>';if(tab==="students")return adminStudents(panel);if(tab==="teachers")return adminTeachers(panel);if(tab==="parents")return adminParents(panel);if(tab==="results")return adminResults(panel);if(tab==="payments")return adminPayments(panel);if(tab==="events")return adminEvents(panel);if(tab==="gallery")return adminGallery(panel);if(tab==="contact")return adminContactMessages(panel);if(tab==="admissions")return adminAdmissions(panel);if(tab==="messages")return adminMessages(panel);if(tab==="subjects")return adminSubjects(panel);if(tab==="advanced"){const{renderAdvanced}=await import("./admin-advanced.js");return renderAdvanced(panel,{api,esc,modal,formHtml,input,select,table,pill,csvDownload,toast,setBusy})};return adminSettings(panel)}catch(e){panel.innerHTML='<div class="notice danger">'+esc(e.message)+'</div>'}}
