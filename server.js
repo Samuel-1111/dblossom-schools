@@ -126,7 +126,7 @@ const server=http.createServer(async(req,res)=>{
   return staticFile(req,res,pathname);
 });
 
-const port=Number(process.env.PORT||3000);
+const parsedPort=Number(process.env.PORT);\nconst port=Number.isInteger(parsedPort)&&parsedPort>0&&parsedPort<65536?parsedPort:3000;
 server.listen(port,()=>{
   console.log("D’Blossom local server: http://localhost:"+port);
   console.log("Connected services: Supabase"+(process.env.PAYSTACK_SECRET_KEY?" + Paystack":""));
