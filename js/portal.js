@@ -19,6 +19,7 @@ const csvDownload=(name,rows)=>{const text=rows.map(r=>r.map(v=>'"'+String(v??""
 
 async function adminSession(){return localStorage.getItem("dblossom_admin_session")||""}
 async function login(){
+ if(role==="admin")return;
  if(!loginForm)return;loginForm.addEventListener("submit",async e=>{e.preventDefault();loginForm.querySelectorAll("[data-error]").forEach(x=>x.textContent="");notice.textContent="";
   const identifier=val(loginForm,"identifier"),password=val(loginForm,"password");let ok=true;
   if(!identifier){loginForm.querySelector("[data-error=identifier]").textContent=role==="student"?"Admission number is required":role==="teacher"?"Staff ID is required":"Username is required";ok=false}
