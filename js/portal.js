@@ -5,7 +5,7 @@ const loginView=document.querySelector("#login-view"),dashboardView=document.que
 const TERMS=["First Term","Second Term","Third Term"];
 const ADMIN_TABS=[["students","Students","🎓"],["teachers","Teachers","👥"],["results","Results","📄"],["parents","Parents","👨‍👩‍👧"],["payments","Payments","💳"],["events","Events","📅"],["gallery","Gallery","🖼️"],["complaints","Complaints","💬"],["admissions","Admissions","📝"],["messages","Parent Messages","✉️"],["subjects","Subjects","📚"],["advanced","School Management / Advanced","🛠️"],["settings","Settings","⚙️"]];
 const toast=(m,t="info")=>{const e=document.createElement("div");e.className="toast";e.dataset.type=t;e.textContent=m;document.body.append(e);setTimeout(()=>e.remove(),3200)};
-const api=async(path,options={})=>{const token=role==="admin"?await adminSession():(await getSession())?.access_token;if(!token)throw Error(role==="admin"?"Your administrator session has expired. Please sign in again.":"Your session has expired. Please sign in again.");const headers={...options.headers,"content-type":"application/json"};if(role==="admin")headers["x-admin-session"]=token;else headers.Authorization="Bearer "+token;const r=await fetch(path,{...options,headers});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Request failed.");return d};
+const api=async(path,options={})=>{const token=role==="admin"?await adminSession():(await getSession())?.access_token;if(role!=="admin"&&!token)throw Error("Your session has expired. Please sign in again.");const headers={...options.headers,"content-type":"application/json"};if(role!=="admin")headers.Authorization="Bearer "+token;const r=await fetch(path,{...options,headers,credentials:"same-origin"});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Request failed.");return d};
 const setBusy=(b,on,label)=>{if(!b)return;b.disabled=on;if(on)b.dataset.old=b.textContent;b.textContent=on?label:(b.dataset.old||b.textContent)};
 const val=(form,n)=>String(new FormData(form).get(n)||"").trim();
 const grade=t=>t>=70?"A":t>=60?"B":t>=50?"C":t>=40?"D":"F";
@@ -17,7 +17,7 @@ const select=(name,label,options,value="",req=false)=>'<label class="field">'+es
 const table=(heads,rows)=>'<div class="table-wrap"><table class="data-table"><thead><tr>'+heads.map(x=>'<th>'+x+'</th>').join("")+'</tr></thead><tbody>'+rows+'</tbody></table></div>';
 const csvDownload=(name,rows)=>{const text=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/csv"}));a.download=name;a.click();URL.revokeObjectURL(a.href)};
 
-async function adminSession(){return localStorage.getItem("dblossom_admin_session")||""}
+async function adminSession(){try{const r=await fetch("/api/admin-login",{method:"GET",cache:"no-store",credentials:"same-origin"});const d=await r.json().catch(()=>({}));return r.ok&&d.authenticated===true?"cookie-session":""}catch{return""}}
 async function login(){
  if(role==="admin")return;
  if(!loginForm)return;loginForm.addEventListener("submit",async e=>{e.preventDefault();loginForm.querySelectorAll("[data-error]").forEach(x=>x.textContent="");notice.textContent="";
@@ -86,7 +86,7 @@ async function adminDashboardShellFallback(){
  await open("students");
 }
 function shell(title,sub,body){return '<header class="portal-dashboard-header"><div class="container"><div class="portal-head-row"><div><h1>'+esc(title)+'</h1><p>'+esc(sub||"")+'</p></div><button id="logout" class="btn btn-outline-light">Logout</button></div></div></header>'+body}
-document.addEventListener("click",e=>{if(e.target.id==="logout"){if(role==="admin"){localStorage.removeItem("dblossom_admin_session");location.href="/admin"}else signOut()}});
+document.addEventListener("click",async e=>{if(e.target.id==="logout"){if(role==="admin"){try{await fetch("/api/admin-login",{method:"DELETE",credentials:"same-origin",cache:"no-store"})}catch{}location.href="/admin"}else signOut()}});
 
 async function parentDashboard(){
  const p=await api("/api/parent-data");
