@@ -1,0 +1,81 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/netlify/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/server.js"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/package.json"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/netlify.toml"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.env.example"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/api/manus-storage/*"
+  to = "/.netlify/functions/manus-storage/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/:name"
+  to = "/.netlify/functions/:name"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin-portal"
+  to = "/admin/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/student-portal"
+  to = "/pages/student-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/teacher-portal"
+  to = "/pages/teacher-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/parent-portal"
+  to = "/pages/parent-login.html"
+  status = 200
+
+[[redirects]]
+  from = "/admissions"
+  to = "/pages/admissions.html"
+  status = 200
+
+[[redirects]]
+  from = "/admission-status"
+  to = "/pages/admission-status.html"
+  status = 200
