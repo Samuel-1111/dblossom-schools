@@ -54,7 +54,7 @@
   if(!form)return;
   form.addEventListener("submit",async function(event){
     event.preventDefault();
-    event.stopPropagation();
+    event.stopImmediatePropagation();
     const username=String(form.elements.identifier?.value||"").trim();
     const password=String(form.elements.password?.value||"");
     if(!username||!password)return;
