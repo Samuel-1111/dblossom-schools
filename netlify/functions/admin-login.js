@@ -6,7 +6,7 @@ const FIRST_RUN_SHA256=process.env.ADMIN_INITIAL_PASSWORD_SHA256||"e8b791d8ba7e8
 const json=(statusCode,body)=>({statusCode,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify(body)});
 const sha=s=>crypto.createHash("sha256").update(s).digest("hex");
 const same=(a,b)=>{const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&crypto.timingSafeEqual(x,y)};
-const DENY="Incorrect username or password.";
+const DENY="Incorrect password.";
 exports.handler=async event=>{
  if(event.httpMethod!=="POST")return json(405,{error:"Method Not Allowed"});
  try{
