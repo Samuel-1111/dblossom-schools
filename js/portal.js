@@ -59,12 +59,30 @@ async function render(){
   loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");
   // Administrator UI is local and must render even when Supabase/backend dashboard data is unavailable.
   // Backend data is loaded by individual admin sections after the real dashboard shell is visible.
-  await adminDashboard();
+  try {
+   await adminDashboard();
+  } catch (error) {
+   // Never strand a successfully authenticated administrator on the login screen.
+   // The complete administrator UI remains available even if a live dashboard request fails.
+   try {
+    await adminDashboardShellFallback();
+   } catch (fallbackError) {
+    dashboardView.innerHTML='<div class="dashboard-shell"><div class="dashboard-card"><h2>D’Blossom Administrator</h2><p class="muted">Administrator authentication succeeded. The management interface is available, but live data could not be loaded.</p><button class="btn navy-btn" onclick="location.reload()">Retry Dashboard</button></div></div>';
+   }
+  }
   return;
  }
  const s=await getSession();
  if(!s){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}
  loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");try{const qs=new URLSearchParams(location.search);if((role==="student"||role==="parent")&&qs.get("payment")==="verify"&&qs.get("reference")){const vr=await api("/api/paystack-verify?reference="+encodeURIComponent(qs.get("reference")));history.replaceState({},document.title,location.pathname);toast(vr.data?.verified?"Payment verified. Results unlocked for this student.":"Payment is still being verified.","success")}if(role==="admin"){const check=await api("/api/dashboard-data");if(!["admin","super_admin"].includes(String(check.profile?.role)))throw Error("Administrator access is required.");await adminDashboard(check)}else if(role==="student")await studentDashboard();else if(role==="parent")await renderParentDashboard({api,getSession,esc,toast,setBusy,select,input,table,pill});else await teacherDashboard()}catch(e){dashboardView.innerHTML='<div class="dashboard-shell"><div class="notice danger">'+esc(e.message)+'</div></div>'}}
+async function adminDashboardShellFallback(){
+ const tabs=ADMIN_TABS.map((x,i)=>'<button class="admin-tab '+(i===0?"active":"")+'" data-tab="'+x[0]+'"><span>'+x[2]+'</span>'+x[1]+'</button>').join("");
+ dashboardView.innerHTML='<header class="portal-dashboard-header"><div class="container"><div class="portal-head-row"><div class="admin-brand"><img src="/logo.jpg" alt="D\\'Blossom Model Private Schools" style="width:48px;height:48px;object-fit:contain;border-radius:10px;background:#fff;padding:4px"><div><h1>D’Blossom Administrator</h1><p>School Management System</p></div></div><button id="logout" class="btn btn-outline-light">Logout</button></div></div></header><div class="dashboard-shell"><div class="admin-layout"><aside class="admin-sidebar">'+tabs+'</aside><div class="admin-content" id="admin-panel"><div class="dashboard-card"><div class="section-head"><div><p class="section-label">Administrator</p><h2>Dashboard Ready</h2></div></div><p class="muted">Your administrator credentials were verified successfully. Live school data can be loaded from each section when available.</p></div></div></div><nav class="admin-bottom-nav">'+tabs+'</nav></div>';
+ const panel=document.querySelector("#admin-panel");
+ const open=async tab=>{document.querySelectorAll(".admin-tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));try{await renderAdminTab(tab,panel)}catch(e){panel.innerHTML='<div class="dashboard-card"><div class="notice danger">Live data for this section is temporarily unavailable. The administrator dashboard is still active.</div><button class="btn btn-outline" id="admin-retry-tab">Retry</button></div>';panel.querySelector("#admin-retry-tab")?.addEventListener("click",()=>open(tab));}};
+ document.querySelectorAll(".admin-tab").forEach(b=>b.onclick=()=>open(b.dataset.tab));
+ await open("students");
+}
 function shell(title,sub,body){return '<header class="portal-dashboard-header"><div class="container"><div class="portal-head-row"><div><h1>'+esc(title)+'</h1><p>'+esc(sub||"")+'</p></div><button id="logout" class="btn btn-outline-light">Logout</button></div></div></header>'+body}
 document.addEventListener("click",e=>{if(e.target.id==="logout"){if(role==="admin"){localStorage.removeItem("dblossom_admin_session");location.href="/admin"}else signOut()}});
 
