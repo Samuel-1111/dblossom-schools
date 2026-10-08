@@ -94,7 +94,7 @@ exports.handler = async event => {
     const b=JSON.parse(event.body||"{}"), type=clean(b.type), id=clean(b.id);
 
     if(type==="student") {
-      if(!clean(b.full_name)||!clean(b.admission_number)||!clean(b.class_id)||(!id&&!clean(b.password))) return json(400,{error:"Full name, admission number, assigned class and password are required for a new student."});
+      if(!clean(b.full_name)||!clean(b.admission_number)||(!id&&!clean(b.password))) return json(400,{error:"Full name, admission number and password are required for a new student."});
       if(!id&&clean(b.password).length<6)return json(400,{error:"Student portal password must be at least 6 characters."});
       if(id&&clean(b.password)&&clean(b.password).length<6)return json(400,{error:"Student portal password must be at least 6 characters."});
       
@@ -104,7 +104,7 @@ exports.handler = async event => {
         const auth=await createOrUpdateAuth(db,{profileId:null,role:"student",password,identifier:b.admission_number,email:null});
         profileId=auth.profileId;
         await upsertProfile(db,profileId,clean(b.full_name),"student");
-        const {data,error}=await db.from("students").insert({admission_number:clean(b.admission_number),full_name:clean(b.full_name),class_id:clean(b.class_id),date_of_birth:b.date_of_birth||null,guardian_name:clean(b.guardian_name)||null,guardian_contact:clean(b.guardian_contact)||null,gender:clean(b.gender)||null,parent_email:clean(b.parent_email)||null,boarding_status:clean(b.boarding_status)||null,status:clean(b.status)||"active",profile_id:profileId}).select().single();
+        const {data,error}=await db.from("students").insert({admission_number:clean(b.admission_number),full_name:clean(b.full_name),class_id:clean(b.class_id)||null,date_of_birth:b.date_of_birth||null,guardian_name:clean(b.guardian_name)||null,guardian_contact:clean(b.guardian_contact)||null,gender:clean(b.gender)||null,parent_email:clean(b.parent_email)||null,boarding_status:clean(b.boarding_status)||null,status:clean(b.status)||"active",profile_id:profileId}).select().single();
         if(error){await db.auth.admin.deleteUser(profileId);throw error}
         await audit(db,user,"create","student",data.id,{admission_number:data.admission_number});
         return json(201,{data});
