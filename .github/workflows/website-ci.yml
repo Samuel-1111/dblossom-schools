@@ -1,0 +1,88 @@
+name: D'Blossom Website CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Use Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -e
+          find js netlify/functions -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+          node --check server.js
+
+      - name: Check local HTML links and assets
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const path=require('path');
+          const root=process.cwd();
+          const htmlFiles=[];
+          function walk(dir){
+            for(const name of fs.readdirSync(dir)){
+              if(['.git','node_modules'].includes(name)) continue;
+              const full=path.join(dir,name);
+              const st=fs.statSync(full);
+              if(st.isDirectory()) walk(full);
+              else if(name.endsWith('.html')) htmlFiles.push(full);
+            }
+          }
+          walk(root);
+          const errors=[];
+          for(const file of htmlFiles){
+            const html=fs.readFileSync(file,'utf8');
+            for(const m of html.matchAll(/(?:href|src)=(["'])(.*?)\1/gi)){
+              const value=m[2];
+              if(!value || /^(https?:|mailto:|tel:|javascript:|data:|#)/i.test(value)) continue;
+              const clean=value.split('?')[0].split('#')[0];
+              if(!clean) continue;
+              let target;
+              if(clean.startsWith('/')) target=path.join(root,clean);
+              else target=path.resolve(path.dirname(file),clean);
+              if(!fs.existsSync(target)){
+                const routeTarget={
+                  '/admin':path.join(root,'admin','index.html'),
+                  '/admin/':path.join(root,'admin','index.html')
+                }[clean];
+                if(!routeTarget || !fs.existsSync(routeTarget))
+                  errors.push(path.relative(root,file)+' -> '+value);
+              }
+            }
+          }
+          if(errors.length){
+            console.error('Broken local links/assets:\n'+errors.join('\n'));
+            process.exit(1);
+          }
+          console.log('HTML local link/asset audit passed for '+htmlFiles.length+' HTML files.');
+          NODE
+
+      - name: Start website smoke server
+        run: |
+          PORT=4173 node server.js > /tmp/dblossom-server.log 2>&1 &
+          echo $! > /tmp/dblossom-server.pid
+          sleep 2
+          curl --fail --silent --show-error http://127.0.0.1:4173/ > /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:4173/admin > /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:4173/pages/student-login.html > /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:4173/pages/teacher-login.html > /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:4173/pages/parent-login.html > /dev/null
+          curl --fail --silent --show-error http://127.0.0.1:4173/pages/admissions.html > /dev/null
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:4173/api/not-a-real-route)" = "404"
+          kill $(cat /tmp/dblossom-server.pid)
+          cat /tmp/dblossom-server.log
