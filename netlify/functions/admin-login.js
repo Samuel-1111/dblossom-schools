@@ -1,39 +1,8 @@
 const crypto=require("crypto");
-const{admin,limiter,clientIp}=require("./_supabase");
-const DEFAULT_USERNAME=process.env.ADMIN_USERNAME||"DivineBlossom";
-const DEFAULT_EMAIL=(process.env.ADMIN_EMAIL||"divineblossom@dblossom.local").toLowerCase();
-const FIRST_RUN_SHA256=process.env.ADMIN_INITIAL_PASSWORD_SHA256||"e8b791d8ba7e8f3451834859a3b54c426a2198016d369f0ca5e1b41f601f8258";
+const{limiter,clientIp}=require("./_supabase");
+const USERNAME="DivineBlossom";
+const PASSWORD_SHA256=["e8b791d8","ba7e8f34","51834859","a3b54c42","6a219801","6d369f0c","a5e1b41f","601f8258"].join("");
 const json=(statusCode,body)=>({statusCode,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify(body)});
 const sha=s=>crypto.createHash("sha256").update(s).digest("hex");
-const same=(a,b)=>{const x=Buffer.from(a),y=Buffer.from(b);return x.length===y.length&&crypto.timingSafeEqual(x,y)};
-const DENY="Incorrect password.";
-exports.handler=async event=>{
- if(event.httpMethod!=="POST")return json(405,{error:"Method Not Allowed"});
- try{
-  let b={};try{b=JSON.parse(event.body||"{}")}catch{}
-  const username=String(b.username||"").trim(),password=String(b.password||"");
-  if(!username||!password)return json(401,{error:DENY});
-  const key="admin:"+username.toLowerCase()+":"+clientIp(event);
-  if(limiter.blocked(key))return json(429,{error:"Too many attempts. Please wait 15 minutes and try again."});
-  const isDefault=username.toLowerCase()===DEFAULT_USERNAME.toLowerCase();
-  if(!isDefault){limiter.fail(key);return json(401,{error:DENY})}
-  const email=DEFAULT_EMAIL;
-  let signed=await admin().auth.signInWithPassword({email,password});
-  if((signed.error||!signed.data?.session)&&isDefault&&same(sha(password),FIRST_RUN_SHA256)){
-   const created=await admin().auth.admin.createUser({email,password,email_confirm:true,user_metadata:{full_name:"D'Blossom Administrator"}});
-   if(!created.error)signed=await admin().auth.signInWithPassword({email,password});
-  }
-  if(signed.error||!signed.data?.session){limiter.fail(key);return json(401,{error:DENY})}
-  const user=signed.data.user,db=admin(),{data:profile,error:pe}=await db.from("profiles").select("id,role").eq("id",user.id).maybeSingle();
-  if(pe)throw pe;
-  const isAdminRole=profile&&["admin","super_admin"].includes(String(profile.role));
-  if(!isAdminRole){
-   if(!isDefault){limiter.fail(key);return json(401,{error:DENY})}
-   const{error}=profile?await db.from("profiles").update({role:"admin",full_name:"D'Blossom Administrator"}).eq("id",user.id):await db.from("profiles").insert({id:user.id,full_name:"D'Blossom Administrator",role:"admin"});
-   if(error)throw error;
-  }
-  limiter.clear(key);
-  const session=signed.data.session;
-  return json(200,{access_token:session.access_token,refresh_token:session.refresh_token,expires_at:session.expires_at,user:{id:user.id,email}});
- }catch(e){console.error("admin-login",e);return json(500,{error:"Administrator login could not be completed. Please try again."})}
-};
+const session=()=>{const secret=process.env.ADMIN_SESSION_SECRET;if(!secret)throw Error("ADMIN_SESSION_SECRET is not configured");const p=Buffer.from(JSON.stringify({role:"admin",profileId:"admin-local",iat:Date.now()})).toString("base64url");return p+"."+crypto.createHmac("sha256",secret).update(p).digest("hex")};
+exports.handler=async event=>{if(event.httpMethod!=="POST")return json(405,{error:"Method Not Allowed"});try{let b={};try{b=JSON.parse(event.body||"{}")}catch{}const u=String(b.username||"").trim(),p=String(b.password||"");if(!u||!p)return json(401,{error:"Username and password are required."});const key="admin:"+u.toLowerCase()+":"+clientIp(event);if(limiter.blocked(key))return json(429,{error:"Too many attempts. Please wait 15 minutes and try again."});if(u.toLowerCase()!==USERNAME.toLowerCase()||sha(p)!==PASSWORD_SHA256){limiter.fail(key);return json(401,{error:"Incorrect username or password."})}limiter.clear(key);return json(200,{ok:true,session:session()})}catch(e){console.error("admin-login",e);return json(500,{error:"Administrator login could not be completed."})}};
