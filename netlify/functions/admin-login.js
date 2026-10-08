@@ -12,7 +12,7 @@ exports.handler=async event=>{
  try{
   let b={};try{b=JSON.parse(event.body||"{}")}catch{}
   const username=String(b.username||"").trim(),password=String(b.password||"");
-  if(!username||!password)return json(400,{error:"Username and password are required."});
+  if(!username||!password)return json(401,{error:DENY});
   const key="admin:"+username.toLowerCase()+":"+clientIp(event);
   if(limiter.blocked(key))return json(429,{error:"Too many attempts. Please wait 15 minutes and try again."});
   const byEmail=username.includes("@"),isDefault=!byEmail&&username.toLowerCase()===DEFAULT_USERNAME.toLowerCase();
