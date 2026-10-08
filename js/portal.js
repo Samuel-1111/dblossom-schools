@@ -57,7 +57,11 @@ async function render(){
   const token=await adminSession();
   if(!token){loginView?.classList.remove("hidden");dashboardView?.classList.add("hidden");return}
   loginView?.classList.add("hidden");dashboardView?.classList.remove("hidden");
-  try{await api("/api/dashboard-data")}catch(e){} await adminDashboard()
+  // Administrator UI is local and must render even when Supabase/backend dashboard data is unavailable.
+  // Backend data is loaded by individual admin sections after the real dashboard shell is visible.
+  try{await adminDashboard()}catch(e){
+    dashboardView.innerHTML='<div class="dashboard-shell"><div class="notice danger">Administrator dashboard UI loaded. Some live school data is temporarily unavailable.</div></div>';
+  }
   return;
  }
  const s=await getSession();
