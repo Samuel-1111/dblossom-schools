@@ -24,16 +24,21 @@
 <h2>Admin Login</h2>
 <p class="muted">Secure administrator access</p>
 
+<form id="login-form">
 <div class="field">
-<label>Username</label>
-<input id="admin-username" autocomplete="username" placeholder="DivineBlossom">
+<label for="admin-username">Username</label>
+<input id="admin-username" name="identifier" autocomplete="username" placeholder="DivineBlossom">
+<div class="field-error" data-error="identifier"></div>
 </div>
 <div class="field">
-<label>Password</label>
-<input id="admin-password" type="password" autocomplete="current-password" placeholder="Password">
+<label for="admin-password">Password</label>
+<input id="admin-password" name="password" type="password" autocomplete="current-password" placeholder="Password">
+<div class="field-error" data-error="password"></div>
 </div>
 
-<button class="btn navy-btn" type="button" id="admin-login-button">Login to Dashboard</button>
+<button class="btn navy-btn" type="submit">Login to Dashboard</button>
+</form>
+
 <div id="login-notice"></div>
 <a href="/" class="muted back-link">⌂ Back to Home</a>
 </section>
@@ -41,20 +46,6 @@
 
 <main id="dashboard-view" class="hidden"></main>
 
-<script>
-document.getElementById("admin-login-button").addEventListener("click", function () {
-  var username = document.getElementById("admin-username").value.trim();
-  var password = document.getElementById("admin-password").value;
-  var notice = document.getElementById("login-notice");
-
-  if (username === "DivineBlossom" && password === "DBMS") {
-    localStorage.setItem("dblossom_admin_authenticated", "1");
-    import("/js/portal.js");
-  } else {
-    notice.className = "notice danger";
-    notice.textContent = "Incorrect username or password.";
-  }
-});
-</script>
+<script type="module" src="/js/portal.js"></script>
 </body>
 </html>
