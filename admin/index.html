@@ -27,7 +27,7 @@
 <form id="login-form">
 <div class="field">
 <label for="admin-username">Username</label>
-<input id="admin-username" name="identifier" autocomplete="username" placeholder="DivineBlossom">
+<input id="admin-username" name="identifier" autocomplete="username" placeholder="Username or administrator email">
 <div class="field-error" data-error="identifier"></div>
 </div>
 <div class="field">
@@ -46,6 +46,7 @@
 
 <main id="dashboard-view" class="hidden"></main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module" src="/js/portal.js"></script>
 </body>
 </html>
