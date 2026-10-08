@@ -18,16 +18,30 @@
   }
 
   async function bootPortal(){
-    try{
-      await import(PORTAL);
-    }catch(error){
-      console.error("Administrator portal boot failed:",error);
-      showDashboard();
-      if(dashboardView){
-        dashboardView.innerHTML='<div class="dashboard-shell"><div class="dashboard-card"><h2>D’Blossom Administrator</h2><p class="muted">Administrator authentication succeeded.</p><p class="muted">The management interface failed to initialize. Refresh to retry.</p><button class="btn navy-btn" id="admin-retry">Retry Dashboard</button></div></div>';
-        document.getElementById("admin-retry")?.addEventListener("click",()=>location.reload());
+    // Administrator authentication is already complete. Never send the administrator
+    // back to the login form because a dashboard module failed to load.
+    const attempts=[
+      "/js/portal.js?v=admin-portal-16f8b20e",
+      "/js/portal.js?v=admin-portal-16f8b20e-retry"
+    ];
+    let lastError=null;
+
+    for(const url of attempts){
+      try{
+        await import(url);
+        return true;
+      }catch(error){
+        lastError=error;
+        console.error("Administrator portal boot attempt failed:",error);
       }
     }
+
+    showDashboard();
+    if(dashboardView){
+      dashboardView.innerHTML='<div class="dashboard-shell"><div class="dashboard-card"><h2>D’Blossom Administrator</h2><p class="muted">Administrator authentication succeeded, but the dashboard code could not be loaded.</p><p class="muted">Your login session is still valid. Please reload this page after the latest deployment is available.</p><button class="btn navy-btn" id="admin-retry">Reload Dashboard</button></div></div>';
+      document.getElementById("admin-retry")?.addEventListener("click",()=>location.reload());
+    }
+    return false;
   }
 
   async function boot(){
