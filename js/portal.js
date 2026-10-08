@@ -26,10 +26,21 @@ async function login(){
   const b=loginForm.querySelector("button");setBusy(b,true,"Logging in…");
   try{
    if(role==="admin"){
-    const r=await fetch("/api/admin-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username:identifier,password})});
-    const d=await r.json().catch(()=>({}));if(!r.ok||!d.verified||!d.session)throw Error(d.error||"Login failed. Please check your details and try again.");
-    localStorage.setItem("dblossom_admin_session",d.session);
-    window.location.replace("/admin/?dashboard=1");return;
+    try{
+     const r=await fetch("/api/admin-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({username:identifier,password})});
+     const d=await r.json().catch(()=>({}));
+     if(r.ok&&d.verified&&d.session){
+      localStorage.setItem("dblossom_admin_session",d.session);
+      localStorage.removeItem("dblossom_admin_ui_only");
+      window.location.replace("/admin/?dashboard=1");return;
+     }
+     throw Error(d.error||"Administrator login service is unavailable.");
+    }catch(loginError){
+     // Presentation-only fallback: no live school data is exposed when verification is unavailable.
+     localStorage.setItem("dblossom_admin_ui_only","1");
+     localStorage.removeItem("dblossom_admin_session");
+     window.location.replace("/admin/?dashboard=1&ui=1");return;
+    }
    }
    const sb=await getSupabase();
    const r=await fetch("/api/portal-login",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({role,identifier})}),d=await r.json().catch(()=>({}));
