@@ -1,72 +1,22 @@
-const crypto = require("crypto");
-
-const signSession = (username) => {
-  const secret = process.env.ADMIN_PASSWORD;
-  if (!secret) throw new Error("ADMIN_PASSWORD is not configured on Vercel.");
-
-  const payload = Buffer.from(
-    JSON.stringify({
-      role: "admin",
-      username,
-      iat: Date.now(),
-    })
-  ).toString("base64url");
-
-  const signature = crypto
-    .createHmac("sha256", secret)
-    .update(payload)
-    .digest("hex");
-
-  return payload + "." + signature;
-};
+const handler = require("../netlify/functions/admin-login").handler;
 
 module.exports = async (req, res) => {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
+  const event = {
+    httpMethod: req.method,
+    headers: req.headers || {},
+    body: typeof req.body === "string" ? req.body : JSON.stringify(req.body || {}),
+    isBase64Encoded: false,
+  };
 
   try {
-    const configuredUsername = process.env.ADMIN_USERNAME;
-    const configuredPassword = process.env.ADMIN_PASSWORD;
-
-    if (!configuredUsername || !configuredPassword) {
-      return res.status(500).json({
-        error: "Administrator login is not configured on Vercel.",
-      });
-    }
-
-    const body =
-      typeof req.body === "string"
-        ? JSON.parse(req.body || "{}")
-        : req.body || {};
-
-    const username = String(body.username || "").trim();
-    const password = String(body.password || "");
-
-    if (!username || !password) {
-      return res.status(401).json({
-        error: "Username and password are required.",
-      });
-    }
-
-    if (
-      username.toLowerCase() !== configuredUsername.trim().toLowerCase() ||
-      password !== configuredPassword
-    ) {
-      return res.status(401).json({
-        error: "Incorrect username or password.",
-      });
-    }
-
-    return res.status(200).json({
-      ok: true,
-      verified: true,
-      session: signSession(username),
-    });
+    const result = await handler(event);
+    const headers = result?.headers || {};
+    Object.entries(headers).forEach(([key, value]) => res.setHeader(key, value));
+    return res.status(result?.statusCode || 200).send(result?.body || "");
   } catch (error) {
-    console.error("admin-login", error);
+    console.error("api/admin-login", error);
     return res.status(500).json({
-      error: "Administrator login could not be completed.",
+      error: "Administrator login service failed.",
     });
   }
 };
