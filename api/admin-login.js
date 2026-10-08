@@ -54,15 +54,14 @@ module.exports = async (req, res) => {
       return json(res, 400, { error: "Username and password are required." });
     }
 
-    const usernameMatch = crypto.timingSafeEqual(
-      Buffer.from(username.toLowerCase()),
-      Buffer.from(configuredUsername.toLowerCase())
-    );
+    const safeEqual = (a, b) => {
+      const ah = crypto.createHash("sha256").update(String(a)).digest();
+      const bh = crypto.createHash("sha256").update(String(b)).digest();
+      return crypto.timingSafeEqual(ah, bh);
+    };
 
-    const passwordMatch = crypto.timingSafeEqual(
-      Buffer.from(password),
-      Buffer.from(configuredPassword)
-    );
+    const usernameMatch = safeEqual(username.toLowerCase(), configuredUsername.toLowerCase());
+    const passwordMatch = safeEqual(password, configuredPassword);
 
     if (!usernameMatch || !passwordMatch) {
       return json(res, 401, { error: "Incorrect username or password." });
