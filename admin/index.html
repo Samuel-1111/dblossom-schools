@@ -47,44 +47,7 @@
 <main id="dashboard-view" class="hidden"></main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(function(){
-  const form=document.getElementById("login-form");
-  const notice=document.getElementById("login-notice");
-  if(!form)return;
-  form.addEventListener("submit",async function(event){
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    const username=String(form.elements.identifier?.value||"").trim();
-    const password=String(form.elements.password?.value||"");
-    if(!username||!password)return;
-    const button=form.querySelector('button[type="submit"]');
-    const old=button?.textContent||"Login to Dashboard";
-    if(button){button.disabled=true;button.textContent="Verifying…";}
-    try{
-      const response=await fetch("/api/admin-login",{
-        method:"POST",
-        headers:{"content-type":"application/json"},
-        body:JSON.stringify({username,password})
-      });
-      const data=await response.json().catch(function(){return{}});
-      if(!response.ok||!data.verified||!data.session){
-        throw new Error(data.error||"Incorrect username or password.");
-      }
-      localStorage.setItem("dblossom_admin_session",data.session);
-      window.location.replace("/admin/?dashboard=1");
-    }catch(error){
-      localStorage.removeItem("dblossom_admin_session");
-      if(notice){
-        notice.className="notice danger";
-        notice.textContent=error?.message||"Administrator login could not be completed.";
-      }
-    }finally{
-      if(button){button.disabled=false;button.textContent=old;}
-    }
-  },true);
-})();
-</script>
 <script type="module" src="/js/portal.js"></script>
+
 </body>
 </html>
