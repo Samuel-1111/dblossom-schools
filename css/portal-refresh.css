@@ -120,3 +120,24 @@
 .portal-page .portal-dashboard-header .portal-head-row #enable-parent-browser-notifications,
 .portal-page .portal-dashboard-header .portal-head-row #enable-teacher-browser-notifications{flex:0 0 auto}
 @media(max-width:520px){.portal-page .portal-dashboard-header .portal-head-row{align-items:flex-start}.portal-page .portal-notification-button{max-width:100%;font-size:11px!important;padding:7px 9px!important}}
+
+
+/* Final high-contrast override: keep Edit/Delete actions readable in every portal tab and table wrapper. */
+.portal-page button[data-action="edit"],
+.portal-page button[data-action="delete"],
+.portal-page button[data-action="payment-confirm"],
+.portal-page button[data-action="payment-reject"],
+.portal-page button[data-edit-subject],
+.portal-page button[data-del]{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  opacity:1!important;visibility:visible!important;filter:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  text-shadow:none!important;transform:none!important;
+  font-weight:800!important;line-height:1.25!important;
+}
+.portal-page button[data-action="edit"],
+.portal-page button[data-edit-subject]{background:#fff!important;color:#17375e!important;-webkit-text-fill-color:#17375e!important;border:1px solid #64748b!important}
+.portal-page button[data-action="delete"],
+.portal-page button[data-del],
+.portal-page button[data-action="payment-reject"]{background:#fff1f2!important;color:#b91c1c!important;-webkit-text-fill-color:#b91c1c!important;border:1px solid #fda4af!important}
+.portal-page button[data-action="payment-confirm"]{background:#17375e!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #17375e!important}
