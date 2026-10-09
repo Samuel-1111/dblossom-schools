@@ -190,7 +190,7 @@ function teacherModal(classes,subjects,x={}){
  input("phone","Phone",x.phone||""),
  select("class_id","Assigned Class",classes.map(c=>({value:c.id,label:c.name})),x.class_id||"",true),
  select("subject_id","Assigned Subject",subjects.map(s=>({value:s.id,label:s.name+(s.class_id?"":" — General")})),x.subject_id||"",false),
- select("role","Role",[{value:"Class Teacher",label:"Class Teacher"},{value:"Teaching Staff",label:"Teaching Staff"}],x.role||"Teaching Staff",true),
+ select("role","Staff Role",[{value:"Principal",label:"Principal"},{value:"Vice Principal",label:"Vice Principal"},{value:"Head of Department",label:"Head of Department"},{value:"Class Teacher",label:"Class Teacher"},{value:"Teaching Staff",label:"Teaching Staff"},{value:"Non-Teaching Staff",label:"Non-Teaching Staff"},{value:"Bursar",label:"Bursar"},{value:"Administrative Staff",label:"Administrative Staff"}],x.role||"Teaching Staff",true),
  input("password","Portal Password","","password",!x.id,'minlength="6"'),
  select("status","Status",[{value:"active",label:"Active"},{value:"disabled",label:"Disabled"}],x.status||"active",true)
  ],x.id?"Update Teacher":"Create Teacher"));
