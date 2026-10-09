@@ -104,11 +104,11 @@
     parents: { title: "Parents", columns: ["Name", "Email", "Phone", "Status", "Linked children"], rows: x => [x.full_name, x.email, x.phone, x.status, (x.children || []).length] },
     fee_payments: { title: "Payments", columns: ["Reference", "Student", "Admission number", "Amount", "Method", "Status", "Paid on"], rows: x => [x.reference, rowValue(x, "students.full_name"), rowValue(x, "students.admission_number"), money(x.amount), x.method, x.status, date(x.paid_at)] },
     events: { title: "Events", columns: ["Title", "Event date", "Category", "Status"], rows: x => [x.title, date(x.event_date || x.date), x.category, x.status] },
-    gallery_images: { title: "Gallery", columns: ["Title / caption", "Image URL", "Status"], rows: x => [x.title || x.caption, x.image_url, x.status] },
+    gallery_images: { title: "Gallery", columns: ["Title", "Category", "Alt text", "Image URL"], rows: x => [x.title, x.category, x.alt_text, x.image_url] },
     contact_messages: { title: "Contact Enquiries", columns: ["Name", "Subject", "Email", "Message", "Status", "Received"], rows: x => [x.name, x.subject, x.email, x.message, x.status, date(x.created_at)] },
     admission_applications: { title: "Admissions", columns: ["Applicant", "Application number", "Class applied", "Parent / guardian", "Status", "Submitted"], rows: x => [x.applicant_name || x.full_name || x.student_name, x.application_number, x.class_applied, x.parent_name, x.status, date(x.created_at)] },
     parent_messages: { title: "Parent Messages", columns: ["Parent", "Student", "Subject", "Message", "Read", "Sent"], rows: x => [rowValue(x, "parent_profiles.full_name"), rowValue(x, "students.full_name"), x.subject, x.body, x.read_at ? "Read" : "Unread", date(x.created_at)] },
-    subjects: { title: "Subjects", columns: ["Subject", "Code", "Class", "Status"], rows: x => [x.name, x.code, x.class_name, x.status] }
+    subjects: { title: "Subjects", columns: ["Subject", "Class"], rows: x => [x.name, x.class_name] }
   };
 
   async function loadOverview() {
