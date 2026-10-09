@@ -112,3 +112,11 @@
 .portal-page button[data-action]:disabled,
 .portal-page button[data-edit-subject]:disabled,
 .portal-page button[data-del]:disabled{opacity:.75!important;cursor:not-allowed!important}
+
+/* Compact notification controls in the parent and teacher portal headers. */
+.portal-page .portal-notification-button,
+.portal-page #enable-browser-notifications{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:36px!important;padding:7px 11px!important;border:1px solid rgba(255,255,255,.8)!important;border-radius:9px!important;background:#17375e!important;color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important;filter:none!important;white-space:nowrap!important;font-size:12px!important;font-weight:800!important}
+.portal-page .portal-dashboard-header .portal-head-row{gap:10px;flex-wrap:wrap}
+.portal-page .portal-dashboard-header .portal-head-row #enable-parent-browser-notifications,
+.portal-page .portal-dashboard-header .portal-head-row #enable-teacher-browser-notifications{flex:0 0 auto}
+@media(max-width:520px){.portal-page .portal-dashboard-header .portal-head-row{align-items:flex-start}.portal-page .portal-notification-button{max-width:100%;font-size:11px!important;padding:7px 9px!important}}
