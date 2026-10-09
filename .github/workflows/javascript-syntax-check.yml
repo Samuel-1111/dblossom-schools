@@ -1,0 +1,22 @@
+name: JavaScript syntax check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  browser-js:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check browser JavaScript syntax
+        run: |
+          npx --yes esbuild $(find js -type f -name '*.js' -print) --outdir=/tmp/dbms-syntax-check --outbase=js --format=esm --platform=browser
