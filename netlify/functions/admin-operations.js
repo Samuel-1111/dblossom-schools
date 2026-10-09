@@ -42,37 +42,6 @@ async function createOrUpdateAuth(db, { profileId, role, password, identifier, e
   // performs an upsert so we never attempt a second insert for the same profile ID.
   return { profileId:data.user.id, email:authEmail };
 }
-const clean = v => typeof v === "string" ? v.trim() : "";
-const json = (statusCode, body) => ({ statusCode, headers: { "content-type":"application/json", "cache-control":"no-store" }, body: JSON.stringify(body) });
-const safePage = event => Math.max(1, Number(event.queryStringParameters?.page || 1));
-const safeSize = event => Math.min(100, Math.max(10, Number(event.queryStringParameters?.pageSize || 50)));
-
-async function audit(db, user, action, entity_type, entity_id, details={}) {
-  try { await db.from("audit_logs").insert({actor_profile_id:user?.id||null,action,entity_type,entity_id:entity_id?String(entity_id):null,details}); } catch (_) {}
-}
-async function getAuthEmail(db, profileId) {
-  const { data } = await db.auth.admin.getUserById(profileId);
-  return data?.user?.email || null;
-}
-function internalEmail(prefix, id) {
-  const normalized = String(prefix).toLowerCase().replace(/[^a-z0-9_-]/g,"");
-  return normalized + "." + String(id).replace(/[^a-z0-9]/gi,"").toLowerCase() + "@accounts.dblossom.local";
-}
-async function createOrUpdateAuth(db, { profileId, role, password, identifier, email }) {
-  let authEmail = email || internalEmail(role, identifier);
-  if (profileId) {
-    if (password) {
-      const { error } = await db.auth.admin.updateUserById(profileId, { password });
-      if (error) throw error;
-    }
-    return { profileId, email: authEmail };
-  }
-  const { data, error } = await db.auth.admin.createUser({ email: authEmail, password, email_confirm: true });
-  if (error) throw error;
-  // Auth triggers may create the matching profiles row automatically. The caller
-  // performs an upsert so we never attempt a second insert for the same profile ID.
-  return { profileId:data.user.id, email:authEmail };
-}
 async function upsertProfile(db,id,full_name,role) {
   if(!id) return;
   // Auth creation runs the profile trigger before createUser returns. Update that
@@ -170,14 +139,20 @@ exports.handler = async event => {
         await audit(db,user,"create","student",data.id,{admission_number:data.admission_number});
         return json(201,{data});
       }
-      const {data:old}=await db.from("students").select("profile_id").eq("id",id).maybeSingle(); if(!old)return json(404,{error:"Student not found."});
+      const {data:old,error:oldError}=await db.from("students").select("profile_id").eq("id",id).maybeSingle();
+      if(oldError)throw oldError;
+      if(!old)return json(404,{error:"Student not found."});
       profileId=old.profile_id||null;
+      if(!profileId&&!password)return json(400,{error:"This student has no portal login yet. Set a portal password here to create and link the login automatically."});
       if(password){
         if(profileId) await createOrUpdateAuth(db,{profileId,role:"student",password,identifier:b.admission_number});
         else { const auth=await createOrUpdateAuth(db,{profileId:null,role:"student",password,identifier:b.admission_number,email:null}); profileId=auth.profileId; }
       }
-      const {data,error}=await db.from("students").update({admission_number:clean(b.admission_number),full_name:clean(b.full_name),class_id:clean(b.class_id),date_of_birth:b.date_of_birth||null,guardian_name:clean(b.guardian_name)||null,guardian_contact:clean(b.guardian_contact)||null,gender:clean(b.gender)||null,parent_email:clean(b.parent_email)||null,boarding_status:clean(b.boarding_status)||null,status:clean(b.status)||"active",profile_id:profileId}).eq("id",id).select().single();
-      if(error)throw error; if(profileId)await upsertProfile(db,profileId,data.full_name,"student"); await audit(db,user,"update","student",id,{portal_account_linked:!!profileId}); return json(200,{data});
+      const {data,error}=await db.from("students").update({admission_number:clean(b.admission_number),full_name:clean(b.full_name),class_id:clean(b.class_id)||null,date_of_birth:b.date_of_birth||null,guardian_name:clean(b.guardian_name)||null,guardian_contact:clean(b.guardian_contact)||null,gender:clean(b.gender)||null,parent_email:clean(b.parent_email)||null,boarding_status:clean(b.boarding_status)||null,status:clean(b.status)||"active",profile_id:profileId}).eq("id",id).select().single();
+      if(error)throw error;
+      if(profileId)await upsertProfile(db,profileId,data.full_name,"student");
+      await audit(db,user,"update","student",id,{portal_account_linked:!!profileId,password_changed:Boolean(password)});
+      return json(200,{data,portal_account_linked:!!profileId});
     }
 
     if(type==="teacher") {
@@ -216,10 +191,25 @@ exports.handler = async event => {
       if(!id||!clean(b.table))return json(400,{error:"Record and table are required."});
       const allowed=["students","teachers","results","events","gallery_images","subjects","admission_applications","announcements"];
       if(!allowed.includes(b.table))return json(400,{error:"Deletion is not allowed for this table."});
-      const {data:row}=await db.from(b.table).select("*").eq("id",id).maybeSingle();if(!row)return json(404,{error:"Record not found."});
-      const {error}=await db.from(b.table).delete().eq("id",id);if(error)throw error;
-      if((b.table==="students"||b.table==="teachers")&&row.profile_id)await db.auth.admin.deleteUser(row.profile_id);
-      await audit(db,user,"delete",b.table,id,{});return json(200,{ok:true});
+      const {data:row,error:lookupError}=await db.from(b.table).select("*").eq("id",id).maybeSingle();
+      if(lookupError)throw lookupError;
+      if(!row)return json(404,{error:"Record not found."});
+      // Preserve referential integrity when removing a student: the schema restricts
+      // deleting rows that still have attendance or result records.
+      if(b.table==="students"){
+        const {error:attendanceError}=await db.from("attendance").delete().eq("student_id",id);
+        if(attendanceError)throw attendanceError;
+        const {error:resultsError}=await db.from("results").delete().eq("student_id",id);
+        if(resultsError)throw resultsError;
+      }
+      const {error}=await db.from(b.table).delete().eq("id",id);
+      if(error)throw error;
+      if((b.table==="students"||b.table==="teachers")&&row.profile_id){
+        const {error:authDeleteError}=await db.auth.admin.deleteUser(row.profile_id);
+        if(authDeleteError)throw authDeleteError;
+      }
+      await audit(db,user,"delete",b.table,id,{portal_account_removed:b.table==="students"||b.table==="teachers"});
+      return json(200,{ok:true,deleted_id:id});
     }
 
     if(type==="message-send"){const parentId=clean(b.parent_id),studentId=clean(b.student_id),body=clean(b.body);if(!parentId||!body)return json(400,{error:"Parent and message are required."});const{data:parent}=await db.from("parent_profiles").select("id,profile_id").eq("id",parentId).maybeSingle();if(!parent?.profile_id)return json(404,{error:"Parent account not found."});if(studentId){const{data:link}=await db.from("parent_student_links").select("student_id").eq("parent_id",parentId).eq("student_id",studentId).maybeSingle();if(!link)return json(403,{error:"That student is not linked to this parent."});}const{data,error}=await db.from("parent_messages").insert({parent_id:parentId,sender_profile_id:user.id||null,recipient_profile_id:parent.profile_id,student_id:studentId||null,subject:clean(b.subject)||"School message",body}).select().single();if(error)throw error;await audit(db,user,"create","parent_message",data.id,{parent_id:parentId,student_id:studentId||null});return json(201,{data});}
