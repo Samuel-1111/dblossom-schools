@@ -1,5 +1,5 @@
 import{getSupabase,getSession,signOut,esc}from"./supabase.js";
-import{enableBrowserNotifications}from"./browser-notifications.js";
+import{enableBrowserNotifications}from"./browser-notifications.js?v=20261009-deployment-repair-1";
 const $=s=>document.querySelector(s);
 const status=$("#sm-status"),workspace=$("#sm-workspace"),errorBox=$("#sm-error");
 let role="",data={},session=null;

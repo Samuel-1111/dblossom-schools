@@ -141,3 +141,36 @@
 .portal-page button[data-del],
 .portal-page button[data-action="payment-reject"]{background:#fff1f2!important;color:#b91c1c!important;-webkit-text-fill-color:#b91c1c!important;border:1px solid #fda4af!important}
 .portal-page button[data-action="payment-confirm"]{background:#17375e!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #17375e!important}
+
+
+/* Legacy admin action buttons: explicit, high-contrast styling for every management tab. */
+.portal-page button[class*="edit-"],
+.portal-page button[data-action="edit"],
+.portal-page button[data-edit-subject]{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:36px!important;padding:7px 12px!important;margin:3px 5px 3px 0!important;
+  background:#fff!important;color:#17375e!important;-webkit-text-fill-color:#17375e!important;
+  border:2px solid #64748b!important;border-radius:8px!important;
+  opacity:1!important;visibility:visible!important;filter:none!important;
+  -webkit-filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  text-shadow:none!important;box-shadow:0 2px 4px rgba(15,23,42,.2)!important;
+  font-weight:800!important;font-size:13px!important;line-height:1.25!important;
+}
+.portal-page button[class*="delete-"],
+.portal-page button[data-action="delete"],
+.portal-page button[data-del]{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:36px!important;padding:7px 12px!important;margin:3px 5px 3px 0!important;
+  background:#fff1f2!important;color:#b91c1c!important;-webkit-text-fill-color:#b91c1c!important;
+  border:2px solid #fda4af!important;border-radius:8px!important;
+  opacity:1!important;visibility:visible!important;filter:none!important;
+  -webkit-filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  text-shadow:none!important;box-shadow:0 2px 4px rgba(127,29,29,.16)!important;
+  font-weight:800!important;font-size:13px!important;line-height:1.25!important;
+}
+.portal-page button[class*="edit-"]:hover,
+.portal-page button[data-action="edit"]:hover,
+.portal-page button[data-edit-subject]:hover{background:#eff6ff!important;border-color:#1d4ed8!important}
+.portal-page button[class*="delete-"]:hover,
+.portal-page button[data-action="delete"]:hover,
+.portal-page button[data-del]:hover{background:#ffe4e6!important;border-color:#e11d48!important}
