@@ -22,6 +22,7 @@
 <label>Child / Student<select id="sm-student" required><option value="">Choose a student</option></select></label>
 <label id="sm-recipient-label">Class teacher<select id="sm-recipient" required><option value="">Choose a recipient</option></select></label>
 <button type="button" id="sm-refresh" class="sm-refresh">↻ Refresh messages</button>
+<button type="button" id="sm-enable-notifications" class="sm-refresh">🔔 Enable browser notifications</button>
 </div>
 <div class="sm-thread" aria-label="Message conversation">
 <div class="sm-thread-head"><div><h2 id="sm-thread-title">Your conversation</h2><p id="sm-thread-subtitle">Messages between the parent and class teacher appear here.</p></div><span class="sm-secure">🔒 Private</span></div>
@@ -36,6 +37,6 @@
 <section id="sm-error" class="sm-error" hidden><h2>Messages could not be opened</h2><p id="sm-error-text">Please sign in to your portal again.</p><a href="/pages/parent-login.html" id="sm-login-link">Go to portal login</a></section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script type="module" src="/js/school-messages.js?v=1"></script>
+<script type="module" src="/js/school-messages.js?v=browser-push-1"></script>
 </body>
 </html>

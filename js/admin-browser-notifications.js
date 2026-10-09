@@ -1,0 +1,3 @@
+import{enableBrowserNotifications}from"./browser-notifications.js";
+const button=document.querySelector("#enable-browser-notifications");
+if(button)button.addEventListener("click",async()=>{const old=button.textContent;button.disabled=true;button.textContent="Enabling…";try{await enableBrowserNotifications("admin");button.textContent="✓ Notifications enabled";const note=document.createElement("div");note.className="portal-push-toast";note.textContent="Browser notifications are enabled on this device.";document.body.append(note);setTimeout(()=>note.remove(),4500)}catch(e){button.textContent=old;alert(e.message)}finally{button.disabled=false}});
