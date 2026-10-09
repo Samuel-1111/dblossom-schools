@@ -9,8 +9,6 @@ exports.handler=async event=>{
   if(event.httpMethod==="POST"){
    const b=JSON.parse(event.body||"{}");
    if(!b.applicant_name||!b.parent_name)return{statusCode:400,body:JSON.stringify({error:"Applicant and parent names are required."})};
-   const{data:application_number,error:numberError}=await sb.rpc("next_admission_number");
-   if(numberError||!application_number)throw numberError||new Error("Admission number could not be generated.");
    const{data,error}=await sb.from("admission_applications").insert({
     applicant_name:String(b.applicant_name).trim(),
     date_of_birth:b.date_of_birth||null,
@@ -20,7 +18,6 @@ exports.handler=async event=>{
     parent_email:b.parent_email||null,
     parent_phone:b.parent_phone||null,
     address:b.address||null,
-    application_number,
     status:"Under Review"
    }).select("application_number,status,applicant_name").single();
    if(error)throw error;
