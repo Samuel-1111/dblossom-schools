@@ -70,3 +70,45 @@
 .portal-page .portal-table-wrap td .danger-btn,.portal-page .portal-table-wrap td button[data-action="delete"],.portal-page .portal-table-wrap td button[data-action="payment-reject"],.portal-page .portal-table-wrap td button[data-del]{background:#fff1f2!important;color:#b91c1c!important;-webkit-text-fill-color:#b91c1c!important;border-color:#fda4af!important}
 .portal-page .portal-table-wrap td .navy-btn,.portal-page .portal-table-wrap td button[data-action="payment-confirm"]{background:#17375e!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-color:#17375e!important}
 .portal-page .portal-table-wrap td .btn:disabled,.portal-page .portal-table-wrap td button:disabled{opacity:.8!important;cursor:not-allowed!important}
+
+/* High-contrast action controls across every portal table, including legacy table wrappers. */
+.portal-page button[data-action="edit"],
+.portal-page button[data-action="delete"],
+.portal-page button[data-action="payment-confirm"],
+.portal-page button[data-action="payment-reject"],
+.portal-page button[data-edit-subject],
+.portal-page button[data-del],
+.portal-page .data-table button[data-action],
+.portal-page .data-table button[data-edit-subject],
+.portal-page .data-table button[data-del],
+.portal-page .table-wrap button[data-action],
+.portal-page .table-wrap button[data-edit-subject],
+.portal-page .table-wrap button[data-del],
+.portal-page .portal-table-wrap button[data-action],
+.portal-page .portal-table-wrap button[data-edit-subject],
+.portal-page .portal-table-wrap button[data-del]{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:36px!important;padding:7px 12px!important;margin:3px 5px 3px 0!important;
+  border:1px solid #64748b!important;border-radius:8px!important;background:#fff!important;
+  color:#17375e!important;-webkit-text-fill-color:#17375e!important;opacity:1!important;
+  filter:none!important;backdrop-filter:none!important;text-shadow:none!important;
+  box-shadow:0 1px 3px rgba(15,23,42,.18)!important;font-weight:800!important;
+  font-size:13px!important;line-height:1.25!important;white-space:nowrap!important;
+  visibility:visible!important;transform:none!important;
+}
+.portal-page button[data-action="delete"],
+.portal-page button[data-action="payment-reject"],
+.portal-page button[data-del],
+.portal-page .data-table button[data-del],
+.portal-page .table-wrap button[data-del],
+.portal-page .portal-table-wrap button[data-del]{
+  background:#fff1f2!important;color:#b91c1c!important;-webkit-text-fill-color:#b91c1c!important;border-color:#fda4af!important;
+}
+.portal-page button[data-action="payment-confirm"]{background:#17375e!important;color:#fff!important;-webkit-text-fill-color:#fff!important;border-color:#17375e!important}
+.portal-page button[data-action="edit"]:hover,
+.portal-page button[data-edit-subject]:hover,
+.portal-page button[data-action="delete"]:hover,
+.portal-page button[data-del]:hover{filter:brightness(.97)!important;box-shadow:0 2px 5px rgba(15,23,42,.22)!important}
+.portal-page button[data-action]:disabled,
+.portal-page button[data-edit-subject]:disabled,
+.portal-page button[data-del]:disabled{opacity:.75!important;cursor:not-allowed!important}
