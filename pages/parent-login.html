@@ -1,14 +1,20 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Parent Portal — D'Blossom Model Private Schools</title><link rel="icon" href="/logo.jpg"><meta name="description" content="Parent Portal for D'Blossom Model Private Schools."><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/responsive.css"><link rel="stylesheet" href="/css/portal.css"></head>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#17375e">
+<meta name="description" content="Secure parent portal for D'Blossom Model Private Schools."><title>Parent Portal | D’Blossom Model Private Schools</title>
+<link rel="icon" href="/logo.jpg"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/responsive.css"><link rel="stylesheet" href="/css/portal.css"><link rel="stylesheet" href="/css/portal-refresh.css">
+</head>
 <body class="portal-page" data-role="parent">
-<main id="login-view" class="portal-login">
-<section class="portal-login-card" aria-labelledby="parent-title">
-<div class="portal-login-brand"><a href="/" aria-label="Back to home"><img src="/logo.jpg" alt="D'Blossom Model Private Schools"></a><h1 id="parent-title">Parent Portal</h1><p>Children, results, fees, payments, messages and school activities.</p></div>
-<h2>Sign in</h2><p>Use the email address or phone number registered by the school.</p>
-<form id="login-form" novalidate>
-<label class="portal-field"><span>Email or Phone</span><input name="identifier" autocomplete="username" required autofocus placeholder="Email address or phone number"><small class="field-error" data-error="identifier"></small></label>
-<label class="portal-field"><span>Password</span><div class="portal-password"><input id="portal-password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password"><button type="button" class="portal-show" data-show-password="portal-password">Show</button></div><small class="field-error" data-error="password"></small></label>
-<button class="btn navy-btn portal-login-btn" type="submit">Login</button><div id="login-notice" class="portal-status" aria-live="polite"></div>
-</form><p class="portal-help">If your account has not been activated, contact the school administrator.</p><a class="portal-back muted" href="/">⌂ Back to Home</a>
-</section></main><main id="dashboard-view" class="hidden portal-dashboard"><header class="portal-static-header"><div class="inner"><div class="portal-brand"><img src="/logo.jpg" alt="D'Blossom"><div><h1>Parent Portal</h1><p id="parent-subtitle">School & Family Dashboard</p></div></div><button id="logout" class="btn btn-outline-light">Logout</button></div></header><div class="portal-dashboard-body"><section class="portal-static-main" id="parent-panel"><div class="portal-empty-card"><h2>Loading your portal…</h2><p>Please wait.</p></div></section></div></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>document.querySelectorAll("[data-show-password]").forEach(b=>b.onclick=()=>{const i=document.getElementById(b.dataset.showPassword);i.type=i.type==="password"?"text":"password";b.textContent=i.type==="password"?"Show":"Hide"});</script><script type="module" src="/js/portal.js?v=html-first-1"></script></body></html>
+<main id="login-view" class="portal-login"><section class="portal-login-card" aria-labelledby="parent-title">
+<div class="portal-login-brand"><a href="/" aria-label="Return to school website"><img src="/logo.jpg" alt="D'Blossom Model Private Schools logo"></a><p class="portal-eyebrow">D’BLOSSOM MODEL PRIVATE SCHOOLS</p><h1 id="parent-title">Parent Portal</h1><p>Stay connected with your child’s school journey.</p></div>
+<h2>Welcome back</h2><p class="portal-intro">Sign in using the email address or phone number registered with the school.</p>
+<form id="login-form" class="portal-login-form" novalidate>
+<label class="portal-field" for="portal-identifier"><span>Email address or phone</span><input id="portal-identifier" name="identifier" autocomplete="username" required autofocus placeholder="Email address or phone number"><small class="field-error" data-error="identifier"></small></label>
+<label class="portal-field" for="portal-password"><span>Password</span><span class="portal-password"><input id="portal-password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password"><button type="button" class="portal-show" data-show-password="portal-password" aria-label="Show password">Show</button></span><small class="field-error" data-error="password"></small></label>
+<button class="btn navy-btn portal-login-btn" type="submit">Sign in to Parent Portal</button><div id="login-notice" class="portal-status" role="status" aria-live="polite"></div>
+</form><p class="portal-help">Need access? Contact the school administrator to activate your parent account.</p><a class="portal-back muted" href="/">← Back to school website</a>
+</section></main>
+<main id="dashboard-view" class="hidden portal-dashboard"><header class="portal-static-header"><div class="inner"><div class="portal-brand"><img src="/logo.jpg" alt="D'Blossom logo"><div><h1>Parent Portal</h1><p id="parent-subtitle">Your family dashboard</p></div></div><button id="logout" class="btn btn-outline-light" type="button">Log out</button></div></header><div class="portal-dashboard-body"><section class="portal-static-main" id="parent-panel" aria-live="polite"><div class="portal-empty-card"><h2>Loading your portal…</h2><p>Your children’s school information will appear here.</p></div></section></div></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>document.querySelectorAll("[data-show-password]").forEach(b=>b.addEventListener("click",()=>{const i=document.getElementById(b.dataset.showPassword);const show=i.type==="password";i.type=show?"text":"password";b.textContent=show?"Hide":"Show";b.setAttribute("aria-label",show?"Hide password":"Show password")}));</script><script type="module" src="/js/portal.js?v=html-first-2"></script>
+</body></html>
