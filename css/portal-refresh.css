@@ -49,3 +49,9 @@
 .portal-page .portal-error{margin:12px 0;padding:13px;border-radius:10px;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;overflow-wrap:anywhere}
 .portal-page .portal-error p{margin:7px 0}
 @media(max-width:620px){.portal-page .modal-card{padding:16px}.portal-page .form-grid{grid-template-columns:1fr}.portal-page .form-actions{flex-direction:column-reverse}.portal-page .form-actions button{width:100%}.portal-page .portal-section-heading>div:last-child{display:flex;flex-wrap:wrap;gap:8px}}
+
+
+/* Admin navigation: use the sidebar only on desktop and mobile. */
+.portal-page .portal-mobile-nav{display:none!important}
+.portal-page .portal-static-sidebar{display:flex;flex-direction:column;gap:4px}
+@media(max-width:760px){.portal-page .portal-static-sidebar{display:flex;position:static;max-height:none;overflow:visible;margin:0 0 16px;padding:8px}.portal-page .portal-static-sidebar button{width:100%;text-align:left}.portal-page .portal-static-grid{display:block}.portal-page .portal-static-main{width:100%}}
