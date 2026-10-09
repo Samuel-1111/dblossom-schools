@@ -70,7 +70,7 @@ exports.handler = async event => {
     if(event.httpMethod==="GET") {
       const p=safePage(event), size=safeSize(event), q=clean(event.queryStringParameters?.q), classId=clean(event.queryStringParameters?.class_id), table=clean(event.queryStringParameters?.table);
       if(table==="students"||table==="teachers"||table==="contact_messages"||table==="events"||table==="gallery_images"||table==="subjects"||table==="fee_payments"||table==="fee_invoices"||table==="announcements"||table==="admission_applications") {
-        const result=await listData(db,table,p,size,q,"created_at",classId);
+        const result=await listData(db,table,p,size,q,table==="subjects"?"name":"created_at",classId);
         if(table==="result_access_payments"){const{data,error,count}=await db.from("result_access_payments").select("id,student_id,term_id,reference,amount_kobo,currency,status,paystack_status,payer_name,payer_email,paid_at,created_at,students(full_name,admission_number),terms(name,academic_sessions(name))",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);if(error)throw error;return json(200,{data:data||[],count:count||0,page:p,pageSize:size});}\n      if(table==="fee_payments"){const {data,error,count}=await db.from("fee_payments").select("id,invoice_id,student_id,parent_id,amount,method,reference,status,paid_at,created_at,students(full_name,admission_number,class_id,classes(name))",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);if(error)throw error;return json(200,{data:data||[],count:count||0,page:p,pageSize:size});}
       if(table==="students"){
           const ids=[...new Set(result.data.map(x=>x.class_id).filter(Boolean))];
@@ -83,18 +83,24 @@ exports.handler = async event => {
           const am=new Map((assignments||[]).map(x=>[x.teacher_id,x]));
           result.data=result.data.map(x=>{const a=am.get(x.id);return {...x,class_id:a?.class_id||null,class_name:a?.classes?.name||x.assigned_class||"—",subject_id:a?.subject_id||null,subject_name:a?.subjects?.name||x.subject||"—"}});
         }
+        if(table==="subjects"){
+          const ids=[...new Set(result.data.map(x=>x.class_id).filter(Boolean))];
+          const {data:classes}=ids.length?await db.from("classes").select("id,name").in("id",ids):{data:[]};
+          const classNames=new Map((classes||[]).map(x=>[x.id,x.name]));
+          result.data=result.data.map(x=>({...x,class_name:classNames.get(x.class_id)||"—"}));
+        }
         return json(200,result);
       }
       if(table==="parents"){const{data,error,count}=await db.from("parent_profiles").select("id,profile_id,full_name,email,phone,status,address,occupation,created_at",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);if(error)throw error;let rows=data||[];if(q){const s=q.toLowerCase();rows=rows.filter(x=>[x.full_name,x.email,x.phone].some(v=>String(v||"").toLowerCase().includes(s)));}const ids=rows.map(x=>x.id);const{data:links}=ids.length?await db.from("parent_student_links").select("parent_id,student_id,relationship,is_primary,students(id,full_name,admission_number,class_id,classes(name))").in("parent_id",ids):{data:[]};const lm=new Map();(links||[]).forEach(l=>{if(!lm.has(l.parent_id))lm.set(l.parent_id,[]);if(l.students)lm.get(l.parent_id).push({...l.students,class_name:l.students.classes?.name||"—",relationship:l.relationship,is_primary:l.is_primary})});rows=rows.map(x=>({...x,children:lm.get(x.id)||[]}));if(event.queryStringParameters?.status)rows=rows.filter(x=>String(x.status||"").toLowerCase()===String(event.queryStringParameters.status).toLowerCase());return json(200,{data:rows,count:count||rows.length,page:p,pageSize:size});}
       if(table==="parent_messages"){const {data,error,count}=await db.from("parent_messages").select("id,parent_id,sender_profile_id,recipient_profile_id,student_id,subject,body,read_at,created_at,parent_profiles(full_name,email,phone),students(full_name,admission_number)",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);if(error)throw error;return json(200,{data:data||[],count:count||0,page:p,pageSize:size});}
       if(table==="results") {
         const term=clean(event.queryStringParameters?.term), classId=clean(event.queryStringParameters?.class_id);
-        const {data,error}=await db.from("results").select("id,student_id,subject_id,term_id,ca_score,exam_score,total_score,grade,teacher_comment,principal_comment,approved,created_at,students(full_name,admission_number,class_id,classes(name)),subjects(name),terms(name,session_id,academic_sessions(name))").order("created_at",{ascending:false}).range((p-1)*size,p*size-1);
+        const {data,error,count}=await db.from("results").select("id,student_id,subject_id,term_id,ca_score,exam_score,total_score,grade,teacher_comment,principal_comment,approved,created_at,students(full_name,admission_number,class_id,classes(name)),subjects(name),terms(name,session_id,academic_sessions(name))",{count:"exact"}).order("created_at",{ascending:false}).range((p-1)*size,p*size-1);
         if(error) throw error;
         let rows=data||[];
         if(term) rows=rows.filter(x=>x.terms?.name===term);
         if(classId) rows=rows.filter(x=>x.students?.class_id===classId);
-        return json(200,{data:rows,count:rows.length,page:p,pageSize:size});
+        return json(200,{data:rows,count:count||0,page:p,pageSize:size});
       }
       if(table==="classes") { const {data,error}=await db.from("classes").select("id,name,is_active").order("name"); if(error)throw error; return json(200,{data:data||[],count:(data||[]).length}); }
       if(table==="terms") { const {data,error}=await db.from("terms").select("id,name,session_id,is_active,academic_sessions(name)").order("session_id"); if(error)throw error; return json(200,{data:data||[],count:(data||[]).length}); }
