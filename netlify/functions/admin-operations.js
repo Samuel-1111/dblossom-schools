@@ -42,17 +42,6 @@ async function createOrUpdateAuth(db, { profileId, role, password, identifier, e
   // performs an upsert so we never attempt a second insert for the same profile ID.
   return { profileId:data.user.id, email:authEmail };
 }
-async function upsertProfile(db,id,full_name,role) {
-  if(!id) return;
-  // Auth creation runs the profile trigger before createUser returns. Update that
-  // row first so account creation never performs a second profile INSERT.
-  const {data:existing,error:lookupError}=await db.from("profiles").select("id").eq("id",id).maybeSingle();
-  if(lookupError) throw lookupError;
-  if(existing){const {error}=await db.from("profiles").update({full_name,role}).eq("id",id);if(error)throw error;return;}
-  const {error}=await db.from("profiles").insert({id,full_name,role});
-  if(error) throw error;
-}
-
 const clean = v => typeof v === "string" ? v.trim() : "";
 const json = (statusCode, body) => ({ statusCode, headers: { "content-type":"application/json", "cache-control":"no-store" }, body: JSON.stringify(body) });
 const safePage = event => Math.max(1, Number(event.queryStringParameters?.page || 1));
@@ -86,9 +75,12 @@ async function createOrUpdateAuth(db, { profileId, role, password, identifier, e
 }
 async function upsertProfile(db,id,full_name,role) {
   if(!id) return;
-  // The auth.users trigger creates profiles automatically. Conflict on the profile
-  // primary key so this safely updates that row instead of attempting a duplicate insert.
-  const { error } = await db.from("profiles").upsert({id,full_name,role},{onConflict:"id"});
+  // Auth creation runs the profile trigger before createUser returns. Update that
+  // row first so account creation never performs a second profile INSERT.
+  const {data:existing,error:lookupError}=await db.from("profiles").select("id").eq("id",id).maybeSingle();
+  if(lookupError) throw lookupError;
+  if(existing){const {error}=await db.from("profiles").update({full_name,role}).eq("id",id);if(error)throw error;return;}
+  const {error}=await db.from("profiles").insert({id,full_name,role});
   if(error) throw error;
 }
 async function listData(db, table, page, pageSize, search, order="created_at", eventClassId="") {
