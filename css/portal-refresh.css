@@ -29,3 +29,23 @@
 .portal-static-main{min-width:0}
 .portal-page button:focus-visible,.portal-page a:focus-visible,.portal-page input:focus-visible,.portal-page select:focus-visible,.portal-page textarea:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
 @media(max-width:760px){.portal-login{padding:14px}.portal-login-card{padding:22px 18px}.portal-static-header{padding:13px 14px}.portal-static-grid{display:block}.portal-static-sidebar{display:none}.portal-dashboard-body{width:calc(100% - 24px);padding-top:16px}.portal-mobile-nav{margin-bottom:8px}.portal-static-header .btn{padding:9px 11px;white-space:nowrap}}
+
+
+/* Admin CRUD dialogs and management controls (portal pages only). */
+.portal-page .modal-backdrop{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.62);overflow:auto}
+.portal-page .modal-card{width:min(100%,720px);max-height:min(90vh,900px);overflow:auto;background:#fff;color:var(--portal-text);border-radius:18px;padding:22px;box-shadow:0 24px 80px rgba(15,23,42,.28)}
+.portal-page .modal-card .section-head{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--portal-border);padding-bottom:12px;margin-bottom:16px}
+.portal-page .modal-card .section-head h2{margin:0;font-size:1.25rem}
+.portal-page .modal-card .icon-btn{border:1px solid var(--portal-border);border-radius:9px;background:#fff;padding:8px 11px;cursor:pointer}
+.portal-page .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.portal-page .form-grid .field{display:flex;flex-direction:column;gap:7px;font-weight:650;color:#334155;min-width:0}
+.portal-page .form-grid .field input:not([type=checkbox]),.portal-page .form-grid .field select,.portal-page .form-grid .field textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font:inherit;font-weight:400;color:var(--portal-text);background:#fff}
+.portal-page .form-grid .field input[type=checkbox]{margin-right:8px}
+.portal-page .form-grid .field:has(input[type=checkbox]){flex-direction:row;align-items:center;grid-column:1/-1}
+.portal-page .form-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+.portal-page .portal-table-wrap td button{margin:2px 3px 2px 0;white-space:nowrap}
+.portal-page .portal-table-wrap td select{max-width:150px;min-width:105px;border:1px solid #cbd5e1;border-radius:7px;padding:7px;background:#fff}
+.portal-page #table-search{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;margin:5px 0 12px}
+.portal-page .portal-error{margin:12px 0;padding:13px;border-radius:10px;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;overflow-wrap:anywhere}
+.portal-page .portal-error p{margin:7px 0}
+@media(max-width:620px){.portal-page .modal-card{padding:16px}.portal-page .form-grid{grid-template-columns:1fr}.portal-page .form-actions{flex-direction:column-reverse}.portal-page .form-actions button{width:100%}.portal-page .portal-section-heading>div:last-child{display:flex;flex-wrap:wrap;gap:8px}}
