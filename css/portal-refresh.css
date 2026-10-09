@@ -174,3 +174,57 @@
 .portal-page button[class*="delete-"]:hover,
 .portal-page button[data-action="delete"]:hover,
 .portal-page button[data-del]:hover{background:#ffe4e6!important;border-color:#e11d48!important}
+
+
+/* Final high-contrast edit/delete actions for every admin and teacher tab. */
+.portal-page button[data-action="edit"],
+.portal-page button[data-edit-subject],
+.portal-page button[class*="edit-"],
+.portal-page .data-table button[data-action="edit"],
+.portal-page .table-wrap button[data-action="edit"],
+.portal-page .portal-table-wrap button[data-action="edit"] {
+  background: #2563eb !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border: 1px solid #1d4ed8 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  text-shadow: none !important;
+  box-shadow: 0 1px 3px rgba(29, 78, 216, .25) !important;
+  font-weight: 800 !important;
+}
+.portal-page button[data-action="delete"],
+.portal-page button[data-del],
+.portal-page button[class*="delete-"],
+.portal-page .data-table button[data-action="delete"],
+.portal-page .table-wrap button[data-action="delete"],
+.portal-page .portal-table-wrap button[data-action="delete"] {
+  background: #dc2626 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border: 1px solid #b91c1c !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  text-shadow: none !important;
+  box-shadow: 0 1px 3px rgba(185, 28, 28, .25) !important;
+  font-weight: 800 !important;
+}
+.portal-page button[data-action="edit"]:hover,
+.portal-page button[data-edit-subject]:hover,
+.portal-page button[class*="edit-"]:hover { background:#1d4ed8 !important; }
+.portal-page button[data-action="delete"]:hover,
+.portal-page button[data-del]:hover,
+.portal-page button[class*="delete-"]:hover { background:#b91c1c !important; }
+.portal-page button[data-action="edit"]:disabled,
+.portal-page button[data-action="delete"]:disabled,
+.portal-page button[data-edit-subject]:disabled,
+.portal-page button[data-del]:disabled {
+  opacity: .85 !important;
+  cursor: not-allowed !important;
+}
