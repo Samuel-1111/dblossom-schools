@@ -1,4 +1,4 @@
-import{confirmAction}from"./portal-dialogs.js";
+import{confirmAction}from"./portal-dialogs.js?v=styled-dialogs-1";
 export async function renderAdvanced(panel,h){
  const{api,esc,toast,setBusy,table,pill,csvDownload}=h;
  const get=()=>api("/api/admin-advanced");
