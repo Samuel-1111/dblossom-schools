@@ -11,7 +11,7 @@ function localAdmin(event){
 }
 const json=(statusCode,body)=>({statusCode,headers:{"content-type":"application/json","cache-control":"no-store"},body:JSON.stringify(body)});
 const parse=(e)=>{try{return JSON.parse(e.body||"{}")}catch{return{}}};
-async function guard(e){const u=localAdmin(e)||await userFrom(e);if(!u||(!u.local&&!(await isAdmin(u))))return{error:json(403,{error:"Administrator access required."})};return{user:u,db:admin()}};
+async function guard(e){let u=localAdmin(e)||await userFrom(e);if(!u||(!u.local&&!(await isAdmin(u))))return{error:json(403,{error:"Administrator access required."})};const db=admin();if(u.local||u.adminSession){const result=await db.from("profiles").select("id,role").in("role",["admin","super_admin"]).limit(1).maybeSingle();if(result.error)throw result.error;u={...u,id:result.data?.id||null};}return{user:u,db}};
 async function log(db,user,action,type,id,details={}){try{await db.from("audit_logs").insert({actor_profile_id:user?.id||null,action,entity_type:type,entity_id:id?String(id):null,details})}catch{}}
 const page=async(q,n=100)=>{const{data,error,count}=await q.range(0,n-1);if(error)throw error;return{data:data||[],count:count||0}};
 exports.handler=async e=>{
