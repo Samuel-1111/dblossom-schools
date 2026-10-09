@@ -1,236 +1,82 @@
 (function () {
   "use strict";
-
   const sections = [
-    { id: "overview", label: "Dashboard Overview", table: null },
-    { id: "students", label: "Students", table: "students" },
-    { id: "teachers", label: "Teachers", table: "teachers" },
-    { id: "results", label: "Results", table: "results" },
-    { id: "parents", label: "Parents", table: "parents" },
-    { id: "payments", label: "Payments", table: "fee_payments" },
-    { id: "events", label: "Events", table: "events" },
-    { id: "gallery", label: "Gallery", table: "gallery_images" },
-    { id: "contact", label: "Contact Enquiries", table: "contact_messages" },
-    { id: "admissions", label: "Admissions", table: "admission_applications" },
-    { id: "messages", label: "Parent Messages", table: "parent_messages" },
-    { id: "subjects", label: "Subjects", table: "subjects" },
-    { id: "advanced", label: "School Management / Advanced", table: null },
-    { id: "settings", label: "Settings", table: null }
+    {id:"overview",label:"Dashboard Overview"},
+    {id:"students",label:"Students",table:"students"},
+    {id:"teachers",label:"Teachers",table:"teachers"},
+    {id:"results",label:"Results",table:"results"},
+    {id:"parents",label:"Parents",table:"parents"},
+    {id:"payments",label:"Payments",table:"fee_payments"},
+    {id:"events",label:"Events",table:"events"},
+    {id:"gallery",label:"Gallery",table:"gallery_images"},
+    {id:"contact",label:"Contact Enquiries",table:"contact_messages"},
+    {id:"admissions",label:"Admissions",table:"admission_applications"},
+    {id:"messages",label:"Parent Messages",table:"parent_messages"},
+    {id:"subjects",label:"Subjects",table:"subjects"},
+    {id:"advanced",label:"School Management / Advanced"},
+    {id:"settings",label:"Settings"}
   ];
-
-  const side = document.getElementById("admin-sidebar");
-  const mobile = document.getElementById("admin-mobile-nav");
-  const main = document.getElementById("admin-main");
-  let dashboardStats = null;
-
-  const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, ch => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-  }[ch]));
-
-  async function request(url, options) {
-    const response = await fetch(url, Object.assign({
-      credentials: "same-origin",
-      cache: "no-store",
-      headers: { "Accept": "application/json" }
-    }, options || {}));
-    const raw = await response.text();
-    let data = {};
-    try { data = raw ? JSON.parse(raw) : {}; } catch (_) {}
-    if (!response.ok) {
-      throw new Error(data.error || ("Request failed (HTTP " + response.status + ")."));
-    }
+  const side=document.getElementById("admin-sidebar"), mobile=document.getElementById("admin-mobile-nav"), main=document.getElementById("admin-main");
+  const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const money=v=>"₦"+Number(v||0).toLocaleString("en-NG",{maximumFractionDigits:2});
+  const date=v=>{if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleDateString("en-NG")};
+  const val=(o,k)=>o&&o[k]!=null?o[k]:"";
+  async function request(url,options={}){
+    const response=await fetch(url,{credentials:"same-origin",cache:"no-store",...options,headers:{Accept:"application/json",...(options.headers||{})}});
+    const raw=await response.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{}
+    if(!response.ok)throw Error(data.error||("Request failed (HTTP "+response.status+")."));
     return data;
   }
-
-  function card(title, body) {
-    return '<section class="portal-empty-card"><p class="section-label">D’Blossom Administrator Portal</p><h2>' +
-      esc(title) + '</h2>' + body + '</section>';
-  }
-
-  function statCard(label, value) {
-    return '<article class="portal-stat-card"><span>' + esc(label) + '</span><strong>' +
-      esc(value) + '</strong></article>';
-  }
-
-  function money(value) {
-    return "₦" + Number(value || 0).toLocaleString("en-NG", { maximumFractionDigits: 2 });
-  }
-
-  function makeNav(section) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.dataset.section = section.id;
-    button.textContent = section.label;
-    button.addEventListener("click", () => openSection(section.id));
-    return button;
-  }
-
-  sections.forEach(section => {
-    side.appendChild(makeNav(section));
-    mobile.appendChild(makeNav(section));
-  });
-
-  function markActive(id) {
-    document.querySelectorAll("[data-section]").forEach(button => {
-      button.classList.toggle("active", button.dataset.section === id);
-    });
-  }
-
-  function table(headers, rows) {
-    if (!rows.length) return '<p class="portal-muted">No records were returned for this section.</p>';
-    return '<div class="portal-table-wrap"><table class="data-table"><thead><tr>' +
-      headers.map(header => '<th>' + esc(header) + '</th>').join("") +
-      '</tr></thead><tbody>' + rows.map(row => '<tr>' +
-        row.map(value => '<td>' + esc(value == null || value === "" ? "—" : value) + '</td>').join("") +
-      '</tr>').join("") + '</tbody></table></div>';
-  }
-
-  function date(value) {
-    if (!value) return "—";
-    const parsed = new Date(value);
-    return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleDateString();
-  }
-
-  function rowValue(row, relation, field) {
-    let value = row;
-    for (const key of relation.split(".")) value = value && value[key];
-    return value == null ? "—" : value;
-  }
-
-  const tableViews = {
-    students: { title: "Students", columns: ["Full name", "Admission number", "Class", "Status"], rows: x => [x.full_name, x.admission_number, x.class_name, x.status] },
-    teachers: { title: "Teachers", columns: ["Full name", "Staff ID", "Class", "Subject", "Status"], rows: x => [x.full_name, x.staff_id, x.class_name || x.assigned_class, x.subject_name || x.subject, x.status] },
-    results: { title: "Results", columns: ["Student", "Admission number", "Subject", "Term", "CA", "Exam", "Total", "Grade"], rows: x => [rowValue(x, "students.full_name"), rowValue(x, "students.admission_number"), rowValue(x, "subjects.name"), rowValue(x, "terms.name"), x.ca_score, x.exam_score, x.total_score, x.grade] },
-    parents: { title: "Parents", columns: ["Name", "Email", "Phone", "Status", "Linked children"], rows: x => [x.full_name, x.email, x.phone, x.status, (x.children || []).length] },
-    fee_payments: { title: "Payments", columns: ["Reference", "Student", "Admission number", "Amount", "Method", "Status", "Paid on"], rows: x => [x.reference, rowValue(x, "students.full_name"), rowValue(x, "students.admission_number"), money(x.amount), x.method, x.status, date(x.paid_at)] },
-    events: { title: "Events", columns: ["Title", "Event date", "Category", "Status"], rows: x => [x.title, date(x.event_date || x.date), x.category, x.status] },
-    gallery_images: { title: "Gallery", columns: ["Title", "Category", "Alt text", "Image URL"], rows: x => [x.title, x.category, x.alt_text, x.image_url] },
-    contact_messages: { title: "Contact Enquiries", columns: ["Name", "Subject", "Email", "Message", "Status", "Received"], rows: x => [x.name, x.subject, x.email, x.message, x.status, date(x.created_at)] },
-    admission_applications: { title: "Admissions", columns: ["Applicant", "Application number", "Class applied", "Parent / guardian", "Status", "Submitted"], rows: x => [x.applicant_name || x.full_name || x.student_name, x.application_number, x.class_applied, x.parent_name, x.status, date(x.created_at)] },
-    parent_messages: { title: "Parent Messages", columns: ["Parent", "Student", "Subject", "Message", "Read", "Sent"], rows: x => [rowValue(x, "parent_profiles.full_name"), rowValue(x, "students.full_name"), x.subject, x.body, x.read_at ? "Read" : "Unread", date(x.created_at)] },
-    subjects: { title: "Subjects", columns: ["Subject", "Class"], rows: x => [x.name, x.class_name] }
+  const api=(payload,method="POST")=>request("/api/admin-operations",{method,headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+  function card(title,body){return '<section class="portal-empty-card"><p class="section-label">D’Blossom Administrator Portal</p><h2>'+esc(title)+'</h2>'+body+'</section>'}
+  function stat(label,value){return '<article class="portal-stat-card"><span>'+esc(label)+'</span><strong>'+esc(value)+'</strong></article>'}
+  function navButton(s){const b=document.createElement("button");b.type="button";b.dataset.section=s.id;b.textContent=s.label;b.addEventListener("click",()=>openSection(s.id));return b}
+  sections.forEach(s=>{side.appendChild(navButton(s));mobile.appendChild(navButton(s))});
+  function markActive(id){document.querySelectorAll("[data-section]").forEach(b=>b.classList.toggle("active",b.dataset.section===id))}
+  function table(headers,rows){if(!rows.length)return '<p class="portal-muted">No records found.</p>';return '<div class="portal-table-wrap"><table class="data-table"><thead><tr>'+headers.map(h=>"<th>"+esc(h)+"</th>").join("")+"</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(v=>"<td>"+(v==null||v===""?"—":v)+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>"}
+  function button(label,action,id,cls="btn btn-outline"){return '<button type="button" class="'+cls+'" data-action="'+esc(action)+'" data-id="'+esc(id||"")+'">'+esc(label)+'</button>'}
+  function field(name,label,value="",type="text",required=false,opts=null){let input;if(opts){input='<select name="'+esc(name)+'" '+(required?"required":"")+'><option value="">Choose '+esc(label.toLowerCase())+'</option>'+opts.map(o=>'<option value="'+esc(o.value)+'" '+(String(o.value)===String(value)?"selected":"")+'>'+esc(o.label)+'</option>').join("")+'</select>'}else input='<input name="'+esc(name)+'" type="'+type+'" value="'+esc(value??"")+'" '+(required?"required":"")+(type==="password"?' autocomplete="new-password"':"")+'>';return '<label class="field">'+esc(label)+(required?" *":"")+input+'</label>'}
+  function textArea(name,label,value=""){return '<label class="field">'+esc(label)+'<textarea name="'+esc(name)+'" rows="3">'+esc(value||"")+'</textarea></label>'}
+  function modal(title,fields,saveLabel="Save record"){document.getElementById("admin-modal")?.remove();const wrap=document.createElement("div");wrap.id="admin-modal";wrap.className="modal-backdrop";wrap.innerHTML='<section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title"><div class="section-head"><h2 id="admin-modal-title">'+esc(title)+'</h2><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></div><form id="admin-record-form" class="form-grid">'+fields.join("")+'<div class="form-actions"><button type="button" class="btn btn-outline" data-close>Cancel</button><button type="submit" class="btn navy-btn">'+esc(saveLabel)+'</button></div><p class="portal-muted" id="admin-form-status" role="status"></p></form></section>';document.body.appendChild(wrap);wrap.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>wrap.remove());return wrap}
+  async function getRows(tableName,page=1){const d=await request("/api/admin-operations?table="+encodeURIComponent(tableName)+"&page="+page+"&pageSize=100");return d.data||[]}
+  async function loadOverview(){main.innerHTML=card("Dashboard Overview","<p>Loading school data…</p>");try{const d=await request("/api/dashboard-data");const s=d.stats||{};main.innerHTML='<section class="portal-empty-card"><div class="portal-section-heading"><div><p class="section-label">Live school data</p><h2>Dashboard Overview</h2><p class="portal-muted">Statistics returned by the protected server endpoint.</p></div><button class="btn navy-btn" id="refresh-overview" type="button">Refresh</button></div><div class="portal-stats-grid">'+stat("Students",s.students||0)+stat("Teachers",s.teachers||0)+stat("Parents",s.parents||0)+stat("Results",s.results||0)+stat("Announcements",s.announcements||0)+stat("Outstanding fees",money(s.balance))+'</div><p class="portal-muted">Last refreshed '+esc(new Date().toLocaleString("en-NG"))+'. Use the sections to manage records.</p></section>';document.getElementById("refresh-overview").onclick=loadOverview}catch(e){main.innerHTML=card("Dashboard Overview",'<div class="portal-error"><strong>Live data could not be loaded.</strong><p>'+esc(e.message)+'</p><button class="btn navy-btn" id="retry-overview">Try again</button><p class="portal-muted">Verify the Supabase server environment variables and API deployment in Vercel.</p></div>');document.getElementById("retry-overview").onclick=loadOverview}}
+  const views={
+    students:{title:"Students",cols:["Name","Admission no.","Class","Guardian","Status"],row:x=>[esc(x.full_name),esc(x.admission_number),esc(x.class_name||"—"),esc(x.guardian_name||"—"),esc(x.status||"active")],add:"student"},
+    teachers:{title:"Teachers",cols:["Name","Staff ID","Class","Subject","Status"],row:x=>[esc(x.full_name),esc(x.staff_id),esc(x.class_name||x.assigned_class||"—"),esc(x.subject_name||x.subject||"—"),esc(x.status||"active")],add:"teacher"},
+    results:{title:"Results",cols:["Student","Admission no.","Subject","Term","CA","Exam","Total","Grade"],row:x=>[esc(x.students?.full_name),esc(x.students?.admission_number),esc(x.subjects?.name),esc(x.terms?.name),esc(x.ca_score),esc(x.exam_score),esc(x.total_score),esc(x.grade)],add:"result"},
+    parents:{title:"Parents",cols:["Name","Email","Phone","Status","Children"],row:x=>[esc(x.full_name),esc(x.email),esc(x.phone),esc(x.status||"active"),esc((x.children||[]).length)],add:"parent"},
+    payments:{title:"Payments",cols:["Reference","Student","Amount","Method","Status","Paid on","Action"],row:x=>[esc(x.reference),esc(x.students?.full_name),esc(money(x.amount)),esc(x.method),esc(x.status),esc(date(x.paid_at||x.created_at)),button("Confirm","payment-confirm",x.id,"btn navy-btn")+" "+button("Reject","payment-reject",x.id,"btn btn-outline")]},
+    events:{title:"Events",cols:["Title","Date","Category","Status","Actions"],row:x=>[esc(x.title),esc(date(x.event_date||x.date)),esc(x.category),esc(x.status),button("Edit","edit",x.id)+" "+button("Delete","delete",x.id,"btn btn-outline")],add:"event"},
+    gallery:{title:"Gallery",cols:["Title","Category","Alt text","Image URL","Actions"],row:x=>[esc(x.title),esc(x.category),esc(x.alt_text),'<a href="'+esc(x.image_url)+'" target="_blank" rel="noopener">View image</a>',button("Edit","edit",x.id)+" "+button("Delete","delete",x.id,"btn btn-outline")],add:"gallery"},
+    contact:{title:"Contact Enquiries",cols:["Name","Subject","Email","Message","Status","Received","Action"],row:x=>[esc(x.name),esc(x.subject),esc(x.email),esc(x.message),esc(x.status||"New"),esc(date(x.created_at)),'<select data-contact-status="'+esc(x.id)+'"><option '+(x.status==="New"?"selected":"")+' value="New">New</option><option '+(x.status==="Read"?"selected":"")+' value="Read">Read</option><option '+(x.status==="Resolved"?"selected":"")+' value="Resolved">Resolved</option></select> '+button("Save status","contact-status",x.id,"btn navy-btn")]},
+    admissions:{title:"Admissions",cols:["Applicant","Application no.","Class","Guardian","Status","Submitted","Action"],row:x=>[esc(x.applicant_name||x.full_name||x.student_name),esc(x.application_number),esc(x.class_applied),esc(x.parent_name),esc(x.status),esc(date(x.created_at)),'<select data-admission-status="'+esc(x.id)+'">'+["Pending","Under Review","Interview","Approved","Rejected"].map(s=>'<option value="'+s+'" '+(x.status===s?"selected":"")+'>'+s+'</option>').join("")+'</select> '+button("Update","admission-status",x.id,"btn navy-btn")]},
+    messages:{title:"Parent Messages",cols:["Parent","Subject","Message","Status","Sent","Actions"],row:x=>[esc(x.parent_profiles?.full_name),esc(x.subject),esc(x.body),x.read_at?"Read":"Unread",esc(date(x.created_at)),button("Mark read","message-read",x.id)+" "+button("Reply","message-reply",x.id,"btn navy-btn")]},
+    subjects:{title:"Subjects",cols:["Subject","Class","Actions"],row:x=>[esc(x.name),esc(x.class_name||"—"),button("Edit","edit",x.id)+" "+button("Delete","delete",x.id,"btn btn-outline")],add:"subject"}
   };
-
-  async function loadOverview() {
-    main.innerHTML = card("Dashboard Overview", '<p>Loading school records from the secure server…</p>');
-    try {
-      const data = await request("/api/dashboard-data");
-      dashboardStats = data.stats || {};
-      const stats = dashboardStats;
-      main.innerHTML = '<section class="portal-empty-card"><div class="portal-section-heading"><div><p class="section-label">Live school data</p><h2>Dashboard Overview</h2><p class="portal-muted">Statistics are retrieved server-side using the Supabase credentials configured in Vercel.</p></div><button class="btn navy-btn" id="refresh-overview" type="button">Refresh data</button></div>' +
-        '<div class="portal-stats-grid">' +
-        statCard("Students", stats.students || 0) +
-        statCard("Teachers", stats.teachers || 0) +
-        statCard("Parents", stats.parents || 0) +
-        statCard("Results", stats.results || 0) +
-        statCard("Announcements", stats.announcements || 0) +
-        statCard("Outstanding fees", money(stats.balance)) +
-        '</div><h3>School management</h3><p>Use the navigation to review students, teachers, results, parents, payments, events, gallery, contact enquiries, admissions, parent messages, subjects and advanced school settings.</p><p class="portal-muted">Last loaded: ' + esc(new Date().toLocaleString()) + '</p></section>';
-      document.getElementById("refresh-overview").addEventListener("click", loadOverview);
-    } catch (error) {
-      main.innerHTML = card("Dashboard Overview",
-        '<div class="portal-error"><strong>Dashboard is open, but live statistics could not be loaded.</strong><p>' +
-        esc(error.message) + '</p><button class="btn navy-btn" type="button" id="retry-overview">Retry loading data</button></div>' +
-        '<p class="portal-muted">The administrator login is kept intact. Check that SUPABASE_URL and SUPABASE_SECRET_KEY are set in Vercel Production and that the latest deployment is ready.</p>');
-      document.getElementById("retry-overview").addEventListener("click", loadOverview);
-    }
-  }
-
-  async function loadTableSection(section, page = 1) {
-    const config = tableViews[section.table];
-    const pageSize = 100;
-    main.innerHTML = card(config.title, '<p>Loading records from Supabase…</p>');
-    const data = await request("/api/admin-operations?table=" + encodeURIComponent(section.table) + "&page=" + page + "&pageSize=" + pageSize);
-    const rows = Array.isArray(data.data) ? data.data : [];
-    const total = Number(data.count == null ? rows.length : data.count);
-    const totalPages = Math.max(1, Math.ceil(total / pageSize));
-    const rangeStart = total ? ((page - 1) * pageSize) + 1 : 0;
-    const rangeEnd = Math.min(page * pageSize, total);
-    const pager = totalPages > 1
-      ? '<div class="portal-table-pager"><span class="portal-muted">Showing ' + rangeStart + '–' + rangeEnd + ' of ' + total + ' records · Page ' + page + ' of ' + totalPages + '</span><div><button class="btn btn-outline" type="button" id="previous-page" ' + (page <= 1 ? 'disabled' : '') + '>Previous</button> <button class="btn btn-outline" type="button" id="next-page" ' + (page >= totalPages ? 'disabled' : '') + '>Next</button></div></div>'
-      : '<p class="portal-muted">' + total + ' record(s) loaded from Supabase.</p>';
-    main.innerHTML = '<section class="portal-empty-card"><div class="portal-section-heading"><div><p class="section-label">Live school records</p><h2>' +
-      esc(config.title) + '</h2><p class="portal-muted">' + esc(rows.length) + ' record(s) on this page · ' + esc(total) + ' total</p>' +
-      '</div><button class="btn navy-btn" type="button" id="refresh-section">Refresh</button></div>' +
-      table(config.columns, rows.map(config.rows)) + pager + '</section>';
-    document.getElementById("refresh-section").addEventListener("click", () => loadTableSection(section, page));
-    document.getElementById("previous-page")?.addEventListener("click", () => loadTableSection(section, page - 1));
-    document.getElementById("next-page")?.addEventListener("click", () => loadTableSection(section, page + 1));
-  }
-
-  async function loadAdvanced() {
-    main.innerHTML = card("School Management / Advanced",
-      '<div class="portal-feature-grid">' +
-      '<article><h3>Academic Sessions</h3><p>Review and manage academic sessions.</p><button class="btn btn-outline" data-advanced-table="sessions">View sessions</button></article>' +
-      '<article><h3>Terms</h3><p>Review active and previous terms.</p><button class="btn btn-outline" data-advanced-table="terms">View terms</button></article>' +
-      '<article><h3>Classes</h3><p>Review classes configured for the school.</p><button class="btn btn-outline" data-advanced-table="classes">View classes</button></article>' +
-      '</div><p class="portal-muted">Advanced operations that change academic records should only be enabled through their secure, supported server endpoints.</p>');
-    main.querySelectorAll("[data-advanced-table]").forEach(button => button.addEventListener("click", async () => {
-      const name = button.dataset.advancedTable;
-      main.innerHTML = card("Loading " + name, "<p>Loading…</p>");
-      try {
-        const data = await request("/api/admin-operations?table=" + encodeURIComponent(name));
-        const rows = data.data || [];
-        const columns = name === "sessions" ? ["Academic session", "Active"] : name === "terms" ? ["Term", "Session", "Active"] : ["Class", "Active"];
-        main.innerHTML = card(name.charAt(0).toUpperCase() + name.slice(1), table(columns, rows.map(x =>
-          name === "sessions" ? [x.name, x.is_active ? "Yes" : "No"] :
-          name === "terms" ? [x.name, rowValue(x, "academic_sessions.name"), x.is_active ? "Yes" : "No"] :
-          [x.name, x.is_active ? "Yes" : "No"])));
-      } catch (error) {
-        main.innerHTML = card(name, '<div class="portal-error">' + esc(error.message) + '</div>');
-      }
-    }));
-  }
-
-  async function openSection(id) {
-    const section = sections.find(item => item.id === id);
-    if (!section) return;
-    markActive(id);
-    if (id === "overview") return loadOverview();
-    if (id === "advanced") return loadAdvanced();
-    if (id === "settings") {
-      main.innerHTML = card("Settings",
-        '<h3>Administrator access</h3><p>The administrator username and password are verified by the Vercel server. They are not stored in this page.</p>' +
-        '<h3>Database connection</h3><p>School data is fetched by protected server endpoints using the Supabase environment variables configured in Vercel. Secret keys are never placed in browser JavaScript.</p>' +
-        '<button class="btn navy-btn" type="button" id="settings-refresh">Refresh dashboard data</button>');
-      document.getElementById("settings-refresh").addEventListener("click", () => openSection("overview"));
-      return;
-    }
-    try {
-      await loadTableSection(section);
-    } catch (error) {
-      main.innerHTML = card(section.label,
-        '<div class="portal-error"><strong>This section could not load its records.</strong><p>' +
-        esc(error.message) + '</p><button class="btn navy-btn" type="button" id="retry-section">Try again</button></div>');
-      document.getElementById("retry-section").addEventListener("click", () => openSection(id));
-    }
-  }
-
-  document.getElementById("admin-logout").addEventListener("click", async function () {
-    this.disabled = true;
-    try {
-      await fetch("/api/admin-login", { method: "DELETE", credentials: "same-origin", cache: "no-store" });
-    } finally {
-      location.replace("/admin/");
-    }
-  });
-
-  async function boot() {
-    main.innerHTML = card("Opening administrator dashboard", "<p>Checking your secure login session…</p>");
-    try {
-      const session = await request("/api/admin-login");
-      if (session.authenticated !== true) {
-        main.innerHTML = card("Administrator session not detected",
-          '<div class="portal-error"><p>Your login session was not received by this page.</p><a class="btn navy-btn" href="/admin/">Return to Admin Login</a></div>');
-        return;
-      }
-      await loadOverview();
-    } catch (error) {
-      main.innerHTML = card("Dashboard connection issue",
-        '<div class="portal-error"><p>' + esc(error.message) + '</p><button class="btn navy-btn" type="button" id="retry-boot">Retry</button></div>');
-      document.getElementById("retry-boot").addEventListener("click", boot);
-    }
-  }
-
+  async function openSection(id){markActive(id);if(id==="overview")return loadOverview();if(id==="advanced")return loadAdvanced();if(id==="settings"){main.innerHTML=card("Settings",'<h3>Security</h3><p>Admin credentials are verified server-side and must never be placed in browser code.</p><h3>Database</h3><p>Database operations use protected API endpoints.</p><button class="btn navy-btn" id="settings-refresh">Refresh overview</button>');document.getElementById("settings-refresh").onclick=()=>openSection("overview");return}const section=sections.find(s=>s.id===id),view=views[id];if(!view)return;main.innerHTML=card(view.title,"<p>Loading records…</p>");try{const rows=await getRows(section.table);const actions=view.add?button("+ Add "+view.title.replace(/s$/,""),"add","", "btn navy-btn"):"";main.innerHTML=card(view.title,'<div class="portal-section-heading"><div><p class="portal-muted">Manage live records. Changes are saved through the protected administrator API.</p></div><div>'+actions+' <button class="btn btn-outline" id="section-refresh">Refresh</button></div></div><label class="field">Search records<input id="table-search" placeholder="Type to filter this page…"></label>'+table(view.cols,rows.map(x=>view.row(x)))+'<p class="portal-muted">'+rows.length+' record(s) loaded. '+(rows.length===100?"Showing up to 100 records; use search or paging in a future enhancement.":"")+'</p>');document.getElementById("section-refresh").onclick=()=>openSection(id);document.getElementById("table-search").oninput=e=>{const q=e.target.value.toLowerCase();main.querySelectorAll("tbody tr").forEach(tr=>tr.style.display=tr.textContent.toLowerCase().includes(q)?"":"none")};main.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",()=>handleAction(id,b,rows)));main.querySelectorAll("[data-contact-status]").forEach(sel=>sel.addEventListener("change",()=>{sel.dataset.changed="1"}))}catch(e){main.innerHTML=card(view.title,'<div class="portal-error"><strong>Could not load records.</strong><p>'+esc(e.message)+'</p><button class="btn navy-btn" id="retry-section">Try again</button></div>');document.getElementById("retry-section").onclick=()=>openSection(id)}}
+  async function handleAction(section,b,rows){const action=b.dataset.action,id=b.dataset.id,view=views[section],row=rows.find(x=>String(x.id)===String(id));try{
+    if(action==="add"||action==="edit"){return await editRecord(section,action==="edit"?row:null)}
+    if(action==="delete"){if(!confirm("Delete this record permanently? This cannot be undone."))return;const tableName=sections.find(s=>s.id===section).table;await api({type:"delete",table:tableName,id});alert("Record deleted.");return openSection(section)}
+    if(action==="payment-confirm"||action==="payment-reject"){if(!confirm("Change this payment status?"))return;await api({type:"payment-status",id,status:action==="payment-confirm"?"Confirmed":"Rejected"});alert("Payment status updated.");return openSection(section)}
+    if(action==="contact-status"){const status=main.querySelector('[data-contact-status="'+CSS.escape(id)+'"]').value;await api({type:"contact-status",id,status});alert("Enquiry status updated.");return openSection(section)}
+    if(action==="admission-status"){const status=main.querySelector('[data-admission-status="'+CSS.escape(id)+'"]').value;const result=await api({type:"admission-status",id,status});if(result.admission_key)alert("Applicant approved. Admission key (give this to the applicant): "+result.admission_key);else alert("Application status updated.");return openSection(section)}
+    if(action==="message-read"){await api({type:"message-status",id,status:"Read"});alert("Message marked as read.");return openSection(section)}
+    if(action==="message-reply"){const body=prompt("Enter your reply to the parent:");if(!body||!body.trim())return;await api({type:"message-reply",id,body:body.trim()});alert("Reply sent.");return openSection(section)}
+  }catch(e){alert("Action failed: "+e.message)}}
+  async function editRecord(section,row){const isEdit=!!row,fields=[],id=row?.id||"";let classes=[],subjects=[],terms=[],students=[],parents=[];try{if(["students","teachers","subjects","results"].includes(section))classes=await getRows("classes");if(["teachers","results"].includes(section))subjects=await getRows("subjects");if(section==="results"){terms=await getRows("terms");students=await getRows("students")}if(section==="parents")students=await getRows("students")}catch(e){throw Error("Could not load dropdown options: "+e.message)}
+    const classOptions=classes.map(x=>({value:x.id,label:x.name})),subjectOptions=subjects.map(x=>({value:x.id,label:x.name})),studentOptions=students.map(x=>({value:x.id,label:x.full_name+" ("+x.admission_number+")"})),termOptions=terms.map(x=>({value:x.id,label:x.name}));
+    if(section==="students"){fields.push(field("full_name","Student full name",val(row,"full_name"),"text",true),field("admission_number","Admission number",val(row,"admission_number"),"text",true),field("class_id","Class",val(row,"class_id"),"text",false,classOptions),field("guardian_name","Parent/guardian name",val(row,"guardian_name")),field("guardian_contact","Parent/guardian phone",val(row,"guardian_contact")),field("parent_email","Parent email",val(row,"parent_email"),"email"),field("gender","Gender",val(row,"gender")),field("date_of_birth","Date of birth",val(row,"date_of_birth"),"date"),field("boarding_status","Boarding status",val(row,"boarding_status")),field("status","Status",val(row,"status")||"active","text",true),field("password",isEdit?"New portal password (optional)":"Initial portal password","","password",!isEdit))}
+    else if(section==="teachers"){fields.push(field("full_name","Teacher full name",val(row,"full_name"),"text",true),field("staff_id","Staff ID",val(row,"staff_id"),"text",true),field("email","Email",val(row,"email"),"email"),field("phone","Phone",val(row,"phone")),field("subject","Subject name (legacy)",val(row,"subject")),field("role","Staff role",val(row,"role")||"Teaching Staff"),field("assigned_class","Assigned class (legacy)",val(row,"assigned_class")),field("class_id","Assigned class",val(row,"class_id"),"text",false,classOptions),field("subject_id","Assigned subject",val(row,"subject_id"),"text",false,subjectOptions),field("status","Status",val(row,"status")||"active"),field("password",isEdit?"New portal password (optional)":"Initial portal password","","password",!isEdit))}
+    else if(section==="results"){fields.push(field("student_id","Student",val(row,"student_id"),"text",true,studentOptions),field("subject_id","Subject",val(row,"subject_id"),"text",true,subjectOptions),field("term_id","Term",val(row,"term_id"),"text",true,termOptions),field("ca_score","CA score (0–30)",val(row,"ca_score"),"number",true),field("exam_score","Exam score (0–70)",val(row,"exam_score"),"number",true),textArea("teacher_comment","Teacher comment",val(row,"teacher_comment")),textArea("principal_comment","Principal comment",val(row,"principal_comment")),field("approved","Approved (true/false)",String(!!val(row,"approved"))))}
+    else if(section==="parents"){fields.push(field("full_name","Parent full name",val(row,"full_name"),"text",true),field("email","Email",val(row,"email"),"email",true),field("phone","Phone",val(row,"phone")),field("address","Address",val(row,"address")),field("occupation","Occupation",val(row,"occupation")),field("status","Status",val(row,"status")||"active"),field("password",isEdit?"New portal password (optional)":"Initial portal password","","password",!isEdit),...students.map(s=>'<label class="field"><input type="checkbox" name="student_ids" value="'+esc(s.id)+'" '+((row?.children||[]).some(c=>c.id===s.id)?"checked":"")+'>'+esc(s.full_name+" — "+s.admission_number)+'</label>'))}
+    else if(section==="events"){fields.push(field("title","Event title",val(row,"title"),"text",true),field("event_date","Event date",String(val(row,"event_date")||"").slice(0,10),"date",true),field("category","Category",val(row,"category")||"School Event"),field("status","Status",val(row,"status")||"Published"),field("image_url","Image URL",val(row,"image_url")),textArea("description","Description",val(row,"description")))}
+    else if(section==="gallery"){fields.push(field("title","Image title",val(row,"title"),"text",true),field("image_url","Image URL",val(row,"image_url"),"url",true),field("alt_text","Alt text",val(row,"alt_text")),field("category","Category",val(row,"category")||"School"))}
+    else if(section==="subjects"){fields.push(field("name","Subject name",val(row,"name"),"text",true),field("class_id","Class",val(row,"class_id"),"text",false,classOptions))}
+    const m=modal((isEdit?"Edit ":"Add ")+views[section].title.replace(/s$/,""),fields);m.querySelector("form").addEventListener("submit",async e=>{e.preventDefault();const form=e.currentTarget,b=form.querySelector('[type="submit"]'),status=m.querySelector("#admin-form-status");b.disabled=true;b.textContent="Saving…";status.textContent="";try{const fd=new FormData(form),payload=Object.fromEntries(fd.entries());if(section==="parents")payload.student_ids=fd.getAll("student_ids");if(section==="results")payload.approved=String(payload.approved).toLowerCase()==="true";payload.type=views[section].add; if(isEdit)payload.id=id;await api(payload,isEdit?"PUT":"POST");m.remove();alert("Saved successfully.");openSection(section)}catch(e){status.className="portal-error";status.textContent=e.message;b.disabled=false;b.textContent="Save record"}})}
+  async function loadAdvanced(){main.innerHTML=card("School Management / Advanced",'<p>Loading academic structure…</p>');try{const [classes,terms,sessions]=await Promise.all([getRows("classes"),getRows("terms"),getRows("sessions")]);main.innerHTML=card("School Management / Advanced",'<p class="portal-muted">Manage core academic structure.</p><div class="portal-feature-grid"><article><h3>Classes</h3><p>'+classes.length+' record(s)</p><button class="btn navy-btn" data-advanced="classes">View / manage classes</button></article><article><h3>Terms</h3><p>'+terms.length+' record(s)</p><button class="btn navy-btn" data-advanced="terms">View terms</button></article><article><h3>Academic sessions</h3><p>'+sessions.length+' record(s)</p><button class="btn navy-btn" data-advanced="sessions">View sessions</button></article><article><h3>Announcements</h3><p>Create school announcements for students, parents or teachers.</p><button class="btn navy-btn" data-advanced="announcement">Create announcement</button></article></div>');main.querySelectorAll("[data-advanced]").forEach(b=>b.onclick=()=>advancedAction(b.dataset.advanced))}catch(e){main.innerHTML=card("School Management / Advanced",'<div class="portal-error">'+esc(e.message)+'</div>')}}
+  async function advancedAction(kind){try{if(kind==="announcement"){const m=modal("Publish announcement",[field("title","Title","","text",true),textArea("body","Announcement", ""),field("audience","Audience","all"),field("pinned","Pinned (true/false)","false")]);m.querySelector("form").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget));b.type="announcement";b.pinned=String(b.pinned).toLowerCase()==="true";try{await api(b);m.remove();alert("Announcement published.");loadAdvanced()}catch(x){m.querySelector("#admin-form-status").textContent=x.message}};return}const rows=await getRows(kind);const cols=kind==="classes"?["Class","Active","Action"]:kind==="terms"?["Term","Session","Active"]:["Session","Active"];main.innerHTML=card(kind.charAt(0).toUpperCase()+kind.slice(1),table(cols,rows.map(x=>kind==="classes"?[esc(x.name),x.is_active?"Yes":"No",button("Edit","edit-class",x.id)]:kind==="terms"?[esc(x.name),esc(x.academic_sessions?.name||"—"),x.is_active?"Yes":"No"]: [esc(x.name),x.is_active?"Yes":"No"]))+(kind==="classes"?'<button class="btn navy-btn" id="add-class">+ Add class</button>':""));if(kind==="classes"){main.querySelectorAll('[data-action="edit-class"]').forEach(b=>b.onclick=()=>classForm(rows.find(x=>x.id===b.dataset.id)));document.getElementById("add-class").onclick=()=>classForm(null)}}catch(e){alert(e.message)}}
+  function classForm(row){const m=modal(row?"Edit class":"Add class",[field("name","Class name",val(row,"name"),"text",true),field("is_active","Active (true/false)",String(row?.is_active!==false))]);m.querySelector("form").onsubmit=async e=>{e.preventDefault();const b=Object.fromEntries(new FormData(e.currentTarget));b.type="class";b.is_active=String(b.is_active).toLowerCase()==="true";if(row)b.id=row.id;try{await api(b,row?"PUT":"POST");m.remove();loadAdvanced()}catch(x){m.querySelector("#admin-form-status").textContent=x.message}}}
+  document.getElementById("admin-logout").addEventListener("click",async function(){this.disabled=true;try{await fetch("/api/admin-login",{method:"DELETE",credentials:"same-origin",cache:"no-store"})}finally{location.replace("/admin/")}});
+  async function boot(){main.innerHTML=card("Opening administrator dashboard","<p>Verifying your secure session…</p>");try{const d=await request("/api/admin-login");if(d.authenticated!==true){main.innerHTML=card("Session expired",'<div class="portal-error"><p>Please sign in again to continue.</p><a class="btn navy-btn" href="/admin/">Return to Admin Login</a></div>');return}await loadOverview()}catch(e){main.innerHTML=card("Dashboard connection issue",'<div class="portal-error"><p>'+esc(e.message)+'</p><button class="btn navy-btn" id="retry-boot">Retry</button></div>');document.getElementById("retry-boot").onclick=boot}}
   boot();
 })();
