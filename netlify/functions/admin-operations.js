@@ -128,7 +128,7 @@ exports.handler = async event => {
         return json(201,{data});
       }
       const {data:old}=await db.from("students").select("profile_id").eq("id",id).maybeSingle(); if(!old)return json(404,{error:"Student not found."});
-      let profileId=old.profile_id||null;
+      profileId=old.profile_id||null;
       if(password){
         if(profileId) await createOrUpdateAuth(db,{profileId,role:"student",password,identifier:b.admission_number});
         else { const auth=await createOrUpdateAuth(db,{profileId:null,role:"student",password,identifier:b.admission_number,email:null}); profileId=auth.profileId; }
