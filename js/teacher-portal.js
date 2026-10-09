@@ -23,7 +23,7 @@ export async function renderTeacherPortal(dashboardView,shell){
   const notificationButton=document.createElement("button");
   notificationButton.type="button";
   notificationButton.id="enable-teacher-browser-notifications";
-  notificationButton.className="btn btn-outline-light";
+  notificationButton.className="btn btn-outline-light portal-notification-button";
   notificationButton.textContent="🔔 Enable notifications";
   notificationButton.title="Enable alerts when parents send you messages";
   const logoutButton=headerActions.querySelector("#logout");
