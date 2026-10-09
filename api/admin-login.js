@@ -7,6 +7,7 @@ function json(res, status, body) {
   res.status(status);
   res.setHeader("Content-Type", "application/json");
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Vary", "Cookie");
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Expires", "0");
   return res.json(body);
