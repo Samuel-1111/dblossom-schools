@@ -188,7 +188,7 @@ function teacherModal(classes,subjects,x={}){
  input("staff_id","Staff ID",x.staff_id||"","text",true),
  input("email","Email",x.email||"","email"),
  input("phone","Phone",x.phone||""),
- select("class_id","Assigned Class",classes.map(c=>({value:c.id,label:c.name})),x.class_id||"",false),
+ select("class_id","Assigned Class",classes.map(c=>({value:c.id,label:c.name})),x.class_id||"",true),
  select("subject_id","Assigned Subject",subjects.map(s=>({value:s.id,label:s.name+(s.class_id?"":" — General")})),x.subject_id||"",false),
  select("role","Role",[{value:"Class Teacher",label:"Class Teacher"},{value:"Teaching Staff",label:"Teaching Staff"}],x.role||"Teaching Staff",true),
  input("password","Portal Password","","password",!x.id,'minlength="6"'),
