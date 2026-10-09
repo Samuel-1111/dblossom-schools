@@ -42,6 +42,50 @@ async function createOrUpdateAuth(db, { profileId, role, password, identifier, e
   // performs an upsert so we never attempt a second insert for the same profile ID.
   return { profileId:data.user.id, email:authEmail };
 }
+async function upsertProfile(db,id,full_name,role) {\n  if(!id) return;\n  // Auth creation runs the profile trigger before createUser returns. Update that\n  // row first so account creation never performs a second profile INSERT.\n  const {data:existing,error:lookupError}=await db.from("profiles").select("id").eq("id",id).maybeSingle();\n  if(lookupError) throw lookupError;\n  if(existing){const {error}=await db.from("profiles").update({full_name,role}).eq("id",id);if(error)throw error;return;}\n  const {error}=await db.from("profiles").insert({id,full_name,role});\n  if(error) throw error;\n}\nnst { admin, userFrom, isAdmin, normPhone } = require("./_supabase");
+const crypto = require("crypto");
+const ADMIN_COOKIE = "dblossom_admin_session";
+function localAdmin(event){
+  const raw=String(event.headers?.cookie||event.headers?.Cookie||"");
+  const cookies={}; raw.split(";").forEach(p=>{const i=p.indexOf("=");if(i>0)cookies[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim())});
+  const token=cookies[ADMIN_COOKIE]; if(!token||!process.env.ADMIN_PASSWORD)return null;
+  const [payload,sig]=String(token).split("."); if(!payload||!sig)return null;
+  const expected=crypto.createHmac("sha256",String(process.env.ADMIN_PASSWORD)).update(payload).digest("hex");
+  if(sig.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(expected)))return null;
+  try{const d=JSON.parse(Buffer.from(payload,"base64url").toString());if(d.role!=="admin"||!d.username||!d.iat)return null;if(Date.now()-Number(d.iat)>12*60*60*1000)return null;return{id:null,role:"admin",username:d.username,local:true}}catch{return null}
+}
+
+const clean = v => typeof v === "string" ? v.trim() : "";
+const json = (statusCode, body) => ({ statusCode, headers: { "content-type":"application/json", "cache-control":"no-store" }, body: JSON.stringify(body) });
+const safePage = event => Math.max(1, Number(event.queryStringParameters?.page || 1));
+const safeSize = event => Math.min(100, Math.max(10, Number(event.queryStringParameters?.pageSize || 50)));
+
+async function audit(db, user, action, entity_type, entity_id, details={}) {
+  try { await db.from("audit_logs").insert({actor_profile_id:user?.id||null,action,entity_type,entity_id:entity_id?String(entity_id):null,details}); } catch (_) {}
+}
+async function getAuthEmail(db, profileId) {
+  const { data } = await db.auth.admin.getUserById(profileId);
+  return data?.user?.email || null;
+}
+function internalEmail(prefix, id) {
+  const normalized = String(prefix).toLowerCase().replace(/[^a-z0-9_-]/g,"");
+  return normalized + "." + String(id).replace(/[^a-z0-9]/gi,"").toLowerCase() + "@accounts.dblossom.local";
+}
+async function createOrUpdateAuth(db, { profileId, role, password, identifier, email }) {
+  let authEmail = email || internalEmail(role, identifier);
+  if (profileId) {
+    if (password) {
+      const { error } = await db.auth.admin.updateUserById(profileId, { password });
+      if (error) throw error;
+    }
+    return { profileId, email: authEmail };
+  }
+  const { data, error } = await db.auth.admin.createUser({ email: authEmail, password, email_confirm: true });
+  if (error) throw error;
+  // Auth triggers may create the matching profiles row automatically. The caller
+  // performs an upsert so we never attempt a second insert for the same profile ID.
+  return { profileId:data.user.id, email:authEmail };
+}
 async function upsertProfile(db,id,full_name,role) {
   if(!id) return;
   // The auth.users trigger creates profiles automatically. Conflict on the profile
