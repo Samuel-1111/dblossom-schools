@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17375e">
+<meta name="description" content="Private, secure parent and teacher messaging for D'Blossom Model Private Schools.">
+<title>Parent–Teacher Messages | D'Blossom Model Private Schools</title>
+<link rel="icon" href="/logo.jpg">
+<link rel="stylesheet" href="/css/portal.css">
+<link rel="stylesheet" href="/css/school-messages.css">
+</head>
+<body class="school-messages-page">
+<header class="sm-header">
+<a class="sm-brand" href="/"><img src="/logo.jpg" alt=""><span><strong>D'Blossom Model Private Schools</strong><small>Parent–Teacher Messages</small></span></a>
+<a class="sm-back" id="portal-back" href="/pages/parent-login.html">← Back to portal</a>
+</header>
+<main class="sm-layout">
+<section class="sm-intro"><span class="sm-kicker">DIRECT SCHOOL COMMUNICATION</span><h1>Messages</h1><p>Contact the right person about your child's learning, progress and school needs.</p><div id="sm-status" role="status" aria-live="polite">Checking your signed-in account…</div></section>
+<section class="sm-workspace" id="sm-workspace" hidden>
+<div class="sm-controls">
+<label>Child / Student<select id="sm-student" required><option value="">Choose a student</option></select></label>
+<label id="sm-recipient-label">Class teacher<select id="sm-recipient" required><option value="">Choose a recipient</option></select></label>
+<button type="button" id="sm-refresh" class="sm-refresh">↻ Refresh messages</button>
+</div>
+<div class="sm-thread" aria-label="Message conversation">
+<div class="sm-thread-head"><div><h2 id="sm-thread-title">Your conversation</h2><p id="sm-thread-subtitle">Messages between the parent and class teacher appear here.</p></div><span class="sm-secure">🔒 Private</span></div>
+<div id="sm-message-list" class="sm-message-list"><p class="sm-empty">Choose a student and recipient to view messages.</p></div>
+<form id="sm-compose" class="sm-compose">
+<label for="sm-body">Your message</label>
+<textarea id="sm-body" name="body" rows="3" maxlength="3000" required placeholder="Write your message here…"></textarea>
+<div class="sm-compose-foot"><small>Keep messages respectful and related to school.</small><button type="submit" id="sm-send">Send message ➤</button></div>
+</form>
+</div>
+</section>
+<section id="sm-error" class="sm-error" hidden><h2>Messages could not be opened</h2><p id="sm-error-text">Please sign in to your portal again.</p><a href="/pages/parent-login.html" id="sm-login-link">Go to portal login</a></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="/js/school-messages.js?v=1"></script>
+</body>
+</html>
