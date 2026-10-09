@@ -9,7 +9,8 @@ exports.handler=async event=>{try{
  if(!teacher||String(teacher.status).toLowerCase()!=="active")return json(403,{error:"Your teacher account is inactive or unavailable."});
  const{data:assign}=await db.from("teacher_assignments").select("class_id,subject_id,classes(id,name),subjects(id,name,class_id)").eq("teacher_id",teacher.id);
  const classIds=[...new Set((assign||[]).map(x=>x.class_id).filter(Boolean))];
- if(!classIds.length){const{data:cls}=await db.from("classes").select("id,name").eq("name",teacher.assigned_class).maybeSingle();if(cls)classIds.push(cls.id)}\n if(!classIds.length)return json(403,{error:"Your teacher account is not assigned to a class. Ask the administrator to assign a class and subject."});
+ if(!classIds.length){const{data:cls}=await db.from("classes").select("id,name").eq("name",teacher.assigned_class).maybeSingle();if(cls)classIds.push(cls.id)}
+ if(!classIds.length)return json(403,{error:"Your teacher account is not assigned to a class. Ask the administrator to assign a class and subject."});
  const students=classIds.length?(await db.from("students").select("id,admission_number,full_name,guardian_name,class_id,status,classes(name)").in("class_id",classIds).order("full_name").limit(1000)).data||[]:[];
  const studentIds=students.map(x=>x.id),subjectIds=[...new Set((assign||[]).map(x=>x.subject_id).filter(Boolean))];
  let subjects=[];if(subjectIds.length)subjects=(await db.from("subjects").select("id,name,class_id").in("id",subjectIds).order("name")).data||[];if(!subjects.length&&classIds.length)subjects=(await db.from("subjects").select("id,name,class_id").in("class_id",classIds).order("name")).data||[];
