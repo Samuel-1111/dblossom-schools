@@ -42,17 +42,15 @@ async function createOrUpdateAuth(db, { profileId, role, password, identifier, e
   // performs an upsert so we never attempt a second insert for the same profile ID.
   return { profileId:data.user.id, email:authEmail };
 }
-async function upsertProfile(db,id,full_name,role) {\n  if(!id) return;\n  // Auth creation runs the profile trigger before createUser returns. Update that\n  // row first so account creation never performs a second profile INSERT.\n  const {data:existing,error:lookupError}=await db.from("profiles").select("id").eq("id",id).maybeSingle();\n  if(lookupError) throw lookupError;\n  if(existing){const {error}=await db.from("profiles").update({full_name,role}).eq("id",id);if(error)throw error;return;}\n  const {error}=await db.from("profiles").insert({id,full_name,role});\n  if(error) throw error;\n}\nnst { admin, userFrom, isAdmin, normPhone } = require("./_supabase");
-const crypto = require("crypto");
-const ADMIN_COOKIE = "dblossom_admin_session";
-function localAdmin(event){
-  const raw=String(event.headers?.cookie||event.headers?.Cookie||"");
-  const cookies={}; raw.split(";").forEach(p=>{const i=p.indexOf("=");if(i>0)cookies[p.slice(0,i).trim()]=decodeURIComponent(p.slice(i+1).trim())});
-  const token=cookies[ADMIN_COOKIE]; if(!token||!process.env.ADMIN_PASSWORD)return null;
-  const [payload,sig]=String(token).split("."); if(!payload||!sig)return null;
-  const expected=crypto.createHmac("sha256",String(process.env.ADMIN_PASSWORD)).update(payload).digest("hex");
-  if(sig.length!==expected.length||!crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(expected)))return null;
-  try{const d=JSON.parse(Buffer.from(payload,"base64url").toString());if(d.role!=="admin"||!d.username||!d.iat)return null;if(Date.now()-Number(d.iat)>12*60*60*1000)return null;return{id:null,role:"admin",username:d.username,local:true}}catch{return null}
+async function upsertProfile(db,id,full_name,role) {
+  if(!id) return;
+  // Auth creation runs the profile trigger before createUser returns. Update that
+  // row first so account creation never performs a second profile INSERT.
+  const {data:existing,error:lookupError}=await db.from("profiles").select("id").eq("id",id).maybeSingle();
+  if(lookupError) throw lookupError;
+  if(existing){const {error}=await db.from("profiles").update({full_name,role}).eq("id",id);if(error)throw error;return;}
+  const {error}=await db.from("profiles").insert({id,full_name,role});
+  if(error) throw error;
 }
 
 const clean = v => typeof v === "string" ? v.trim() : "";
