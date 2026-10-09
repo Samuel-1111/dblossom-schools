@@ -44,20 +44,10 @@ async function createOrUpdateAuth(db, { profileId, role, password, identifier, e
 }
 async function upsertProfile(db,id,full_name,role) {
   if(!id) return;
-  // Supabase auth triggers may have already created this profile. Update first,
-  // then insert only when no row exists to avoid profile_pkey duplicate failures.
-  const {data:existing,error:lookupError}=await db.from("profiles").select("id").eq("id",id).maybeSingle();
-  if(lookupError) throw lookupError;
-  if(existing){
-    const {error}=await db.from("profiles").update({full_name,role}).eq("id",id);
-    if(error) throw error;
-    return;
-  }
-  const {error}=await db.from("profiles").insert({id,full_name,role});
-  if(error && error.code==="23505"){
-    const retry=await db.from("profiles").update({full_name,role}).eq("id",id);
-    if(retry.error) throw retry.error;
-  } else if(error) throw error;
+  // The auth.users trigger creates profiles automatically. Conflict on the profile
+  // primary key so this safely updates that row instead of attempting a duplicate insert.
+  const { error } = await db.from("profiles").upsert({id,full_name,role},{onConflict:"id"});
+  if(error) throw error;
 }
 async function listData(db, table, page, pageSize, search, order="created_at", eventClassId="") {
   let q = db.from(table).select("*",{count:"exact"});
