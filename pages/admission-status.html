@@ -1,1 +1,30 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admission Status — D'Blossom Model Private Schools</title><link rel="icon" type="image/jpeg" href="/logo.jpg"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/responsive.css"></head><body><main class="login-main"><section class="login-card" style="margin-top:48px;max-width:620px"><img class="portal-logo" src="/logo.jpg" alt="D'Blossom Model Private Schools logo"><p class="eyebrow">D'Blossom Model Private Schools</p><h1 style="color:var(--navy)">Check Admission Status</h1><p class="muted">Enter your application number and the admission key supplied by the school.</p><form id="admission-status-form" class="dashboard-form"><label class="field">Application Number<input name="application_number" required autocomplete="off" placeholder="Application number"></label><label class="field">Admission Key<input name="admission_key" required autocomplete="off" placeholder="Admission key"></label><button class="btn btn-gold" type="submit">Check Status</button></form><div id="admission-status-result" aria-live="polite"></div><p style="margin-top:18px"><a href="/pages/admissions.html">← Back to Admissions</a> · <a href="/">Home</a></p></section></main><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script><script type="module" src="/js/admission-status.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admission Status — D'Blossom Model Private Schools</title>
+<link rel="icon" type="image/jpeg" href="/logo.jpg">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+<main class="login-main">
+<section class="login-card" style="margin-top:48px;max-width:620px">
+<img class="portal-logo" src="/logo.jpg" alt="D'Blossom Model Private Schools logo">
+<p class="eyebrow">D'Blossom Model Private Schools</p>
+<h1 style="color:var(--navy)">Check Admission Status</h1>
+<p class="muted">Enter the application number issued when the application was submitted.</p>
+<form id="admission-status-form" class="dashboard-form">
+<label class="field">Admission Number
+<input name="application_number" required autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Enter admission number">
+</label>
+<button class="btn btn-gold" type="submit">Check Status</button>
+</form>
+<div id="admission-status-result" aria-live="polite"></div>
+<p style="margin-top:18px"><a href="/pages/admissions.html">← Back to Admissions</a> · <a href="/">Home</a></p>
+</section>
+</main>
+<script type="module" src="/js/admission-status.js?v=20261009-number-only"></script>
+</body>
+</html>
