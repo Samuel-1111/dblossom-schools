@@ -69,7 +69,7 @@ exports.handler = async event => {
     const db=admin();
     // The custom Vercel admin cookie identifies the administrator as admin-local,
     // which is not a UUID and must never be written into UUID foreign-key columns.
-    if(user?.adminSession && !user.id){
+    if(user?.adminSession && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(user.id||""))){
       const {data:adminProfile}=await db.from("profiles").select("id").in("role",["admin","super_admin"]).limit(1).maybeSingle();
       user={...user,id:adminProfile?.id||null};
     }
