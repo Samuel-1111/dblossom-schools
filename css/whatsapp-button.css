@@ -1,7 +1,8 @@
-/* Small floating WhatsApp shortcut. Only affects the public homepage button. */
-.school-whatsapp-float{position:fixed;right:18px;bottom:18px;z-index:1000;display:flex;align-items:center;justify-content:center;width:46px;height:46px;min-height:46px;padding:0;border-radius:50%;background:#128c4a;color:#fff!important;font:800 20px/1 Arial,sans-serif;text-decoration:none!important;box-shadow:0 5px 16px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.95);transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
+/* Branded floating WhatsApp contact button; isolated to the homepage shortcut. */
+.school-whatsapp-float{position:fixed;right:18px;bottom:18px;z-index:1000;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:52px;padding:0 18px;border-radius:999px;background:#128c4a;color:#fff!important;font:700 15px/1.2 Arial,sans-serif;text-decoration:none!important;box-shadow:0 6px 18px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.95);transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
+.school-whatsapp-float svg{display:block;flex:0 0 26px;width:26px;height:26px}
+.school-whatsapp-float span{display:block;white-space:nowrap}
 .school-whatsapp-float:hover{background:#0b7440;transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.24)}
 .school-whatsapp-float:focus-visible{outline:3px solid #f4c542;outline-offset:4px}
-.school-whatsapp-float span{display:block;text-align:center}
-@media(max-width:480px){.school-whatsapp-float{right:13px;bottom:13px;width:42px;height:42px;min-height:42px;font-size:18px}}
+@media(max-width:480px){.school-whatsapp-float{right:13px;bottom:13px;min-height:48px;padding:0 14px;gap:7px;font-size:14px}.school-whatsapp-float svg{width:24px;height:24px;flex-basis:24px}}
 @media(prefers-reduced-motion:reduce){.school-whatsapp-float{transition:none}}
