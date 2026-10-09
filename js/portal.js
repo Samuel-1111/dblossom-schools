@@ -1,4 +1,4 @@
-import{confirmAction,promptAction}from"./portal-dialogs.js";
+import{confirmAction,promptAction}from"./portal-dialogs.js?v=styled-dialogs-1";
 const esc=value=>String(value??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 let supabaseModulePromise;
 const supabaseModule=()=>supabaseModulePromise||(supabaseModulePromise=import("./supabase.js"));
