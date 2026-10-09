@@ -1,4 +1,5 @@
 import{getSession,esc,getSupabase}from"./supabase.js";
+import{enableBrowserNotifications}from"./browser-notifications.js?v=portal-notifications-2";
 const TERMS=["First Term","Second Term","Third Term"];
 const api=async(path,options={})=>{const s=await getSession();if(!s)throw Error("Your session has expired.");const r=await fetch(path,{...options,headers:{Authorization:"Bearer "+s.access_token,"content-type":"application/json",...(options.headers||{})}});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Request failed.");return d};
 const toast=(m,t="info")=>{const e=document.createElement("div");e.className="toast";e.dataset.type=t;e.textContent=m;document.body.append(e);setTimeout(()=>e.remove(),3000)};
@@ -17,6 +18,25 @@ export async function renderTeacherPortal(dashboardView,shell){
   dashboardView.innerHTML=shell(t.full_name||"Teacher",(t.role||"Teacher")+" | "+(t.assigned_class||"No class assigned"),'<div class="dashboard-shell"><div class="stats"><article class="stat"><small>Assigned Class</small><strong>'+esc(t.assigned_class)+'</strong></article><article class="stat"><small>Students</small><strong>'+students.length+'</strong></article><article class="stat"><small>Results</small><strong>'+((p.results||[]).length)+'</strong></article></div><div class="admin-layout"><aside class="admin-sidebar">'+tabs.map((x,i)=>'<button class="teacher-tab admin-tab '+(i?"":"active")+'" data-tab="'+x[0]+'"><span>'+x[2]+"</span>"+x[1]+"</button>").join("")+'</aside><div class="admin-content" id="teacher-panel"></div></div></div>');
  }
  const panel=document.querySelector("#teacher-panel");
+ const headerActions=document.querySelector(".portal-dashboard-header .portal-head-row");
+ if(headerActions&&!document.querySelector("#enable-teacher-browser-notifications")){
+  const notificationButton=document.createElement("button");
+  notificationButton.type="button";
+  notificationButton.id="enable-teacher-browser-notifications";
+  notificationButton.className="btn btn-outline-light portal-notification-button";
+  notificationButton.textContent="🔔 Enable notifications";
+  notificationButton.title="Enable alerts when parents send you messages";
+  const logoutButton=headerActions.querySelector("#logout");
+  headerActions.insertBefore(notificationButton,logoutButton||null);
+  notificationButton.addEventListener("click",async()=>{
+   const original=notificationButton.textContent;
+   notificationButton.disabled=true;
+   notificationButton.textContent="Enabling…";
+   try{await enableBrowserNotifications("teacher",getSession);notificationButton.textContent="✓ Notifications enabled";toast("Browser notifications are enabled on this device.","success")}
+   catch(e){notificationButton.textContent=original;toast(e.message||"Could not enable browser notifications.","error")}
+   finally{notificationButton.disabled=false}
+  });
+ }
  const buttons=document.querySelectorAll(".teacher-tab");
  const open=async tab=>{buttons.forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));try{await renderTab(tab,panel,t,p)}catch(e){panel.innerHTML='<div class="notice danger">'+esc(e.message)+"</div>"}};
  buttons.forEach(b=>b.onclick=()=>open(b.dataset.tab));await open("dashboard");
