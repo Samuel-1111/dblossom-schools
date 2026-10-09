@@ -54,18 +54,23 @@ module.exports=async function(req,res){
       const email=identifier.toLowerCase();
       const phone=normPhone(identifier);
       let data=null,error=null;
-      ({data,error}=await sb.from("parent_profiles").select("parent_id").ilike("email",email).maybeSingle());
+      ({data,error}=await sb.from("parent_profiles")
+        .select("id,profile_id,status")
+        .ilike("email",email)
+        .maybeSingle());
       if(error) throw error;
       if(!data){
-        const r=await sb.from("parent_profiles").select("parent_id,phone").not("phone","is",null);
+        const r=await sb.from("parent_profiles")
+          .select("id,profile_id,status,phone")
+          .not("phone","is",null);
         if(r.error) throw r.error;
         data=(r.data||[]).find(x=>normPhone(x.phone)===phone)||null;
       }
-      if(!data||!data.parent_id){
+      if(!data||!data.profile_id||String(data.status||"active").toLowerCase()!=="active"){
         limiter.fail(ip);
-        return send(res,401,{error:"Parent account not found. Ask the school to activate your portal account."});
+        return send(res,401,{error:"Parent account not found or inactive. Ask the school to check your portal account."});
       }
-      profileId=data.parent_id;
+      profileId=data.profile_id;
     }
 
     const {data:userData,error:userError}=await sb.auth.admin.getUserById(profileId);
