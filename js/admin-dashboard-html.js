@@ -136,17 +136,26 @@
     }
   }
 
-  async function loadTableSection(section) {
+  async function loadTableSection(section, page = 1) {
     const config = tableViews[section.table];
-    main.innerHTML = card(config.title, '<p>Loading records…</p>');
-    const data = await request("/api/admin-operations?table=" + encodeURIComponent(section.table) + "&page=1&pageSize=100");
+    const pageSize = 100;
+    main.innerHTML = card(config.title, '<p>Loading records from Supabase…</p>');
+    const data = await request("/api/admin-operations?table=" + encodeURIComponent(section.table) + "&page=" + page + "&pageSize=" + pageSize);
     const rows = Array.isArray(data.data) ? data.data : [];
-    main.innerHTML = '<section class="portal-empty-card"><div class="portal-section-heading"><div><p class="section-label">School records</p><h2>' +
-      esc(config.title) + '</h2><p class="portal-muted">' + esc(rows.length) + ' record(s) loaded' +
-      (data.count != null && Number(data.count) > rows.length ? ' · ' + esc(data.count) + ' total records' : '') +
-      '</p></div><button class="btn navy-btn" type="button" id="refresh-section">Refresh</button></div>' +
-      table(config.columns, rows.map(config.rows)) + '</section>';
-    document.getElementById("refresh-section").addEventListener("click", () => openSection(section.id));
+    const total = Number(data.count == null ? rows.length : data.count);
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const rangeStart = total ? ((page - 1) * pageSize) + 1 : 0;
+    const rangeEnd = Math.min(page * pageSize, total);
+    const pager = totalPages > 1
+      ? '<div class="portal-table-pager"><span class="portal-muted">Showing ' + rangeStart + '–' + rangeEnd + ' of ' + total + ' records · Page ' + page + ' of ' + totalPages + '</span><div><button class="btn btn-outline" type="button" id="previous-page" ' + (page <= 1 ? 'disabled' : '') + '>Previous</button> <button class="btn btn-outline" type="button" id="next-page" ' + (page >= totalPages ? 'disabled' : '') + '>Next</button></div></div>'
+      : '<p class="portal-muted">' + total + ' record(s) loaded from Supabase.</p>';
+    main.innerHTML = '<section class="portal-empty-card"><div class="portal-section-heading"><div><p class="section-label">Live school records</p><h2>' +
+      esc(config.title) + '</h2><p class="portal-muted">' + esc(rows.length) + ' record(s) on this page · ' + esc(total) + ' total</p>' +
+      '</div><button class="btn navy-btn" type="button" id="refresh-section">Refresh</button></div>' +
+      table(config.columns, rows.map(config.rows)) + pager + '</section>';
+    document.getElementById("refresh-section").addEventListener("click", () => loadTableSection(section, page));
+    document.getElementById("previous-page")?.addEventListener("click", () => loadTableSection(section, page - 1));
+    document.getElementById("next-page")?.addEventListener("click", () => loadTableSection(section, page + 1));
   }
 
   async function loadAdvanced() {
