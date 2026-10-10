@@ -273,3 +273,7 @@
  .admin-chat-compose{grid-template-columns:minmax(0,1fr)}
  .admin-chat-compose button{width:100%}
 }
+
+@media(max-width:680px){
+ .admin-chat-preview .open-admin-conversation{grid-column:1/-1;width:100%;min-height:44px}
+}
