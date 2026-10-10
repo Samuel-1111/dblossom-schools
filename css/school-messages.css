@@ -16,3 +16,52 @@ body.school-messages-page{margin:0;background:var(--sm-bg);color:#172033;font-fa
 .sm-live-toast.is-visible{opacity:1;transform:translateY(0)}
 .sm-refresh:disabled{opacity:.75;cursor:wait}
 @media(prefers-reduced-motion:reduce){.sm-live-toast{transition:none}}
+
+/* WhatsApp-style continuous chat polish */
+.sm-message-list{background-color:#f7f8fa;background-image:radial-gradient(rgba(23,55,94,.045) .7px,transparent .7px);background-size:14px 14px}
+.sm-message{box-shadow:0 1px 1px rgba(15,23,42,.06);border-radius:16px 16px 16px 5px}
+.sm-message.is-mine{border-radius:16px 16px 5px 16px;background:#d9fdd3;border-color:#c5edbe}
+.sm-message-meta{align-items:center}
+.sm-message-body{word-break:break-word}
+.sm-compose textarea{min-height:52px;max-height:150px;resize:vertical}
+.sm-thread{display:flex;flex-direction:column}
+.sm-message-list{flex:1}
+.sm-controls select,.sm-refresh,.sm-compose-foot button{touch-action:manipulation}
+@media(max-width:700px){
+ body.school-messages-page{min-height:100dvh;overflow-x:hidden}
+ .sm-header{position:sticky;top:0;padding-top:max(8px,env(safe-area-inset-top));}
+ .sm-layout{width:100%;margin:0 auto 0;padding-bottom:env(safe-area-inset-bottom)}
+ .sm-intro{padding:15px 14px 10px;margin:0}
+ .sm-intro h1{font-size:1.65rem;margin:4px 0}
+ .sm-intro p{font-size:.84rem}
+ .sm-intro #sm-status{font-size:.8rem;margin-top:8px}
+ .sm-workspace{width:100%;gap:0;display:flex;flex-direction:column;align-items:stretch}
+ .sm-controls{border-radius:0;border-left:0;border-right:0;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;position:static}
+ .sm-controls label{min-width:0;gap:5px;font-size:.78rem}
+ .sm-controls select{min-width:0;min-height:44px;padding:8px;font-size:16px}
+ #sm-refresh,#sm-enable-notifications{min-height:42px;font-size:.8rem;padding:8px}
+ .sm-thread{border-radius:0;border-left:0;border-right:0;border-bottom:0;min-height:0;flex:1}
+ .sm-thread-head{padding:12px 13px;align-items:center}
+ .sm-thread-head h2{font-size:.95rem}
+ .sm-thread-head p{font-size:.76rem}
+ .sm-secure{font-size:.64rem;padding:5px 7px}
+ .sm-message-list{height:calc(100dvh - 360px);min-height:230px;max-height:none;padding:12px 10px;gap:10px}
+ .sm-message{max-width:88%;padding:10px 12px}
+ .sm-message-meta{font-size:.68rem;flex-direction:row;gap:8px}
+ .sm-message time{font-size:.66rem}
+ .sm-message-body{font-size:.9rem;line-height:1.48}
+ .sm-compose{position:sticky;bottom:0;z-index:4;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;padding:9px 10px calc(9px + env(safe-area-inset-bottom));background:#f8fafc;border-top:1px solid var(--sm-border)}
+ .sm-compose label{grid-column:1/-1;margin:0;font-size:.78rem}
+ .sm-compose textarea{grid-column:1;min-width:0;min-height:46px;max-height:130px;padding:11px;border-radius:22px;font-size:16px;resize:vertical}
+ .sm-compose-foot{grid-column:2;display:flex;align-items:stretch;justify-content:center;margin:0;gap:0}
+ .sm-compose-foot small{display:none}
+ .sm-compose-foot button{order:0;width:auto;min-width:72px;min-height:46px;padding:0 13px;border-radius:24px;font-size:.8rem}
+ .sm-error{margin:14px;border-radius:14px}
+}
+@media(max-width:380px){
+ .sm-brand small{display:none}
+ .sm-brand strong{font-size:.74rem}
+ .sm-back{font-size:.72rem}
+ .sm-controls{grid-template-columns:1fr}
+ .sm-message-list{height:calc(100dvh - 410px)}
+}
