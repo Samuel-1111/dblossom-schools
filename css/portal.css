@@ -93,3 +93,76 @@
 @keyframes dbmsDialogIn{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:480px){.dbms-dialog{padding:22px 18px;border-radius:17px}.dbms-dialog-actions{display:grid;grid-template-columns:1fr 1fr}.dbms-dialog-actions button{width:100%}}
 @media(prefers-reduced-motion:reduce){.dbms-dialog-backdrop,.dbms-dialog{animation:none}}
+
+/* Parent/teacher portal mobile ergonomics */
+.dashboard-card,.notice,.card,.stat,.admin-content{min-width:0;overflow-wrap:anywhere}
+.dashboard-card .table-wrap,.dashboard-card .table-responsive{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.teacher-chat-list,.parent-chat-row,.teacher-chat-row,.admin-chat-preview{min-width:0}
+.parent-chat-row,.teacher-chat-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--portal-border,#e2e8f0)}
+.parent-chat-row:last-child,.teacher-chat-row:last-child{border-bottom:0}
+.parent-chat-row>div,.teacher-chat-person,.admin-chat-preview-main{min-width:0;flex:1}
+.parent-chat-row .muted,.teacher-chat-person .muted,.admin-chat-last{overflow-wrap:anywhere;word-break:break-word}
+.admin-chat-list{display:grid;gap:10px}
+.admin-chat-preview{display:flex;align-items:center;gap:12px;padding:14px}
+.admin-chat-avatar{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:50%;background:#eaf1ff;color:#17375e;font-weight:850}
+.admin-chat-preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.admin-chat-preview-head small{color:var(--portal-muted,#64748b);font-size:.72rem;text-align:right}
+.admin-chat-preview-main p{margin:5px 0}
+.admin-chat-last{font-size:.9rem;line-height:1.45}
+.admin-chat-thread{display:flex;flex-direction:column;gap:10px;min-width:0}
+.admin-chat-context{color:var(--portal-muted,#64748b);font-size:.85rem;padding:0 2px}
+.admin-chat-history{display:flex;flex-direction:column;gap:10px;max-height:min(55vh,520px);overflow-y:auto;padding:12px;background:#f4f6f8;border-radius:14px;overscroll-behavior:contain}
+.admin-chat-bubble{max-width:88%;padding:10px 12px;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.07);overflow-wrap:anywhere}
+.admin-chat-bubble.incoming{align-self:flex-start;border-radius:14px 14px 14px 4px}
+.admin-chat-bubble.outgoing{align-self:flex-end;background:#d9fdd3;border-radius:14px 14px 4px 14px}
+.admin-chat-bubble small{display:block;color:#64748b;font-size:.7rem;margin-bottom:5px}
+.admin-chat-bubble p{margin:0;white-space:pre-wrap;line-height:1.5}
+.admin-chat-compose{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
+.admin-chat-compose textarea{width:100%;min-width:0;box-sizing:border-box;resize:vertical;min-height:46px;max-height:150px;border:1px solid #cbd5e1;border-radius:20px;padding:12px 14px;font:inherit;font-size:16px}
+.admin-chat-compose button{min-height:46px}
+@media(max-width:680px){
+ .dashboard-shell{width:calc(100% - 20px);max-width:100%;margin-left:auto;margin-right:auto}
+ .portal-dashboard-header{padding:16px 12px}
+ .portal-head-row{display:flex;align-items:flex-start;flex-wrap:wrap;gap:10px}
+ .portal-head-row>div{min-width:0;flex:1 1 100%}
+ .portal-head-row .btn{min-height:44px;max-width:100%;white-space:normal}
+ .portal-head-row #logout{margin-left:auto}
+ .dashboard-grid,.dashboard-grid.two-col,.dashboard-grid.three-col,.admin-card-grid,.advanced-grid,.advanced-wrap .advanced-grid{grid-template-columns:minmax(0,1fr)!important}
+ .dashboard-card{padding:14px;border-radius:14px;margin-bottom:12px}
+ .dashboard-card .section-head{align-items:flex-start;gap:10px;flex-wrap:wrap}
+ .dashboard-card .section-head>div{min-width:0;flex:1 1 100%}
+ .dashboard-card .section-head .btn{min-height:42px}
+ .form-grid{grid-template-columns:minmax(0,1fr)!important;gap:12px}
+ .form-grid>*{min-width:0;max-width:100%}
+ .form-grid input,.form-grid select,.form-grid textarea,.inline-form input,.inline-form select{box-sizing:border-box;width:100%;min-width:0;max-width:100%;font-size:16px}
+ .form-grid textarea{min-height:100px}
+ .form-actions{display:flex;flex-wrap:wrap;gap:8px}
+ .form-actions .btn,.form-grid>.btn{min-height:44px}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .stat{padding:12px;min-width:0}
+ .stat strong{font-size:clamp(18px,5vw,25px);overflow-wrap:anywhere}
+ .cards.three,.cards.two{grid-template-columns:minmax(0,1fr)!important}
+ .table-wrap,.table-responsive{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .data-table{min-width:620px}
+ .parent-chat-row,.teacher-chat-row{align-items:flex-start;flex-wrap:wrap}
+ .parent-chat-row .btn,.teacher-chat-row .btn{width:100%;min-height:44px}
+ .teacher-student-chat{padding:13px}
+ .admin-chat-preview{display:grid;grid-template-columns:38px minmax(0,1fr);gap:10px;padding:12px}
+ .admin-chat-avatar{width:38px;height:38px;flex-basis:38px}
+ .admin-chat-preview-main{grid-column:2;grid-row:1}
+ .admin-chat-preview .open-admin-chat{grid-column:1/-1;width:100%;min-height:44px}
+ .admin-chat-preview-head{flex-direction:column;gap:3px}
+ .admin-chat-preview-head small{text-align:left}
+ .admin-chat-history{max-height:52dvh;padding:9px}
+ .admin-chat-bubble{max-width:94%}
+ .admin-chat-compose{grid-template-columns:minmax(0,1fr) auto}
+ .admin-chat-compose button{padding:0 12px}
+ .modal-backdrop{align-items:flex-end;padding:0}
+ .modal-card{width:100%;max-width:none;max-height:92dvh;overflow-y:auto;border-radius:20px 20px 0 0;padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
+}
+@media(max-width:380px){
+ .stats{grid-template-columns:minmax(0,1fr)}
+ .portal-head-row #logout{margin-left:0}
+ .admin-chat-compose{grid-template-columns:minmax(0,1fr)}
+ .admin-chat-compose button{width:100%}
+}
