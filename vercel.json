@@ -5,7 +5,8 @@
   "outputDirectory": ".",
   "functions": {
     "api/[name].js": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "netlify/functions/**"
     }
   },
   "rewrites": [
